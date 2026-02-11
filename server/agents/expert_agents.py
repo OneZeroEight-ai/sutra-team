@@ -20,7 +20,7 @@ EXPERT_AGENT_CONFIGS = [
             "compliance with relevant frameworks. Speak with precision and cite relevant "
             "regulatory considerations."
         ),
-        "voice_id": "legal-analyst",
+        "voice_id": "5ee9feff-1265-424a-9d7f-8e4d431a12c7",  # Ronald — authoritative precision
     },
     {
         "name": "Financial Strategist",
@@ -35,7 +35,7 @@ EXPERT_AGENT_CONFIGS = [
             "economics. You analyze financial implications, model economic outcomes, and evaluate "
             "fiscal strategies. Speak with quantitative confidence and economic literacy."
         ),
-        "voice_id": "financial-strategist",
+        "voice_id": "c99d36f3-5ffd-4253-803a-535c1bc9c306",  # Griffin — quantitative confidence
     },
     {
         "name": "Technical Architect",
@@ -50,7 +50,7 @@ EXPERT_AGENT_CONFIGS = [
             "engineering. You evaluate system designs, assess technology choices, and recommend "
             "architectural patterns. Speak with technical precision and systems-level thinking."
         ),
-        "voice_id": "technical-architect",
+        "voice_id": "f114a467-c40a-4db8-964d-aaba89cd08fa",  # Miles — technical precision
     },
     {
         "name": "Market Analyst",
@@ -65,7 +65,7 @@ EXPERT_AGENT_CONFIGS = [
             "You analyze industry trends, assess competitive landscapes, and interpret consumer "
             "behavior. Speak with data-driven insight and market awareness."
         ),
-        "voice_id": "market-analyst",
+        "voice_id": "e07c00bc-4134-4eae-9ea4-1a55fb45746b",  # Brooke — data-driven insight
     },
     {
         "name": "Risk Assessor",
@@ -80,7 +80,7 @@ EXPERT_AGENT_CONFIGS = [
             "You identify, quantify, and prioritize risks using established frameworks and "
             "probability modeling. Speak with measured caution and analytical rigor."
         ),
-        "voice_id": "risk-assessor",
+        "voice_id": "638efaaa-4d0c-442e-b701-3fae16aad012",  # Sameer — measured caution
     },
     {
         "name": "Growth Strategist",
@@ -95,6 +95,6 @@ EXPERT_AGENT_CONFIGS = [
             "go-to-market strategy. You design growth experiments, evaluate GTM approaches, "
             "and draw from scaling case studies. Speak with entrepreneurial energy and strategic vision."
         ),
-        "voice_id": "growth-strategist",
+        "voice_id": "af346552-54bf-4c2b-a4d4-9d2820f51b6c",  # Valerie — entrepreneurial energy
     },
 ]

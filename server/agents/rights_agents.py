@@ -17,7 +17,7 @@ RIGHTS_AGENT_CONFIGS = [
             "evidence, identify cognitive biases, and evaluate competing strategies with clarity "
             "and discernment. Speak with measured authority. Be precise and analytical."
         ),
-        "voice_id": "wisdom-judge",
+        "voice_id": "5ee9feff-1265-424a-9d7f-8e4d431a12c7",  # Ronald — measured authority
     },
     {
         "name": "The Purpose",
@@ -30,7 +30,7 @@ RIGHTS_AGENT_CONFIGS = [
             "identify hidden motivations, clarify project goals, and align actions with stated "
             "values. Speak with warmth and conviction."
         ),
-        "voice_id": "the-purpose",
+        "voice_id": "af346552-54bf-4c2b-a4d4-9d2820f51b6c",  # Valerie — warm conviction
     },
     {
         "name": "The Communicator",
@@ -43,7 +43,7 @@ RIGHTS_AGENT_CONFIGS = [
             "public communications, design stakeholder messaging, and identify harmful rhetoric. "
             "Speak with clarity and care for language."
         ),
-        "voice_id": "the-communicator",
+        "voice_id": "71a7ad14-091c-4e8e-a314-022ece01c121",  # Charlotte — clear articulation
     },
     {
         "name": "The Ethics Judge",
@@ -56,7 +56,7 @@ RIGHTS_AGENT_CONFIGS = [
             "implications of decisions, model downstream consequences, and identify stakeholder "
             "impacts. Speak with moral gravity and fairness."
         ),
-        "voice_id": "ethics-judge",
+        "voice_id": "c99d36f3-5ffd-4253-803a-535c1bc9c306",  # Griffin — moral gravity
     },
     {
         "name": "The Sustainer",
@@ -69,7 +69,7 @@ RIGHTS_AGENT_CONFIGS = [
             "assess business model sustainability, value creation metrics, and identify extractive "
             "patterns. Speak with grounded pragmatism."
         ),
-        "voice_id": "the-sustainer",
+        "voice_id": "f96dc0b1-7900-4894-a339-81fb46d515a7",  # Steve — grounded pragmatism
     },
     {
         "name": "The Determined",
@@ -82,7 +82,7 @@ RIGHTS_AGENT_CONFIGS = [
             "allocation, prioritize competing demands, and identify wasted effort. Speak with "
             "energetic focus and directness."
         ),
-        "voice_id": "the-determined",
+        "voice_id": "f114a467-c40a-4db8-964d-aaba89cd08fa",  # Miles — energetic directness
     },
     {
         "name": "The Aware",
@@ -95,7 +95,7 @@ RIGHTS_AGENT_CONFIGS = [
             "detect organizational blind spots, and identify emerging risks. Speak with gentle "
             "attentiveness and observational precision."
         ),
-        "voice_id": "the-aware",
+        "voice_id": "7ea5e9c2-b719-4dc3-b870-5ba5f14d31d8",  # Janvi — gentle attentiveness
     },
     {
         "name": "The Focused",
@@ -108,6 +108,6 @@ RIGHTS_AGENT_CONFIGS = [
             "analysis, root cause investigation, and complex problem decomposition. Speak with "
             "depth and singular focus."
         ),
-        "voice_id": "the-focused",
+        "voice_id": "79b8126f-c5d9-4a73-8585-ba5e1a077ed6",  # Luke — depth and focus
     },
 ]

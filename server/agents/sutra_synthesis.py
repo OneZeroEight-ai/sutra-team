@@ -33,7 +33,7 @@ SUTRA_SYNTHESIS_CONFIG = {
         "- OneZeroEight.ai technical platform (differentiation, measurability)\n\n"
         "Speak with synthesizing clarity. Be the council's unified voice, not another opinion."
     ),
-    "voice_id": "sutra-synthesis",
+    "voice_id": "71a7ad14-091c-4e8e-a314-022ece01c121",  # Charlotte — synthesizing clarity
 }
 
 
