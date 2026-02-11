@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ConnectModeSelector } from "@/components/connect/ConnectModeSelector";
 import { Card } from "@/components/ui/Card";
 import type { CouncilMode, ConnectMode } from "@/lib/types";
-import { generateRoomName } from "@/lib/livekit";
 
 const COUNCIL_OPTIONS: { mode: CouncilMode; label: string; desc: string }[] = [
   {
@@ -26,20 +24,13 @@ const COUNCIL_OPTIONS: { mode: CouncilMode; label: string; desc: string }[] = [
 ];
 
 export default function ConnectPage() {
-  const router = useRouter();
   const [councilMode, setCouncilMode] = useState<CouncilMode>("rights");
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [selectedMode, setSelectedMode] = useState<ConnectMode | null>(null);
 
   function handleModeSelect(connectMode: ConnectMode) {
-    if (connectMode === "phone") {
-      router.push("/connect/phone");
-      return;
-    }
-    const roomName = generateRoomName(councilMode);
-    const params = new URLSearchParams({
-      mode: connectMode,
-      council: councilMode,
-    });
-    router.push(`/connect/room/${roomName}?${params.toString()}`);
+    setSelectedMode(connectMode);
+    setShowComingSoon(true);
   }
 
   return (
@@ -116,6 +107,54 @@ export default function ConnectPage() {
           </Card>
         </div>
       </section>
+
+      {/* Coming Soon overlay */}
+      {showComingSoon && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl border border-sutra-border bg-sutra-surface p-8 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sutra-accent/10">
+              <span className="text-xl">
+                {selectedMode === "video"
+                  ? "🎥"
+                  : selectedMode === "voice"
+                    ? "🎙️"
+                    : "📞"}
+              </span>
+            </div>
+            <h3 className="text-lg font-semibold text-sutra-text">
+              {selectedMode === "video"
+                ? "Video Sessions"
+                : selectedMode === "voice"
+                  ? "Voice Sessions"
+                  : "Phone Portal"}{" "}
+              — Coming Soon
+            </h3>
+            <p className="mt-2 text-sm text-sutra-muted">
+              Live {selectedMode} sessions with your{" "}
+              {councilMode === "rights"
+                ? "Council of Rights"
+                : councilMode === "experts"
+                  ? "Council of Experts"
+                  : "Combined Council"}{" "}
+              are launching with Phase 2. Join the waitlist to be first in.
+            </p>
+            <div className="mt-6 flex gap-3 justify-center">
+              <button
+                onClick={() => setShowComingSoon(false)}
+                className="cursor-pointer rounded-lg border border-sutra-border bg-sutra-bg px-4 py-2 text-sm text-sutra-text transition-colors hover:bg-sutra-surface"
+              >
+                Go Back
+              </button>
+              <a
+                href="mailto:jb@onezeroeight.ai?subject=Sutra.team%20Connect%20Waitlist"
+                className="rounded-lg bg-sutra-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sutra-accent/80"
+              >
+                Join Waitlist
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
