@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+:root {
+  --sutra-bg: #0a0a0f;
+  --sutra-surface: #12121a;
+  --sutra-border: #1e1e2e;
+  --sutra-text: #e4e4e7;
+  --sutra-muted: #71717a;
+  --sutra-accent: #a78bfa;
+  --sutra-gold: #f59e0b;
+  --sutra-lotus: #ec4899;
+}
+
+@theme inline {
+  --color-background: var(--sutra-bg);
+  --color-foreground: var(--sutra-text);
+  --color-sutra-bg: var(--sutra-bg);
+  --color-sutra-surface: var(--sutra-surface);
+  --color-sutra-border: var(--sutra-border);
+  --color-sutra-text: var(--sutra-text);
+  --color-sutra-muted: var(--sutra-muted);
+  --color-sutra-accent: var(--sutra-accent);
+  --color-sutra-gold: var(--sutra-gold);
+  --color-sutra-lotus: var(--sutra-lotus);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--sutra-bg);
+  color: var(--sutra-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background-color: rgba(167, 139, 250, 0.3);
+  color: #e4e4e7;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sutra-border) transparent;
+}
