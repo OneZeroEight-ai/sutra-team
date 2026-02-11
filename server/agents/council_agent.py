@@ -16,6 +16,8 @@ from dotenv import load_dotenv
 from livekit.agents import Agent, AgentSession, AgentServer, JobContext
 from livekit.plugins import silero, deepgram, cartesia
 
+from livekit.plugins import anthropic as anthropic_plugin
+
 from prompts.rights import RIGHTS_AGENTS
 from prompts.experts import EXPERT_AGENTS
 from prompts.sutra import SUTRA_SYNTHESIS_PROMPT
@@ -99,7 +101,7 @@ async def entrypoint(ctx: JobContext):
     session = AgentSession(
         vad=silero.VAD.load(),
         stt=deepgram.STT(model="nova-3", language="multi"),
-        llm="anthropic/claude-sonnet-4-20250514",
+        llm=anthropic_plugin.LLM(model="claude-sonnet-4-20250514"),
         tts=cartesia.TTS(model="sonic-3", voice=voice_id),
     )
 

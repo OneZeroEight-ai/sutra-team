@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sutra.team — The Professional Is Already in the Room</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0A0A0F;
+    --bg-surface: #12121A;
+    --bg-elevated: #1A1A24;
+    --bg-card: #15151F;
+    --accent-gold: #C9A84C;
+    --accent-gold-dim: #8A7234;
+    --accent-gold-glow: rgba(201, 168, 76, 0.12);
+    --accent-violet: #a78bfa;
+    --accent-teal: #2EC4B6;
+    --text-primary: #E8E6E1;
+    --text-secondary: #9895A0;
+    --text-muted: #6B6878;
+    --border: #1E1E2E;
+    --border-subtle: #16161F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ═══════════════════════════════════════════
+     SECTION: HUMAN EXPERT INTEGRATION
+     Position: After "Combined Council" section,
+     before "Differentiation" section
+     ═══════════════════════════════════════════ */
+
+  .expert-section {
+    position: relative;
+    padding: 120px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .expert-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--accent-gold-dim), transparent);
+  }
+
+  /* ── Tagline ── */
+  .expert-tagline {
+    text-align: center;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    opacity: 0.8;
+  }
+
+  /* ── Headline ── */
+  .expert-headline {
+    text-align: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+
+  .expert-headline em {
+    font-style: italic;
+    color: var(--accent-gold);
+  }
+
+  /* ── Subhead ── */
+  .expert-subhead {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 64px;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* ── The Comparison ── */
+  .comparison-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+    margin-bottom: 80px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .comparison-card {
+    padding: 40px 36px;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  .comparison-card.before {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+  }
+
+  .comparison-card.after {
+    background: linear-gradient(135deg, rgba(201, 168, 76, 0.06), rgba(167, 139, 250, 0.04));
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    box-shadow: 0 0 60px rgba(201, 168, 76, 0.05);
+  }
+
+  .comparison-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .comparison-card.before .comparison-label { color: var(--text-muted); }
+  .comparison-card.after .comparison-label { color: var(--accent-gold); }
+
+  .comparison-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .comparison-card.before .comparison-title { color: var(--text-secondary); }
+  .comparison-card.after .comparison-title { color: var(--text-primary); }
+
+  .comparison-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  .comparison-card.after .comparison-text { color: var(--text-secondary); }
+
+  .comparison-quote {
+    margin-top: 24px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .comparison-card.before .comparison-quote {
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--text-muted);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .comparison-card.after .comparison-quote {
+    background: rgba(201, 168, 76, 0.06);
+    border-left: 2px solid var(--accent-gold);
+    color: var(--accent-gold);
+    font-weight: 500;
+  }
+
+  .comparison-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+  }
+
+  .comparison-divider span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  /* ── How It Works (3-step) ── */
+  .expert-flow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 80px;
+  }
+
+  .flow-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 28px;
+    position: relative;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .flow-step:hover {
+    border-color: rgba(201, 168, 76, 0.25);
+    box-shadow: 0 0 40px rgba(201, 168, 76, 0.04);
+  }
+
+  .flow-step-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent-gold-dim);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .flow-step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+
+  .flow-step-desc {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+
+  /* ── Aspirational Network Banner ── */
+  .network-banner {
+    text-align: center;
+    padding: 48px 32px;
+    background: linear-gradient(180deg, var(--bg-surface), transparent);
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 48px;
+  }
+
+  .network-banner-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .network-categories {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 20px;
+    margin-bottom: 28px;
+  }
+
+  .network-pill {
+    padding: 10px 22px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.015);
+    transition: all 0.3s;
+  }
+
+  .network-pill:hover {
+    border-color: rgba(201, 168, 76, 0.3);
+    color: var(--text-primary);
+    background: rgba(201, 168, 76, 0.04);
+  }
+
+  .network-subtext {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  .network-subtext a {
+    color: var(--accent-gold-dim);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .network-subtext a:hover {
+    border-bottom-color: var(--accent-gold-dim);
+  }
+
+  /* ── CTA ── */
+  .expert-cta {
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .expert-cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    background: transparent;
+    border: 1px solid var(--accent-gold-dim);
+    border-radius: 8px;
+    color: var(--accent-gold);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .expert-cta-button:hover {
+    background: rgba(201, 168, 76, 0.08);
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 30px rgba(201, 168, 76, 0.1);
+  }
+
+  .expert-cta-button svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s;
+  }
+
+  .expert-cta-button:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .comparison-container {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .comparison-divider {
+      padding: 8px 0;
+    }
+    .comparison-divider span {
+      writing-mode: horizontal-tb;
+    }
+    .expert-flow {
+      grid-template-columns: 1fr;
+    }
+    .expert-section {
+      padding: 80px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HUMAN EXPERT INTEGRATION SECTION
+     Insert after "Combined Council" and before "Differentiation"
+     ═══════════════════════════════════════════════════ -->
+
+<section class="expert-section" id="human-experts">
+
+  <div class="expert-tagline">Human Expert Integration</div>
+
+  <h2 class="expert-headline">
+    The professional is <em>already</em> in the room.
+  </h2>
+
+  <p class="expert-subhead">
+    Every other AI tells you to consult a lawyer. A financial advisor. A specialist.
+    Sutra.team brings them into the deliberation — so the output isn't a disclaimer,
+    it's a decision.
+  </p>
+
+  <!-- ── Before / After Comparison ── -->
+  <div class="comparison-container">
+
+    <div class="comparison-card before">
+      <div class="comparison-label">Every other AI</div>
+      <div class="comparison-title">
+        "You should consult a professional."
+      </div>
+      <p class="comparison-text">
+        You get analysis, caveats, and a dead end. The AI can reason about your question
+        but can't take responsibility for the answer — so it punts to someone else.
+      </p>
+      <div class="comparison-quote">
+        ⚠️ This is not legal, financial, or medical advice. Please consult a qualified professional.
+      </div>
+    </div>
+
+    <div class="comparison-divider">
+      <span>vs</span>
+    </div>
+
+    <div class="comparison-card after">
+      <div class="comparison-label">Sutra.team</div>
+      <div class="comparison-title">
+        "We already did."
+      </div>
+      <p class="comparison-text">
+        Human professionals join the council alongside AI agents. The synthesis credits
+        both AI analysis and expert validation. You get a real answer backed by a real professional.
+      </p>
+      <div class="comparison-quote">
+        ✓ Reviewed by licensed counsel via Sutra Expert Network
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── How It Works ── -->
+  <div class="expert-flow">
+
+    <div class="flow-step">
+      <span class="flow-step-number">01</span>
+      <h3 class="flow-step-title">AI agents deliberate first</h3>
+      <p class="flow-step-desc">
+        Your council's Legal Analyst, Financial Strategist, and other AI agents
+        perform deep analysis — research, modeling, risk assessment — in parallel.
+      </p>
+    </div>
+
+    <div class="flow-step">
+      <span class="flow-step-number">02</span>
+      <h3 class="flow-step-title">Human expert reviews &amp; validates</h3>
+      <p class="flow-step-desc">
+        A licensed professional joins the session — via the same video, voice, or
+        text interface — to review the AI analysis, correct it, or add what the
+        models missed.
+      </p>
+    </div>
+
+    <div class="flow-step">
+      <span class="flow-step-number">03</span>
+      <h3 class="flow-step-title">Sutra synthesizes both</h3>
+      <p class="flow-step-desc">
+        The synthesis output credits AI reasoning and human expertise by name.
+        No disclaimers. No "consult someone else." The professional was already here.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── Aspirational Expert Network ── -->
+  <div class="network-banner">
+    <div class="network-banner-label">Building the Sutra Expert Network</div>
+
+    <div class="network-categories">
+      <span class="network-pill">Big Four Advisory</span>
+      <span class="network-pill">AmLaw 100 Firms</span>
+      <span class="network-pill">Registered Investment Advisors</span>
+      <span class="network-pill">Fortune 500 Strategy</span>
+      <span class="network-pill">Licensed CPAs</span>
+      <span class="network-pill">Boutique Consultancies</span>
+      <span class="network-pill">Domain Specialists</span>
+    </div>
+
+    <p class="network-subtext">
+      Expanding our professional network across legal, financial, and strategic advisory.
+      <a href="/about#expert-network">Learn about joining →</a>
+    </p>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="expert-cta">
+    <a href="/connect" class="expert-cta-button">
+      Start a Session
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+      </svg>
+    </a>
+  </div>
+
+</section>
+
+</body>
+</html>

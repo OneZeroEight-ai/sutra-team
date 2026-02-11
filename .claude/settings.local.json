@@ -30,7 +30,8 @@
       "WebFetch(domain:www.sutra.team)",
       "Bash(curl:*)",
       "Bash(vercel domains:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(npx next build:*)"
     ]
   }
 }

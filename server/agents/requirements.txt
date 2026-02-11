@@ -5,3 +5,4 @@ livekit-plugins-cartesia~=1.0
 livekit-plugins-turn-detector~=1.0
 anthropic>=0.40
 python-dotenv>=1.0
+livekit-plugins-anthropic~=1.0

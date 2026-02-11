@@ -5,6 +5,7 @@ import { RightsGrid } from "@/components/council/RightsGrid";
 import { ExpertsGrid } from "@/components/council/ExpertsGrid";
 import { SynthesisFlow } from "@/components/council/SynthesisFlow";
 import { DiffScore } from "@/components/differentiation/DiffScore";
+import { HumanExpertSection } from "@/components/landing/HumanExpertSection";
 import {
   ArrowRight,
   Zap,
@@ -231,6 +232,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Human Expert Integration */}
+      <HumanExpertSection />
 
       {/* Differentiation */}
       <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
