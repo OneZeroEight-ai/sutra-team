@@ -1,102 +1,140 @@
 """
-Council Agent — Main entrypoint for the LiveKit agent server.
+Sutra.team Council Agent Server
 
-Spawns council agents into LiveKit rooms based on the council_mode
-set in room metadata. Each agent runs the pipeline:
-    User Audio → Deepgram STT → Anthropic Claude LLM → Cartesia TTS → Audio
+Registers with LiveKit Cloud and dispatches council agents
+based on room metadata (council_mode: rights | experts | combined).
 
 Usage:
-    python council_agent.py dev
+    python council_agent.py dev      # Development mode
+    python council_agent.py start    # Production mode
 """
 
-import os
+import json
 import logging
-
 from dotenv import load_dotenv
-from livekit.agents import (
-    Agent,
-    AgentSession,
-    JobContext,
-    JobProcess,
-    WorkerOptions,
-    cli,
-)
+
+from livekit.agents import Agent, AgentSession, AgentServer, JobContext
 from livekit.plugins import silero, deepgram, cartesia
 
-from rights_agents import RIGHTS_AGENT_CONFIGS
-from expert_agents import EXPERT_AGENT_CONFIGS
-from sutra_synthesis import SUTRA_SYNTHESIS_CONFIG
+from prompts.rights import RIGHTS_AGENTS
+from prompts.experts import EXPERT_AGENTS
+from prompts.sutra import SUTRA_SYNTHESIS_PROMPT
 
 load_dotenv()
-logger = logging.getLogger("council-agent")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("sutra-council")
 
 
-class CouncilAgent(Agent):
-    """A single council agent that joins a LiveKit room as a participant."""
+def get_council_config(room_metadata: str) -> dict:
+    """Parse room metadata to determine council configuration."""
+    try:
+        meta = json.loads(room_metadata) if room_metadata else {}
+    except json.JSONDecodeError:
+        meta = {}
 
-    def __init__(self, agent_config: dict):
-        super().__init__(
-            instructions=agent_config["system_prompt"],
-        )
-        self.agent_name = agent_config["name"]
-        self.agent_config = agent_config
+    council_mode = meta.get("councilMode", "rights")
+    return {
+        "mode": council_mode,
+        "metadata": meta,
+    }
 
 
-def get_agents_for_mode(council_mode: str) -> list[dict]:
-    """Return agent configs based on the council mode."""
-    if council_mode == "rights":
-        return RIGHTS_AGENT_CONFIGS
-    elif council_mode == "experts":
-        return EXPERT_AGENT_CONFIGS
-    elif council_mode == "combined":
-        return RIGHTS_AGENT_CONFIGS + EXPERT_AGENT_CONFIGS
+def select_agent(council_config: dict) -> tuple[dict, str]:
+    """Select which agent to run based on council config.
+
+    For MVP, we run a single agent per room (Sutra as the primary voice).
+    Multi-agent deliberation (spawning all 8/6/14 agents) is Phase 2.
+
+    Returns:
+        Tuple of (agent_config dict, cartesia voice_id)
+    """
+    mode = council_config["mode"]
+
+    # MVP: Run a representative agent based on council mode.
+    # Full multi-agent deliberation (parallel agents in one room) comes in Phase 2.
+
+    if mode == "rights":
+        # Use The Communicator as the default Rights voice
+        agent_config = RIGHTS_AGENTS["communicator"]
+    elif mode == "experts":
+        # Use Financial Strategist as the default Experts voice
+        agent_config = EXPERT_AGENTS["financial_strategist"]
     else:
-        logger.warning(f"Unknown council mode: {council_mode}, defaulting to rights")
-        return RIGHTS_AGENT_CONFIGS
+        # Combined mode or default: use Sutra synthesis
+        agent_config = {
+            "name": "Sutra",
+            "system_prompt": SUTRA_SYNTHESIS_PROMPT,
+            "voice_id": "71a7ad14-091c-4e8e-a314-022ece01c121",  # Charlotte — synthesizing clarity
+        }
+
+    return agent_config, agent_config["voice_id"]
 
 
-def prewarm(proc: JobProcess):
-    """Preload models for faster agent startup."""
-    proc.userdata["vad"] = silero.VAD.load()
+# --- Agent Server ---
+
+server = AgentServer()
 
 
+@server.rtc_session()
 async def entrypoint(ctx: JobContext):
-    """
-    Main agent entrypoint — called when a user joins a room.
+    """Called when a new room needs an agent."""
+    logger.info(f"Agent dispatched to room: {ctx.room.name}")
 
-    Reads council_mode from room metadata, spawns the appropriate agents,
-    and sets up the STT → LLM → TTS pipeline.
-    """
-    await ctx.connect()
+    # Parse room metadata for council configuration
+    council_config = get_council_config(ctx.room.metadata or "")
+    agent_config, voice_id = select_agent(council_config)
 
-    # Read council mode from room metadata (set by the token route)
-    council_mode = ctx.room.metadata or "rights"
-    logger.info(f"Room {ctx.room.name}: council_mode={council_mode}")
-
-    agent_configs = get_agents_for_mode(council_mode)
-
-    # For the initial implementation, spawn a single agent that represents
-    # the first available council member. Full multi-agent dispatch will
-    # use LiveKit's multi-agent rooms in a future phase.
-    primary_config = agent_configs[0] if agent_configs else SUTRA_SYNTHESIS_CONFIG
-
-    agent = CouncilAgent(agent_config=primary_config)
-
-    session = AgentSession(
-        vad=ctx.proc.userdata["vad"],
-        stt=deepgram.STT(model="nova-3"),
-        tts=cartesia.TTS(),
+    logger.info(
+        f"Council mode: {council_config['mode']}, "
+        f"Agent: {agent_config['name']}"
     )
 
-    await session.start(agent=agent, room=ctx.room)
+    # Create the agent
+    council_agent = Agent(
+        instructions=agent_config["system_prompt"],
+    )
 
-    logger.info(f"Agent '{primary_config['name']}' active in room {ctx.room.name}")
+    # Create session with the voice pipeline
+    session = AgentSession(
+        vad=silero.VAD.load(),
+        stt=deepgram.STT(model="nova-3", language="multi"),
+        llm="anthropic/claude-sonnet-4-20250514",
+        tts=cartesia.TTS(model="sonic-3", voice=voice_id),
+    )
+
+    # Start the session
+    await session.start(
+        agent=council_agent,
+        room=ctx.room,
+    )
+
+    # Greet the user
+    greeting = _get_greeting(agent_config, council_config["mode"])
+    await session.generate_reply(instructions=greeting)
+
+
+def _get_greeting(agent_config: dict, mode: str) -> str:
+    """Generate a context-appropriate greeting."""
+    name = agent_config["name"]
+
+    if mode == "rights":
+        return (
+            f"Greet the user briefly. You are {name} from the Council of Rights. "
+            f"Let them know you're here to offer your perspective and ask what they'd like to explore."
+        )
+    elif mode == "experts":
+        return (
+            f"Greet the user briefly. You are {name} from the Council of Experts. "
+            f"Let them know your area of expertise and ask how you can help."
+        )
+    else:
+        return (
+            "Greet the user briefly. You are Sutra, the synthesis voice of the council. "
+            "Let them know you're here to help them think through their question from multiple angles."
+        )
 
 
 if __name__ == "__main__":
-    cli.run_app(
-        WorkerOptions(
-            entrypoint_fnc=entrypoint,
-            prewarm_fnc=prewarm,
-        )
-    )
+    from livekit.agents import cli
+    cli.run_app(server)

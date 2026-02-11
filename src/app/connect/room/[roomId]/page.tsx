@@ -1,7 +1,19 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useEffect, useState, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  LiveKitRoom,
+  VideoConference,
+  AudioConference,
+  RoomAudioRenderer,
+  ControlBar,
+  GridLayout,
+  ParticipantTile,
+  useTracks,
+} from "@livekit/components-react";
+import "@livekit/components-styles";
+import { Track } from "livekit-client";
 
 interface RoomPageProps {
   params: Promise<{ roomId: string }>;
@@ -9,10 +21,14 @@ interface RoomPageProps {
 
 export default function RoomPage({ params }: RoomPageProps) {
   const { roomId } = use(params);
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const isVoice = roomId.startsWith("voice-");
+  const councilMode = searchParams.get("council") ?? "rights";
 
   useEffect(() => {
     async function getToken() {
@@ -23,6 +39,7 @@ export default function RoomPage({ params }: RoomPageProps) {
           body: JSON.stringify({
             roomName: roomId,
             participantName: `user-${Date.now()}`,
+            metadata: JSON.stringify({ councilMode }),
           }),
         });
 
@@ -40,7 +57,11 @@ export default function RoomPage({ params }: RoomPageProps) {
     }
 
     getToken();
-  }, [roomId]);
+  }, [roomId, councilMode]);
+
+  const handleDisconnected = useCallback(() => {
+    router.push("/connect");
+  }, [router]);
 
   if (loading) {
     return (
@@ -53,14 +74,14 @@ export default function RoomPage({ params }: RoomPageProps) {
     );
   }
 
-  if (error) {
+  if (error || !token) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center max-w-md">
-          <p className="text-red-400 mb-4">{error}</p>
+          <p className="text-red-400 mb-4">{error ?? "No token received"}</p>
           <button
             onClick={() => router.push("/connect")}
-            className="px-6 py-2 border border-[#1e1e2e] rounded-lg text-[#e4e4e7] hover:border-[#a78bfa] transition-colors"
+            className="px-6 py-2 border border-[#1e1e2e] rounded-lg text-[#e4e4e7] hover:border-[#a78bfa] transition-colors cursor-pointer"
           >
             Back to Connect
           </button>
@@ -69,22 +90,29 @@ export default function RoomPage({ params }: RoomPageProps) {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-      <div className="text-center max-w-lg">
-        <h1 className="text-2xl font-bold text-[#e4e4e7] mb-2">
-          Room: {roomId}
-        </h1>
-        <p className="text-[#71717a] mb-6">
-          Token acquired. LiveKit room component will mount here once
-          @livekit/components-react is installed and configured.
-        </p>
-        <div className="p-4 bg-[#12121a] rounded-lg border border-[#1e1e2e]">
-          <p className="text-xs text-[#71717a] font-mono break-all">
-            Token: {token?.slice(0, 40)}...
-          </p>
-        </div>
+  const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
+
+  if (!livekitUrl) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <p className="text-red-400">LiveKit URL not configured</p>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f]" data-lk-theme="default">
+      <LiveKitRoom
+        serverUrl={livekitUrl}
+        token={token}
+        connect={true}
+        video={!isVoice}
+        audio={true}
+        onDisconnected={handleDisconnected}
+        style={{ height: "100vh" }}
+      >
+        {isVoice ? <AudioConference /> : <VideoConference />}
+      </LiveKitRoom>
     </div>
   );
 }

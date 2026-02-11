@@ -36,7 +36,7 @@ export default function ConnectPage() {
       return;
     }
     const roomId = `${connectMode}-${Date.now()}`;
-    router.push(`/connect/room/${roomId}`);
+    router.push(`/connect/room/${roomId}?council=${councilMode}`);
   }
 
   return (
