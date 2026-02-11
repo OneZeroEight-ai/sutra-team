@@ -14,6 +14,9 @@ import {
   Award,
   BookOpen,
   FileText,
+  Video,
+  Mic,
+  Phone,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -37,8 +40,8 @@ export default function HomePage() {
             reconciles their perspectives into one unified answer.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button href="/council">
-              Explore the Council <ArrowRight className="ml-2 h-4 w-4" />
+            <Button href="/connect">
+              Start a Session <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button variant="secondary" href="/pricing">
               View Pricing
@@ -90,6 +93,70 @@ export default function HomePage() {
                 </p>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Connect Preview */}
+      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Talk to your council. Literally."
+            subtitle="Video call, voice session, or phone call &mdash; no app install, browser-native WebRTC, or just pick up the phone"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Video,
+                title: "Video Room",
+                tagline: "Face your council.",
+                desc: "Camera on, animated agent avatars, screen sharing, and a full real-time transcript.",
+                color: "#a78bfa",
+              },
+              {
+                icon: Mic,
+                title: "Voice Session",
+                tagline: "Hands-free wisdom.",
+                desc: "Audio only with agent avatars and live transcript. Perfect for mobile and multitasking.",
+                color: "#06b6d4",
+              },
+              {
+                icon: Phone,
+                title: "Phone Call",
+                tagline: "Dial in from anywhere.",
+                desc: "Call a number, choose your council via IVR. No internet required. Works from any phone.",
+                color: "#f59e0b",
+              },
+            ].map((item) => (
+              <Card key={item.title} hover>
+                <div
+                  className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+                  style={{ backgroundColor: `${item.color}15` }}
+                >
+                  <item.icon
+                    className="h-6 w-6"
+                    style={{ color: item.color }}
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-sutra-text">
+                  {item.title}
+                </h3>
+                <p
+                  className="text-sm font-medium mt-1"
+                  style={{ color: item.color }}
+                >
+                  {item.tagline}
+                </p>
+                <p className="mt-3 text-sm text-sutra-muted leading-relaxed">
+                  {item.desc}
+                </p>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Button href="/connect">
+              Try a Session <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </section>

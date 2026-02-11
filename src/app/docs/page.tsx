@@ -66,6 +66,39 @@ const API_ENDPOINTS = [
   },
 ];
 
+const CONNECT_ENDPOINTS = [
+  {
+    method: "POST",
+    path: "/v1/connect/room/create",
+    description: "Create a LiveKit room for council session",
+  },
+  {
+    method: "POST",
+    path: "/v1/connect/token",
+    description: "Generate participant token for room join",
+  },
+  {
+    method: "POST",
+    path: "/v1/connect/agents/dispatch",
+    description: "Dispatch council agents into a room",
+  },
+  {
+    method: "GET",
+    path: "/v1/connect/room/{id}/status",
+    description: "Room status and active participants",
+  },
+  {
+    method: "POST",
+    path: "/v1/connect/sip/trunk",
+    description: "Configure SIP trunk for phone integration",
+  },
+  {
+    method: "GET",
+    path: "/v1/connect/session/{id}/transcript",
+    description: "Session transcript with speaker attribution",
+  },
+];
+
 const methodColors: Record<string, string> = {
   GET: "text-emerald-400",
   POST: "text-blue-400",
@@ -139,8 +172,80 @@ export default function DocsPage() {
         </div>
       </section>
 
-      {/* Persona Schema */}
+      {/* Connect API */}
       <section className="py-16 border-t border-sutra-border bg-sutra-surface/30">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            title="Connect API"
+            subtitle="Real-time communication endpoints for video, voice, and phone sessions"
+          />
+          <div className="rounded-xl border border-sutra-border bg-sutra-surface overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-sutra-border bg-sutra-bg">
+                  <th className="text-left py-3 px-4 text-sutra-muted font-medium w-20">
+                    Method
+                  </th>
+                  <th className="text-left py-3 px-4 text-sutra-muted font-medium">
+                    Endpoint
+                  </th>
+                  <th className="text-left py-3 px-4 text-sutra-muted font-medium hidden sm:table-cell">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {CONNECT_ENDPOINTS.map((ep) => (
+                  <tr
+                    key={ep.path + ep.method}
+                    className="border-b border-sutra-border last:border-0"
+                  >
+                    <td className="py-2.5 px-4">
+                      <span
+                        className={`font-mono text-xs font-semibold ${methodColors[ep.method] ?? "text-sutra-muted"}`}
+                      >
+                        {ep.method}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-4 font-mono text-xs text-sutra-text">
+                      {ep.path}
+                    </td>
+                    <td className="py-2.5 px-4 text-sutra-muted hidden sm:table-cell">
+                      {ep.description}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                title: "LiveKit Integration",
+                desc: "Built on LiveKit for WebRTC video/voice and SIP phone bridging. Custom frontends can use the LiveKit SDK directly.",
+              },
+              {
+                title: "Agent Dispatch",
+                desc: "Council agents join rooms as LiveKit participants. Pipeline: STT (Deepgram) → LLM (Claude) → TTS (Cartesia).",
+              },
+              {
+                title: "SIP / Phone",
+                desc: "Inbound calls via SIP trunk. IVR routing, DTMF selection, PIN authentication. Same agent code for all modalities.",
+              },
+            ].map((item) => (
+              <Card key={item.title}>
+                <h4 className="text-sm font-semibold text-sutra-text">
+                  {item.title}
+                </h4>
+                <p className="mt-2 text-xs text-sutra-muted">{item.desc}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Persona Schema */}
+      <section className="py-16 border-t border-sutra-border">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Persona Definition File (PDF)"

@@ -3,6 +3,7 @@ import { ECOSYSTEM_LINKS } from "@/lib/constants";
 
 const productLinks = [
   { label: "Council", href: "/council" },
+  { label: "Connect", href: "/connect" },
   { label: "Personas", href: "/personas" },
   { label: "Pricing", href: "/pricing" },
   { label: "Docs", href: "/docs" },

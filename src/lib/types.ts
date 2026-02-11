@@ -35,14 +35,44 @@ export interface ExpertAgent {
 }
 
 export type CouncilMode = "rights" | "experts" | "combined";
+export type ConnectMode = "video" | "voice" | "phone";
 
 export interface PricingTier {
   name: string;
   price: string;
   period?: string;
   includes: string[];
+  connect_modes: ConnectMode[];
   target_user: string;
   highlighted?: boolean;
+}
+
+export interface CouncilSession {
+  session_id: string;
+  room_name: string;
+  council_mode: CouncilMode;
+  connect_mode: ConnectMode;
+  agents_active: string[];
+  status: "waiting" | "deliberating" | "synthesizing" | "complete";
+  created_at: string;
+}
+
+export interface AgentParticipant {
+  persona_id: string;
+  name: string;
+  path_aspect?: string;
+  avatar_url: string;
+  is_speaking: boolean;
+  perspective_delivered: boolean;
+}
+
+export interface SynthesisResult {
+  deliberation_id: string;
+  agreements: string[];
+  tensions: { description: string; agents: string[] }[];
+  gaps: string[];
+  unified_response: string;
+  confidence: number;
 }
 
 export interface DeliberationStep {

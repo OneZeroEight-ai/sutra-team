@@ -81,6 +81,10 @@ export default function PricingPage() {
                     values: ["—", "—", "Yes", "Yes", "Yes"],
                   },
                   {
+                    feature: "Connect Modes",
+                    values: ["Text", "Voice", "Video/Voice/Phone", "Video/Voice/Phone", "Video/Voice/Phone"],
+                  },
+                  {
                     feature: "Memory System",
                     values: [
                       "Session",

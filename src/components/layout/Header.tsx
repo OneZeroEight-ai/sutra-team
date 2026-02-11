@@ -36,7 +36,7 @@ export function Header() {
             <Button variant="secondary" href="/pricing">
               View Pricing
             </Button>
-            <Button href="/docs">Get Started</Button>
+            <Button href="/connect">Start a Session</Button>
           </div>
 
           <button
@@ -70,7 +70,7 @@ export function Header() {
               <Button variant="secondary" href="/pricing">
                 View Pricing
               </Button>
-              <Button href="/docs">Get Started</Button>
+              <Button href="/connect">Start a Session</Button>
             </div>
           </div>
         </div>
