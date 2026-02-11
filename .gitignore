@@ -48,3 +48,5 @@ next-env.d.ts
 server/agents/venv/
 __pycache__/
 *.pyc
+
+.vercel

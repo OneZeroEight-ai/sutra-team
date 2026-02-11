@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ConnectModeSelector } from "@/components/connect/ConnectModeSelector";
 import { Card } from "@/components/ui/Card";
 import type { CouncilMode, ConnectMode } from "@/lib/types";
@@ -24,13 +25,18 @@ const COUNCIL_OPTIONS: { mode: CouncilMode; label: string; desc: string }[] = [
 ];
 
 export default function ConnectPage() {
+  const router = useRouter();
   const [councilMode, setCouncilMode] = useState<CouncilMode>("rights");
   const [showComingSoon, setShowComingSoon] = useState(false);
-  const [selectedMode, setSelectedMode] = useState<ConnectMode | null>(null);
 
   function handleModeSelect(connectMode: ConnectMode) {
-    setSelectedMode(connectMode);
-    setShowComingSoon(true);
+    if (connectMode === "phone") {
+      // Phone still coming soon until SIP trunk provisioned
+      setShowComingSoon(true);
+      return;
+    }
+    const roomId = `${connectMode}-${Date.now()}`;
+    router.push(`/connect/room/${roomId}`);
   }
 
   return (
@@ -108,35 +114,19 @@ export default function ConnectPage() {
         </div>
       </section>
 
-      {/* Coming Soon overlay */}
+      {/* Coming Soon overlay — phone only */}
       {showComingSoon && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="mx-4 w-full max-w-md rounded-2xl border border-sutra-border bg-sutra-surface p-8 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sutra-accent/10">
-              <span className="text-xl">
-                {selectedMode === "video"
-                  ? "🎥"
-                  : selectedMode === "voice"
-                    ? "🎙️"
-                    : "📞"}
-              </span>
+              <span className="text-xl">📞</span>
             </div>
             <h3 className="text-lg font-semibold text-sutra-text">
-              {selectedMode === "video"
-                ? "Video Sessions"
-                : selectedMode === "voice"
-                  ? "Voice Sessions"
-                  : "Phone Portal"}{" "}
-              — Coming Soon
+              Phone Portal — Coming Soon
             </h3>
             <p className="mt-2 text-sm text-sutra-muted">
-              Live {selectedMode} sessions with your{" "}
-              {councilMode === "rights"
-                ? "Council of Rights"
-                : councilMode === "experts"
-                  ? "Council of Experts"
-                  : "Combined Council"}{" "}
-              are launching with Phase 2. Join the waitlist to be first in.
+              Dial-in phone sessions are launching once the SIP trunk is
+              provisioned. Join the waitlist to be first in.
             </p>
             <div className="mt-6 flex gap-3 justify-center">
               <button
