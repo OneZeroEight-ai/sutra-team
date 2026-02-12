@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 
 interface AgentCardProps {
@@ -6,6 +7,7 @@ interface AgentCardProps {
   description: string;
   accentColor: string;
   tags?: string[];
+  imageSrc?: string;
 }
 
 export function AgentCard({
@@ -14,18 +16,30 @@ export function AgentCard({
   description,
   accentColor,
   tags,
+  imageSrc,
 }: AgentCardProps) {
   return (
     <Card hover>
-      <div
-        className="w-10 h-10 rounded-lg mb-4 flex items-center justify-center"
-        style={{ backgroundColor: `${accentColor}20` }}
-      >
+      {imageSrc ? (
+        <div className="w-10 h-10 rounded-lg mb-4 overflow-hidden relative">
+          <Image
+            src={imageSrc}
+            alt={name}
+            fill
+            className="object-cover"
+          />
+        </div>
+      ) : (
         <div
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: accentColor }}
-        />
-      </div>
+          className="w-10 h-10 rounded-lg mb-4 flex items-center justify-center"
+          style={{ backgroundColor: `${accentColor}20` }}
+        >
+          <div
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: accentColor }}
+          />
+        </div>
+      )}
       <h3 className="text-lg font-semibold text-sutra-text">{name}</h3>
       <p
         className="text-xs font-medium mt-1"

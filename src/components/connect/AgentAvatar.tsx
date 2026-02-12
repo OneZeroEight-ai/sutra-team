@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 interface AgentAvatarProps {
@@ -8,6 +9,7 @@ interface AgentAvatarProps {
   accentColor: string;
   isSpeaking: boolean;
   size?: "sm" | "md" | "lg";
+  imageSrc?: string;
 }
 
 export function AgentAvatar({
@@ -16,6 +18,7 @@ export function AgentAvatar({
   accentColor,
   isSpeaking,
   size = "md",
+  imageSrc,
 }: AgentAvatarProps) {
   const sizeClasses = {
     sm: "w-16 h-16",
@@ -47,10 +50,19 @@ export function AgentAvatar({
             backgroundColor: "var(--sutra-surface)",
           }}
         >
-          <div
-            className={`${dotSize[size]} rounded-full`}
-            style={{ backgroundColor: accentColor }}
-          />
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={name}
+              fill
+              className="rounded-full object-cover"
+            />
+          ) : (
+            <div
+              className={`${dotSize[size]} rounded-full`}
+              style={{ backgroundColor: accentColor }}
+            />
+          )}
         </div>
       </div>
       <div className="text-center">

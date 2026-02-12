@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { NAV_LINKS } from "@/lib/constants";
@@ -15,9 +16,18 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="text-xl font-bold tracking-tight text-sutra-text"
+            className="flex items-center gap-2"
           >
-            sutra<span className="text-sutra-accent">.team</span>
+            <Image
+              src="/images/logo.png"
+              alt="Sutra.team"
+              width={36}
+              height={36}
+              className="rounded-full"
+            />
+            <span className="text-lg font-bold tracking-wide text-sutra-text">
+              SUTRA
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">

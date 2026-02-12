@@ -16,19 +16,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sutra.team"),
   title: {
     default: "Sutra.team — Persona Hosting Platform",
     template: "%s | Sutra.team",
   },
   description:
-    "An ensemble agent deliberation system where multiple AI personas analyze your question and a synthesis agent reconciles their perspectives into one unified answer.",
+    "Your personal council of experts. Council deliberation with AI agents grounded in the Noble Eightfold Path, synthesized by Sutra.",
+  icons: {
+    icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "Sutra.team — Persona Hosting Platform",
-    description:
-      "Your AI needs a council, not a chatbot. Multiple agents deliberate — Sutra synthesizes.",
-    url: "https://sutra.team",
+    description: "Your personal council of experts.",
+    images: [{ url: "/images/og/og-default.png", width: 1200, height: 630 }],
     siteName: "Sutra.team",
     type: "website",
+    url: "https://sutra.team",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sutra.team — Persona Hosting Platform",
+    description: "Your personal council of experts.",
+    images: ["/images/og/og-default.png"],
   },
 };
 

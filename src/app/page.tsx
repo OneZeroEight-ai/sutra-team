@@ -6,6 +6,7 @@ import { ExpertsGrid } from "@/components/council/ExpertsGrid";
 import { SynthesisFlow } from "@/components/council/SynthesisFlow";
 import { DiffScore } from "@/components/differentiation/DiffScore";
 import { HumanExpertSection } from "@/components/landing/HumanExpertSection";
+import Image from "next/image";
 import {
   ArrowRight,
   Zap,
@@ -32,8 +33,8 @@ export default function HomePage() {
             Patent Pending &middot; Ensemble Agent Deliberation
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-sutra-text max-w-4xl mx-auto leading-tight">
-            Your AI needs a council,{" "}
-            <span className="text-sutra-accent">not a chatbot.</span>
+            Your personal{" "}
+            <span className="text-sutra-accent">council of experts.</span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-sutra-muted max-w-2xl mx-auto leading-relaxed">
             Sutra.team is a persona hosting platform where multiple AI agents
@@ -192,6 +193,14 @@ export default function HomePage() {
       <section className="py-20 border-t border-sutra-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
+            <div className="mx-auto mb-6 w-16 h-16 rounded-full overflow-hidden border-2 border-sutra-accent/30 relative">
+              <Image
+                src="/images/agents/sutra.png"
+                alt="Sutra"
+                fill
+                className="object-cover"
+              />
+            </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-sutra-gold/30 bg-sutra-gold/5 px-4 py-1.5 text-xs text-sutra-gold mb-6">
               Premium Feature
             </div>

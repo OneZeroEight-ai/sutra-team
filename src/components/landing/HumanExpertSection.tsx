@@ -53,6 +53,8 @@ const EXPERT_CATEGORIES = [
   "Estate Planning",
   "IP Law",
   "Executive Coaching",
+  "Music Industry",
+  "Medical Professionals",
 ];
 
 export function HumanExpertSection() {
@@ -132,6 +134,25 @@ export function HumanExpertSection() {
               </p>
             </Card>
           ))}
+        </div>
+
+        {/* Pricing Value Prop */}
+        <div className="mt-14 max-w-3xl mx-auto rounded-xl border border-sutra-gold/20 bg-sutra-gold/5 p-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sutra-gold/30 bg-sutra-bg px-3 py-1 text-xs text-sutra-gold mb-4">
+            Premium Add-on
+          </div>
+          <p className="text-base text-sutra-text leading-relaxed">
+            Human expert sessions are available at a fraction of typical
+            consultation fees &mdash; because the AI does the heavy lifting
+            first.{" "}
+            <span className="text-sutra-accent font-medium">
+              You arrive prepared. The expert validates, not educates.
+            </span>
+          </p>
+          <p className="mt-3 text-xs text-sutra-muted">
+            Available on Professional and Enterprise plans. Not included in base
+            tiers.
+          </p>
         </div>
 
         {/* Expert Network Banner */}

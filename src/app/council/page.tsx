@@ -5,6 +5,7 @@ import { RightsGrid } from "@/components/council/RightsGrid";
 import { ExpertsGrid } from "@/components/council/ExpertsGrid";
 import { SynthesisFlow } from "@/components/council/SynthesisFlow";
 import { CouncilDemo } from "@/components/council/CouncilDemo";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Council",
@@ -16,16 +17,27 @@ export default function CouncilPage() {
   return (
     <>
       {/* Hero */}
-      <section className="py-20 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-sutra-text">
-            The Council
-          </h1>
-          <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto">
-            An ensemble agent deliberation system where multiple specialized
-            personas analyze a single input and Sutra reconciles their outputs
-            into a unified response.
-          </p>
+      <section className="pt-8 pb-20 sm:pb-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-xl">
+            <Image
+              src="/images/council-hero.png"
+              alt="The Council of Rights — AI agents and zen monks in deliberation"
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-8 left-8 right-8">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                The Council
+              </h1>
+              <p className="text-lg text-white/80 max-w-2xl">
+                Eight agents grounded in the Noble Eightfold Path. Six domain
+                experts. One synthesis.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
