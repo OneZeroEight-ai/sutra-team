@@ -107,6 +107,27 @@ export const RIGHTS_AGENTS: RightsAgent[] = [
   },
 ];
 
+export const AGENT_AVATARS: Record<string, string> = {
+  "wisdom-judge": "/images/agents/wisdom-judge.png",
+  "purpose": "/images/agents/purpose.png",
+  "communicator": "/images/agents/communicator.png",
+  "ethics-judge": "/images/agents/ethics-judge.png",
+  "sustainer": "/images/agents/sustainer.png",
+  "determined": "/images/agents/determined.png",
+  "aware": "/images/agents/aware.png",
+  "focused": "/images/agents/focused.png",
+  "sutra": "/images/agents/sutra.png",
+};
+
+export const EXPERT_AVATARS: Record<string, string> = {
+  "legal-analyst": "/images/agents/sutra.png",
+  "financial-strategist": "/images/agents/sutra.png",
+  "technical-architect": "/images/agents/sutra.png",
+  "market-analyst": "/images/agents/sutra.png",
+  "risk-assessor": "/images/agents/sutra.png",
+  "growth-strategist": "/images/agents/sutra.png",
+};
+
 export const EXPERT_AGENTS: ExpertAgent[] = [
   {
     name: "Legal Analyst",

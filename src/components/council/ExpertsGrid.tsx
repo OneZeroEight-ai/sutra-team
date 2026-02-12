@@ -1,5 +1,9 @@
-import { EXPERT_AGENTS } from "@/lib/constants";
+import { EXPERT_AGENTS, EXPERT_AVATARS } from "@/lib/constants";
 import { AgentCard } from "./AgentCard";
+
+function toSlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-");
+}
 
 export function ExpertsGrid() {
   return (
@@ -11,6 +15,7 @@ export function ExpertsGrid() {
           subtitle={agent.domain}
           description={agent.knowledge_sources.join(", ")}
           accentColor={agent.accent_color}
+          imageSrc={EXPERT_AVATARS[toSlug(agent.name)]}
         />
       ))}
     </div>

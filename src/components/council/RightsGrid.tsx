@@ -1,5 +1,12 @@
-import { RIGHTS_AGENTS } from "@/lib/constants";
+import { RIGHTS_AGENTS, AGENT_AVATARS } from "@/lib/constants";
 import { AgentCard } from "./AgentCard";
+
+function toSlug(name: string): string {
+  return name
+    .replace(/^The\s+/i, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+}
 
 export function RightsGrid() {
   return (
@@ -12,6 +19,7 @@ export function RightsGrid() {
           description={agent.functional_domain}
           accentColor={agent.accent_color}
           tags={agent.use_cases.slice(0, 2)}
+          imageSrc={AGENT_AVATARS[toSlug(agent.name)]}
         />
       ))}
     </div>
