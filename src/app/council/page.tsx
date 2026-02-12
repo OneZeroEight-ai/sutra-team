@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card } from "@/components/ui/Card";
 import { RightsGrid } from "@/components/council/RightsGrid";
+import { RightsProfileGrid } from "@/components/council/RightsProfileGrid";
 import { ExpertsGrid } from "@/components/council/ExpertsGrid";
 import { SynthesisFlow } from "@/components/council/SynthesisFlow";
 import { CouncilDemo } from "@/components/council/CouncilDemo";
@@ -132,7 +133,7 @@ export default function CouncilPage() {
             title="Council of Rights"
             subtitle="Eight fixed agents grounded in the Noble Eightfold Path"
           />
-          <RightsGrid />
+          <RightsProfileGrid />
         </div>
       </section>
 
