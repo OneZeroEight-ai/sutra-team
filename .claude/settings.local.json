@@ -33,7 +33,8 @@
       "Bash(echo:*)",
       "Bash(npx next build:*)",
       "Bash(node scripts/generate-favicon.mjs:*)",
-      "Bash(node scripts/generate-og.mjs:*)"
+      "Bash(node scripts/generate-og.mjs:*)",
+      "Bash(npm ls:*)"
     ]
   }
 }
