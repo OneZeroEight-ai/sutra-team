@@ -11,6 +11,7 @@ Usage:
 
 import json
 import logging
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 from livekit.agents import Agent, AgentSession, AgentServer, JobContext
@@ -21,6 +22,12 @@ from livekit.plugins import anthropic as anthropic_plugin
 from prompts.rights import RIGHTS_AGENTS
 from prompts.experts import EXPERT_AGENTS
 from prompts.sutra import SUTRA_SYNTHESIS_PROMPT
+
+from cost_tracker import (
+    SessionCostRecord, ServiceUsage,
+    calculate_anthropic_cost, calculate_livekit_cost,
+    log_session_cost, check_alerts
+)
 
 load_dotenv()
 
@@ -92,6 +99,15 @@ async def entrypoint(ctx: JobContext):
         f"Agent: {agent_config['name']}"
     )
 
+    # Initialize cost record
+    cost_record = SessionCostRecord(
+        session_id=ctx.room.name,
+        room_name=ctx.room.name,
+        council_mode=council_config["mode"],
+        agent_name=agent_config["name"],
+        started_at=datetime.now(timezone.utc).isoformat(),
+    )
+
     # Create the agent
     council_agent = Agent(
         instructions=agent_config["system_prompt"],
@@ -105,6 +121,27 @@ async def entrypoint(ctx: JobContext):
         tts=cartesia.TTS(model="sonic-3", voice=voice_id),
     )
 
+    # Track LLM usage via session events
+    @session.on("agent_speech_committed")
+    def on_speech(event):
+        # Estimate tokens from response length (rough: 1 token ~ 4 chars)
+        output_chars = len(event.content) if hasattr(event, "content") else 0
+        est_output_tokens = output_chars // 4
+        est_input_tokens = 8000  # System prompt baseline
+
+        cost = calculate_anthropic_cost(
+            "claude-sonnet-4-20250514", est_input_tokens, est_output_tokens
+        )
+        cost_record.add_usage(ServiceUsage(
+            service="anthropic",
+            operation="llm_completion",
+            input_tokens=est_input_tokens,
+            output_tokens=est_output_tokens,
+            estimated_cost_usd=cost,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            metadata={"model": "claude-sonnet-4-20250514"},
+        ))
+
     # Start the session
     await session.start(
         agent=council_agent,
@@ -114,6 +151,32 @@ async def entrypoint(ctx: JobContext):
     # Greet the user
     greeting = _get_greeting(agent_config, council_config["mode"])
     await session.generate_reply(instructions=greeting)
+
+    # When session ends, finalize and log
+    @session.on("close")
+    def on_close():
+        # Add LiveKit room cost (2 participants: agent + user)
+        lk_cost = calculate_livekit_cost(cost_record.duration_seconds / 60.0 * 2)
+        cost_record.add_usage(ServiceUsage(
+            service="livekit",
+            operation="room_usage",
+            audio_seconds=cost_record.duration_seconds,
+            estimated_cost_usd=lk_cost,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+        ))
+
+        cost_record.finalize()
+        log_session_cost(cost_record)
+
+        # Check alerts
+        alerts = check_alerts(cost_record)
+        for alert in alerts:
+            logger.warning(alert)
+
+        logger.info(
+            f"Session {cost_record.session_id} cost: ${cost_record.total_cost_usd:.4f} "
+            f"({cost_record.duration_seconds:.0f}s, {cost_record.council_mode})"
+        )
 
 
 def _get_greeting(agent_config: dict, mode: str) -> str:

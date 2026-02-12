@@ -6,16 +6,10 @@ import Image from "next/image";
 import {
   LiveKitRoom,
   VideoConference,
-  AudioConference,
-  RoomAudioRenderer,
-  ControlBar,
-  GridLayout,
-  ParticipantTile,
-  useTracks,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { Track } from "livekit-client";
 import { RIGHTS_AGENTS, AGENT_AVATARS } from "@/lib/constants";
+import { VoiceSessionView } from "@/components/connect/VoiceSessionView";
 
 interface RoomPageProps {
   params: Promise<{ roomId: string }>;
@@ -186,7 +180,11 @@ export default function RoomPage({ params }: RoomPageProps) {
           onDisconnected={handleDisconnected}
           style={{ height: "100%" }}
         >
-          {isVoice ? <AudioConference /> : <VideoConference />}
+          {isVoice ? (
+            <VoiceSessionView agent={agent} roomId={roomId} />
+          ) : (
+            <VideoConference />
+          )}
         </LiveKitRoom>
       </div>
     </div>

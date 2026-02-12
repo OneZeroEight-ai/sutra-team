@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Sutra.team pricing plans — from free Explorer to Enterprise. Persona hosting, council deliberation, and API access.",
+    "Sutra.team credit-based pricing — pay for deliverables, not deliberations. From free Explorer to Enterprise.",
 };
 
 export default function PricingPage() {
@@ -16,16 +16,16 @@ export default function PricingPage() {
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-sutra-text">
-            Simple, Transparent Pricing
+            Pay for Deliverables, Not Meetings
           </h1>
           <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto">
-            Start free. Scale as you grow. Every plan includes the
-            differentiation engine and memory system.
+            Credits are consumed when the council produces something of value.
+            Chat all you want — you only pay when it ships.
           </p>
         </div>
       </section>
 
-      {/* Pricing Table */}
+      {/* Pricing Table + Deliverable Menu */}
       <section className="pb-20 border-t border-sutra-border pt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <PricingTable />
@@ -61,12 +61,12 @@ export default function PricingPage() {
               <tbody>
                 {[
                   {
-                    feature: "Personas",
-                    values: ["1", "3", "10", "Unlimited", "Unlimited"],
+                    feature: "Credits/month",
+                    values: ["5", "30", "75", "Custom", "Usage-based"],
                   },
                   {
-                    feature: "Deliberations/mo",
-                    values: ["10", "100", "500", "Custom", "Usage-based"],
+                    feature: "Overage Rate",
+                    values: ["—", "$5/credit", "$4/credit", "Custom", "$5/credit"],
                   },
                   {
                     feature: "Council of Rights",
@@ -81,8 +81,16 @@ export default function PricingPage() {
                     values: ["—", "—", "Yes", "Yes", "Yes"],
                   },
                   {
+                    feature: "Skill Deliverables",
+                    values: ["—", "Yes", "Yes", "Yes", "Yes"],
+                  },
+                  {
+                    feature: "Premium Deliverables",
+                    values: ["—", "—", "Yes", "Yes", "Yes"],
+                  },
+                  {
                     feature: "Connect Modes",
-                    values: ["Text", "Voice", "Video/Voice/Phone", "Video/Voice/Phone", "Video/Voice/Phone"],
+                    values: ["Text", "Voice/Phone", "Video/Voice/Phone", "Video/Voice/Phone", "All"],
                   },
                   {
                     feature: "Memory System",
@@ -107,16 +115,8 @@ export default function PricingPage() {
                     values: ["—", "—", "—", "Yes", "—"],
                   },
                   {
-                    feature: "White-labeling",
-                    values: ["—", "—", "—", "Yes", "—"],
-                  },
-                  {
-                    feature: "SLA",
-                    values: ["—", "—", "—", "Yes", "—"],
-                  },
-                  {
-                    feature: "Differentiation Score",
-                    values: ["Basic", "Full", "Full", "Full", "Full"],
+                    feature: "Credit Rollover",
+                    values: ["No", "No", "No", "Custom", "N/A"],
                   },
                 ].map((row) => (
                   <tr key={row.feature} className="border-b border-sutra-border">
@@ -152,20 +152,28 @@ export default function PricingPage() {
           <div className="space-y-4">
             {[
               {
-                q: "What counts as a deliberation?",
-                a: "One deliberation = one query submitted to a council. Each agent's processing within that deliberation is included in the count.",
+                q: "What are credits?",
+                a: "Credits are consumed when the council produces a deliverable — a document, analysis, or structured output. Conversational sessions cost 1 credit. Council deliberations cost 3-5 credits. Skill deliverables like press releases or business plans cost 3-50 credits depending on complexity.",
+              },
+              {
+                q: "Do unused credits roll over?",
+                a: "No. Monthly credits expire at the end of each billing cycle. If you need more, purchase a credit pack — those credits never expire.",
+              },
+              {
+                q: "What happens if I run out of credits?",
+                a: "Creator and Professional plans support overage billing. Additional credits are charged at your tier's overage rate ($5 or $4 per credit). Explorer users cannot purchase overage — upgrade to continue.",
               },
               {
                 q: "Can I change plans?",
                 a: "Yes, upgrade or downgrade anytime. Changes take effect at your next billing cycle.",
               },
               {
-                q: "What's the API pricing?",
-                a: "API Developer pricing is usage-based with per-deliberation rates. Contact us for volume pricing details.",
+                q: "What about Expert Sessions?",
+                a: "Human expert sessions ($79 for 30 minutes) are purchased separately and do not consume credits. They include an AI-generated prep packet.",
               },
               {
-                q: "Is there a free trial of paid plans?",
-                a: "The Explorer plan is permanently free. Paid plans include a 14-day free trial.",
+                q: "Is there a free trial?",
+                a: "The Explorer plan is permanently free with 5 credits/month. Paid plans include a 14-day free trial.",
               },
             ].map((item) => (
               <Card key={item.q}>

@@ -41,6 +41,8 @@ export interface PricingTier {
   name: string;
   price: string;
   period?: string;
+  credits?: number;
+  overageRate?: number;
   includes: string[];
   connect_modes: ConnectMode[];
   target_user: string;
