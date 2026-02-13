@@ -1,28 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const AGENT_SERVER_URL = process.env.AGENT_SERVER_URL;
+const DELIBERATION_API_KEY = process.env.DELIBERATION_API_KEY;
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const sutraApiUrl = process.env.NEXT_PUBLIC_SUTRA_API_URL;
 
-    if (!sutraApiUrl) {
-      // If SammaSuit backend isn't provisioned yet, return a stub response
+    if (!AGENT_SERVER_URL) {
+      // If agent server isn't provisioned yet, return a stub response
       return NextResponse.json({
         deliberation_id: `stub-${Date.now()}`,
         status: "backend_not_configured",
         message:
-          "Council deliberation backend is not yet provisioned. This endpoint will proxy to the SammaSuit API once configured.",
+          "Council deliberation backend is not yet provisioned. Set AGENT_SERVER_URL to enable.",
         query: body.query,
-        council_mode: body.council_mode || "rights",
+        council_mode: body.councilMode || "rights",
       });
     }
 
-    // Proxy to SammaSuit backend
-    const response = await fetch(`${sutraApiUrl}/v1/council/deliberate`, {
+    // Proxy to agent server deliberation endpoint
+    const response = await fetch(`${AGENT_SERVER_URL}/deliberate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: req.headers.get("Authorization") || "",
+        ...(DELIBERATION_API_KEY
+          ? { Authorization: `Bearer ${DELIBERATION_API_KEY}` }
+          : {}),
       },
       body: JSON.stringify(body),
     });
@@ -33,7 +37,7 @@ export async function POST(req: NextRequest) {
     console.error("Council proxy error:", error);
     return NextResponse.json(
       { error: "Failed to process council request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

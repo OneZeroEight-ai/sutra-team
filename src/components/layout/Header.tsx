@@ -4,7 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
+import { CreditBadge } from "@/components/CreditBadge";
 import { NAV_LINKS } from "@/lib/constants";
 
 export function Header() {
@@ -43,10 +50,35 @@ export function Header() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="secondary" href="/pricing">
-              View Pricing
-            </Button>
-            <Button href="/connect">Start a Session</Button>
+            <SignedOut>
+              <Button variant="secondary" href="/pricing">
+                View Pricing
+              </Button>
+              <SignInButton mode="modal">
+                <button className="text-sm text-sutra-muted hover:text-sutra-text transition cursor-pointer">
+                  Sign In
+                </button>
+              </SignInButton>
+              <Button href="/sign-up">Get Started</Button>
+            </SignedOut>
+            <SignedIn>
+              <CreditBadge />
+              <Link
+                href="/council/deliberate"
+                className="text-sm text-sutra-muted hover:text-sutra-text transition"
+              >
+                Council
+              </Link>
+              <Button variant="secondary" href="/pricing">
+                Pricing
+              </Button>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: { avatarBox: "w-8 h-8" },
+                }}
+              />
+            </SignedIn>
           </div>
 
           <button
@@ -77,10 +109,19 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-3 flex flex-col gap-2">
-              <Button variant="secondary" href="/pricing">
-                View Pricing
-              </Button>
-              <Button href="/connect">Start a Session</Button>
+              <SignedOut>
+                <Button variant="secondary" href="/pricing">
+                  View Pricing
+                </Button>
+                <Button href="/sign-up">Get Started</Button>
+              </SignedOut>
+              <SignedIn>
+                <CreditBadge />
+                <Button href="/council/deliberate">Council</Button>
+                <Button variant="secondary" href="/pricing">
+                  Pricing
+                </Button>
+              </SignedIn>
             </div>
           </div>
         </div>
