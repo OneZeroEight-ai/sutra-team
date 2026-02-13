@@ -70,7 +70,7 @@ function DeliberateContent() {
         body: JSON.stringify({
           query: query.trim(),
           councilMode: "rights",
-          outputFormat: "synthesis_with_perspectives",
+          outputFormat: "structured",
         }),
       });
 

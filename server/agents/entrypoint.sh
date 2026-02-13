@@ -1,6 +1,6 @@
 #!/bin/bash
 # Start both the LiveKit council agent and the FastAPI deliberation server.
-# Used as the Docker CMD — runs both processes and forwards signals.
+# Used as the Docker CMD -- runs both processes and forwards signals.
 
 python council_agent.py start &
 PID1=$!
