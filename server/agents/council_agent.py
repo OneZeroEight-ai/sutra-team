@@ -12,9 +12,11 @@ Usage:
 import json
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from dotenv import load_dotenv
 
 from livekit.agents import Agent, AgentSession, AgentServer, JobContext
+from livekit.agents.utils.audio import audio_frames_from_file
 from livekit.plugins import silero, deepgram, cartesia
 
 from livekit.plugins import anthropic as anthropic_plugin
@@ -148,6 +150,9 @@ async def entrypoint(ctx: JobContext):
         room=ctx.room,
     )
 
+    # Play intro audio: chime + spoken "Welcome to Sutra"
+    await _play_intro(session)
+
     # Greet the user
     greeting = _get_greeting(agent_config, council_config["mode"])
     await session.generate_reply(instructions=greeting)
@@ -177,6 +182,48 @@ async def entrypoint(ctx: JobContext):
             f"Session {cost_record.session_id} cost: ${cost_record.total_cost_usd:.4f} "
             f"({cost_record.duration_seconds:.0f}s, {cost_record.council_mode})"
         )
+
+
+INTRO_WAV = Path(__file__).parent / "assets" / "intro.wav"
+
+
+async def _play_intro(session: AgentSession):
+    """Play a brief audio intro at the start of every session.
+
+    Plays a soft chime WAV followed by TTS-spoken "Welcome to Sutra."
+    Total duration: ~3-4 seconds. Non-interruptible so the user hears the
+    full intro even if they speak immediately.
+    """
+    # Step 1: Play the chime WAV (2.5s soft arpeggio)
+    if INTRO_WAV.exists():
+        try:
+            chime_frames = audio_frames_from_file(
+                str(INTRO_WAV),
+                sample_rate=48000,
+                num_channels=1,
+            )
+            handle = session.say(
+                text="",
+                audio=chime_frames,
+                allow_interruptions=False,
+                add_to_chat_ctx=False,
+            )
+            await handle
+        except Exception as e:
+            logger.warning(f"Failed to play intro chime: {e}")
+    else:
+        logger.warning(f"Intro WAV not found at {INTRO_WAV}")
+
+    # Step 2: TTS-spoken intro (uses the session's Cartesia voice)
+    try:
+        handle = session.say(
+            text="Welcome to Sutra.",
+            allow_interruptions=False,
+            add_to_chat_ctx=False,
+        )
+        await handle
+    except Exception as e:
+        logger.warning(f"Failed to speak intro: {e}")
 
 
 def _get_greeting(agent_config: dict, mode: str) -> str:

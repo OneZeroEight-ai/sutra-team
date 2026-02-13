@@ -100,3 +100,53 @@ export interface NavLink {
   label: string;
   href: string;
 }
+
+export type ExpertCategory =
+  | "accounting"
+  | "legal"
+  | "financial_advisory"
+  | "medical"
+  | "music_industry"
+  | "technical"
+  | "hr_people_ops"
+  | "insurance"
+  | "real_estate"
+  | "marketing_brand"
+  | "supply_chain"
+  | "cybersecurity"
+  | "executive_coaching"
+  | "academic_research";
+
+export const EXPERT_CATEGORIES: Record<ExpertCategory, { name: string; description: string }> = {
+  accounting: { name: "Accountants / CPAs", description: "Tax strategy, bookkeeping review, financial reporting" },
+  legal: { name: "Attorneys", description: "Contract review, IP protection, regulatory compliance" },
+  financial_advisory: { name: "Financial Advisors", description: "Investment strategy, wealth management, planning" },
+  medical: { name: "Medical Professionals", description: "Clinical consultation, health strategy, medical review" },
+  music_industry: { name: "Music Industry", description: "Production, licensing, distribution, artist management" },
+  technical: { name: "Technical Consultants", description: "Architecture review, technical due diligence, scaling" },
+  hr_people_ops: { name: "HR / People Ops", description: "Employment law, compensation, organizational design" },
+  insurance: { name: "Insurance", description: "Coverage analysis, risk assessment, claims strategy" },
+  real_estate: { name: "Real Estate", description: "Investment analysis, commercial leasing, valuation" },
+  marketing_brand: { name: "Marketing / Brand", description: "Brand positioning, campaign strategy, market entry" },
+  supply_chain: { name: "Supply Chain / Ops", description: "Logistics optimization, procurement, vendor management" },
+  cybersecurity: { name: "Cybersecurity", description: "Compliance, incident response, security architecture" },
+  executive_coaching: { name: "Executive Coaches", description: "Leadership development, C-suite transition" },
+  academic_research: { name: "Academic Researchers", description: "Peer review, research methodology, domain expertise" },
+};
+
+export interface ExpertCard {
+  id: string;
+  name: string;
+  category: ExpertCategory;
+  credentials: string;
+  bio: string;
+  avatarUrl: string;
+  linkedinUrl?: string;
+  yearsExperience: number;
+  creditCost: number;
+  costBasis: number;
+  rating?: number;
+  sessionsCompleted?: number;
+  availability: string[];
+  status: "active" | "pending" | "inactive";
+}
