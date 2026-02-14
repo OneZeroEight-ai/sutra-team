@@ -34,6 +34,9 @@ function DeliberateContent() {
   const [error, setError] = useState("");
   const [credits, setCredits] = useState<number | null>(null);
   const [showPurchaseSuccess, setShowPurchaseSuccess] = useState(false);
+  const [councilMode, setCouncilMode] = useState<
+    "rights" | "experts" | "combined"
+  >("rights");
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -169,7 +172,7 @@ function DeliberateContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: query.trim(),
-          councilMode: "rights",
+          councilMode,
           outputFormat: "structured",
         }),
       });
@@ -249,6 +252,25 @@ function DeliberateContent() {
               Pilot access activated — 10 deliberations added to your account.
             </div>
           )}
+
+          {/* Council Mode Selector */}
+          <div className="flex gap-2 mb-4">
+            {(["rights", "experts", "combined"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setCouncilMode(mode)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer ${
+                  councilMode === mode
+                    ? "bg-violet-600 text-white"
+                    : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                }`}
+              >
+                {mode === "rights" && "Council of Rights"}
+                {mode === "experts" && "Council of Experts"}
+                {mode === "combined" && "Combined"}
+              </button>
+            ))}
+          </div>
 
           {/* Input */}
           <div className="mb-8">
