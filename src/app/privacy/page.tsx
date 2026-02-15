@@ -17,9 +17,9 @@ export default function PrivacyPage() {
         <p className="text-zinc-400 leading-relaxed">
           A comprehensive privacy policy is being finalized and will be
           published here prior to general availability. For questions, contact{' '}
-          <a href="mailto:jbwagoner@gmail.com"
+          <a href="mailto:info@onezeroeight.ai"
             className="text-violet-400 hover:text-violet-300">
-            jbwagoner@gmail.com
+            info@onezeroeight.ai
           </a>.
         </p>
         <p className="text-zinc-600 text-sm mt-8">Last updated: February 2026</p>

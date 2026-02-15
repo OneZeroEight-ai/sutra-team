@@ -86,10 +86,10 @@ export default function PricingPage() {
           <p className="mt-1">
             Questions?{" "}
             <a
-              href="mailto:jbwagoner@gmail.com"
+              href="mailto:info@onezeroeight.ai"
               className="text-violet-400 hover:text-violet-300"
             >
-              jbwagoner@gmail.com
+              info@onezeroeight.ai
             </a>
           </p>
         </div>
