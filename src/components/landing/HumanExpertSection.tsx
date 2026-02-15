@@ -59,8 +59,11 @@ const EXPERT_CATEGORIES = [
 
 export function HumanExpertSection() {
   return (
-    <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
+    <section className="py-20 border-t border-sutra-border bg-sutra-surface/30 opacity-60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="bg-zinc-800/80 text-zinc-400 text-xs font-medium text-center py-2 rounded-t-xl mb-6">
+          Coming Soon &mdash; Human Expert Network
+        </div>
         {/* Tagline + Headline */}
         <div className="text-center max-w-3xl mx-auto">
           <span className="inline-block font-mono text-xs uppercase tracking-widest text-sutra-gold mb-4">
@@ -139,7 +142,7 @@ export function HumanExpertSection() {
         {/* Pricing Value Prop */}
         <div className="mt-14 max-w-3xl mx-auto rounded-xl border border-sutra-gold/20 bg-sutra-gold/5 p-6 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-sutra-gold/30 bg-sutra-bg px-3 py-1 text-xs text-sutra-gold mb-4">
-            Premium Add-on
+            Coming Soon &mdash; Premium Add-on
           </div>
           <p className="text-base text-sutra-text leading-relaxed">
             Human expert sessions are available at a fraction of typical

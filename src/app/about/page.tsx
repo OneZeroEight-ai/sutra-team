@@ -65,6 +65,19 @@ export default function AboutPage() {
                   Intelligent Agent architecture, now protected by a U.S.
                   Provisional Patent Application filed January 30, 2026.
                 </p>
+                <p>
+                  The concepts behind Sutra.team are detailed in{' '}
+                  <a
+                    href="https://a.co/d/09DBCIAA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sutra-accent hover:underline"
+                  >
+                    The Portable Mind: AI Constitutions, Persona Architecture,
+                    and the Future of Transportable Intelligence
+                  </a>
+                  {' '}&mdash; available on Amazon.
+                </p>
               </div>
             </div>
           </div>

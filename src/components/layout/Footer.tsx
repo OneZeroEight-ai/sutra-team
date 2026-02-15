@@ -12,14 +12,15 @@ const productLinks = [
 const companyLinks = [
   { label: "About", href: "/about" },
   { label: "For Experts", href: "/experts/join" },
-  { label: "Blog", href: "#" },
+  { label: "Blog", href: "/blog" },
+  { label: "The Portable Mind", href: "/book" },
   { label: "Contact", href: "/about#contact" },
 ];
 
 const legalLinks = [
-  { label: "Terms", href: "#" },
-  { label: "Privacy", href: "#" },
-  { label: "Patent Notice", href: "#" },
+  { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Patent Notice", href: "/patent" },
 ];
 
 export function Footer() {
@@ -107,14 +108,14 @@ export function Footer() {
             <div className="text-sm text-sutra-muted">
               &copy; {new Date().getFullYear()}{" "}
               <span className="text-sutra-text font-medium">sutra.team</span>{" "}
-              &mdash; Powered by{" "}
+              &mdash; Protected by{" "}
               <a
                 href="https://sammasuit.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-sutra-accent transition-colors"
               >
-                SammaSuit.com
+                Samm&#x0101;suit.com
               </a>
             </div>
             <div className="text-xs text-sutra-muted">

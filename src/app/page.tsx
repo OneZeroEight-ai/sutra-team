@@ -30,20 +30,19 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-sutra-border bg-sutra-surface px-4 py-1.5 text-xs text-sutra-muted mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-sutra-gold animate-pulse" />
-            Patent Pending &middot; Ensemble Agent Deliberation
+            Patent Pending &middot; Strategic Decision Intelligence
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-sutra-text max-w-4xl mx-auto leading-tight">
-            Your personal{" "}
-            <span className="text-sutra-accent">council of experts.</span>
+            Strategic{" "}
+            <span className="text-sutra-accent">Decision Intelligence</span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-sutra-muted max-w-2xl mx-auto leading-relaxed">
-            Sutra.team is a persona hosting platform where multiple AI agents
-            deliberate on your question &mdash; then a synthesis agent
-            reconciles their perspectives into one unified answer.
+            Eight principled perspectives analyze your question in parallel.
+            One synthesis agent reconciles them into unified guidance you can act on.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button href="/connect">
-              Start a Session <ArrowRight className="ml-2 h-4 w-4" />
+            <Button href="/council/deliberate">
+              Ask the Oracle <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button variant="secondary" href="/pricing">
               View Pricing
@@ -183,8 +182,8 @@ export default function HomePage() {
           />
           <ExpertsGrid />
           <p className="text-center text-sm text-sutra-muted mt-8">
-            Default set shown (startup/business focus). Custom expert councils
-            available on Professional and Enterprise plans.
+            Legal Analyst is live. Additional experts launching soon.
+            Custom expert councils available on Professional and Enterprise plans.
           </p>
         </div>
       </section>
@@ -274,38 +273,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Powered by SammaSuit */}
+      {/* Agents Protected by Sammāsuit */}
       <section className="py-20 border-t border-sutra-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <SectionHeading
-            title="Powered by SammaSuit"
-            subtitle="Sutra.team runs on SammaSuit.com infrastructure &mdash; an 8-layer security framework protecting all agent operations"
+            title="Agents Protected by Samm&#x0101;suit"
+            subtitle="Sutra.team agents operate within Samm&#x0101;suit.com&apos;s security framework &mdash; protecting persona integrity, memory privacy, and deliberation confidentiality."
           />
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            {[
-              "SUTRA",
-              "DHARMA",
-              "SANGHA",
-              "KARMA",
-              "SILA",
-              "METTA",
-              "BODHI",
-              "NIRVANA",
-            ].map((layer) => (
-              <div
-                key={layer}
-                className="rounded-lg border border-sutra-border bg-sutra-surface px-3 py-2.5 text-xs font-mono text-sutra-muted text-center"
-              >
-                {layer}
-              </div>
-            ))}
+          <div className="max-w-md mx-auto">
+            <div className="rounded-2xl overflow-hidden border-2 border-violet-500/30 shadow-lg shadow-violet-500/20">
+              <Image
+                src="/images/sammasuit-protection.jpg"
+                alt="Sammāsuit Security Framework"
+                width={600}
+                height={600}
+                className="w-full h-auto object-cover"
+              />
+            </div>
           </div>
           <div className="mt-8">
             <Button
               variant="secondary"
               href="https://sammasuit.com"
             >
-              Explore SammaSuit.com{" "}
+              Explore Samm&#x0101;suit.com{" "}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>

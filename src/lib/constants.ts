@@ -390,4 +390,5 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Pricing", href: "/pricing" },
   { label: "Docs", href: "/docs" },
   { label: "About", href: "/about" },
+  { label: "Book", href: "/book" },
 ];
