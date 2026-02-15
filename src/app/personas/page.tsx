@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PersonaCard } from "@/components/persona/PersonaCard";
 import { PersonaBuilder } from "@/components/persona/PersonaBuilder";
-import { RIGHTS_AGENTS } from "@/lib/constants";
+import { RIGHTS_AGENTS, AGENT_AVATARS } from "@/lib/constants";
+
+function toSlug(name: string): string {
+  return name.replace(/^The /, "").toLowerCase().replace(/\s+/g, "-");
+}
 
 export const metadata: Metadata = {
   title: "Personas",
@@ -39,6 +43,7 @@ export default function PersonasPage() {
               designation="Synthesis Agent"
               tagline="The core synthesis agent that reconciles multiple perspectives into unified recommendations. Built on the three-body reference structure: Anthropic's Constitution, Zen AI philosophy, and OneZeroEight.ai technical platform."
               accentColor="#a78bfa"
+              imageSrc={AGENT_AVATARS["sutra"]}
               featured
             />
           </div>
@@ -60,6 +65,7 @@ export default function PersonasPage() {
                 designation={`${agent.path_aspect} (${agent.pali_name})`}
                 tagline={agent.functional_domain}
                 accentColor={agent.accent_color}
+                imageSrc={AGENT_AVATARS[toSlug(agent.name)]}
               />
             ))}
           </div>

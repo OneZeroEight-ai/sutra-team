@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 
 interface PersonaCardProps {
@@ -6,6 +7,7 @@ interface PersonaCardProps {
   tagline: string;
   accentColor: string;
   featured?: boolean;
+  imageSrc?: string;
 }
 
 export function PersonaCard({
@@ -14,6 +16,7 @@ export function PersonaCard({
   tagline,
   accentColor,
   featured,
+  imageSrc,
 }: PersonaCardProps) {
   return (
     <Card hover className={featured ? "border-sutra-accent/40 relative" : ""}>
@@ -22,15 +25,26 @@ export function PersonaCard({
           Featured
         </div>
       )}
-      <div
-        className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-        style={{ backgroundColor: `${accentColor}15` }}
-      >
+      {imageSrc ? (
+        <div className="w-12 h-12 rounded-xl mb-4 overflow-hidden relative">
+          <Image
+            src={imageSrc}
+            alt={name}
+            fill
+            className="object-cover"
+          />
+        </div>
+      ) : (
         <div
-          className="w-4 h-4 rounded-full"
-          style={{ backgroundColor: accentColor }}
-        />
-      </div>
+          className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
+          style={{ backgroundColor: `${accentColor}15` }}
+        >
+          <div
+            className="w-4 h-4 rounded-full"
+            style={{ backgroundColor: accentColor }}
+          />
+        </div>
+      )}
       <h3 className="text-lg font-semibold text-sutra-text">{name}</h3>
       <p className="text-xs text-sutra-muted mt-1">{designation}</p>
       <p className="mt-3 text-sm text-sutra-muted leading-relaxed">

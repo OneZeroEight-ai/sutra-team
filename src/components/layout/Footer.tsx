@@ -118,10 +118,6 @@ export function Footer() {
                 Samm&#x0101;suit.com
               </a>
             </div>
-            <div className="text-xs text-sutra-muted">
-              Patent Pending &middot; U.S. Provisional Application (Filed
-              January 30, 2026) &middot; Inventor: JB Wagoner
-            </div>
           </div>
         </div>
       </div>

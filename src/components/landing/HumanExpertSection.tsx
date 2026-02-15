@@ -181,8 +181,8 @@ export function HumanExpertSection() {
 
         {/* CTA */}
         <div className="mt-10 text-center">
-          <Button href="/connect">
-            Start a Session <ArrowRight className="ml-2 h-4 w-4" />
+          <Button href="/council/deliberate">
+            Start a Deliberation <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>

@@ -155,8 +155,8 @@ export default function HomePage() {
             ))}
           </div>
           <div className="mt-8 text-center">
-            <Button href="/connect">
-              Try a Session <ArrowRight className="ml-2 h-4 w-4" />
+            <Button href="/council/deliberate">
+              Start a Deliberation <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
