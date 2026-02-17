@@ -219,7 +219,7 @@ function DeliberateContent() {
               <img
                 src="/images/oracle.gif"
                 alt="Sutra Oracle"
-                className="w-24 h-24 rounded-full object-cover border-2 border-violet-500/30 shadow-lg shadow-violet-500/20"
+                className="w-32 h-32 rounded-full object-cover border-2 border-violet-500/30 shadow-lg shadow-violet-500/20"
               />
               {loading && (
                 <div className="absolute inset-0 rounded-full border-2 border-violet-400 animate-ping" />
@@ -393,7 +393,7 @@ function DeliberateContent() {
               <img
                 src="/images/oracle.gif"
                 alt="Deliberating..."
-                className="w-40 h-40 rounded-2xl object-cover mx-auto mb-6 shadow-2xl shadow-violet-500/20 border border-violet-500/20"
+                className="w-48 h-48 rounded-full object-cover mx-auto mb-6 shadow-2xl shadow-violet-500/20 border border-violet-500/20"
               />
               <p className="text-violet-400 text-sm font-medium animate-pulse">
                 The council is deliberating...
