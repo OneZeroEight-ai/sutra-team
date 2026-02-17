@@ -185,8 +185,8 @@ _EXPERT_PDF_KEY_TO_META: dict[str, dict] = {
     "market_analyst": {"name": "The Market Analyst", "domain": "Competitive Intelligence & Market Strategy"},
     "financial_strategist": {"name": "The Financial Strategist", "domain": "Financial Analysis & Capital Strategy"},
     "risk_assessor": {"name": "The Risk Assessor", "domain": "Threat Modeling & Strategic Risk Management"},
+    "technical_architect": {"name": "The Technical Architect", "domain": "Systems Design & Technical Strategy"},
     # Future experts:
-    # "technical_architect": {"name": "The Technical Architect", "domain": "Systems & Architecture"},
     # "growth_strategist": {"name": "The Growth Strategist", "domain": "Go-to-Market & Scaling"},
 }
 
