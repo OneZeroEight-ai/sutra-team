@@ -2,7 +2,6 @@ import Image from "next/image";
 import { RIGHTS_AGENTS, AGENT_AVATARS } from "@/lib/constants";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { ArrowRight } from "lucide-react";
 
 function toSlug(name: string): string {
   return name
@@ -79,10 +78,18 @@ export function RightsProfileGrid() {
               <Button
                 variant="secondary"
                 className="w-full"
-                href={`/connect/room/voice-${slug}?council=rights`}
+                disabled
               >
-                Start Session <ArrowRight className="ml-2 h-4 w-4" />
+                Voice Sessions — Coming Soon
               </Button>
+              <p className="mt-2 text-center text-xs text-sutra-muted">
+                <a
+                  href="/council/deliberate"
+                  className="text-sutra-accent hover:underline"
+                >
+                  Text deliberation available now
+                </a>
+              </p>
             </div>
           </Card>
         );

@@ -57,12 +57,28 @@ export function ConnectModeSelector({ onSelect }: ConnectModeSelectorProps) {
           <p className="mt-3 text-sm text-sutra-muted leading-relaxed flex-1">
             {m.description}
           </p>
-          <Button
-            className="mt-5 w-full"
-            onClick={() => onSelect(m.mode)}
-          >
-            {m.mode === "phone" ? "View Dial-In Info" : "Start Session"}
-          </Button>
+          {m.mode === "phone" ? (
+            <Button
+              className="mt-5 w-full"
+              onClick={() => onSelect(m.mode)}
+            >
+              View Dial-In Info
+            </Button>
+          ) : (
+            <div className="mt-5">
+              <Button className="w-full" disabled>
+                {m.title} — Coming Soon
+              </Button>
+              <p className="mt-2 text-center text-xs text-sutra-muted">
+                <a
+                  href="/council/deliberate"
+                  className="text-sutra-accent hover:underline"
+                >
+                  Text deliberation available now
+                </a>
+              </p>
+            </div>
+          )}
         </Card>
       ))}
     </div>

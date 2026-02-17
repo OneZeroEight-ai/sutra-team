@@ -8,7 +8,7 @@ import {
   useIsSpeaking,
   useConnectionState,
 } from "@livekit/components-react";
-import { ConnectionState } from "livekit-client";
+import { ConnectionState, type Participant } from "livekit-client";
 import { AGENT_AVATARS, RIGHTS_AGENTS } from "@/lib/constants";
 
 interface AgentInfo {
@@ -53,9 +53,18 @@ function resolveAvatarFromRoom(roomId: string): {
   };
 }
 
-function AgentSpeakingAvatar({ agent, roomId }: VoiceSessionViewProps) {
-  const voiceAssistant = useVoiceAssistant();
-  const isSpeaking = useIsSpeaking(voiceAssistant.agent);
+interface ActiveAvatarProps extends VoiceSessionViewProps {
+  agentParticipant: Participant;
+  voiceState: string;
+}
+
+function ActiveAvatar({
+  agent,
+  roomId,
+  agentParticipant,
+  voiceState,
+}: ActiveAvatarProps) {
+  const isSpeaking = useIsSpeaking(agentParticipant);
 
   const { avatarSrc, accentColor: resolvedColor } =
     resolveAvatarFromRoom(roomId);
@@ -125,9 +134,9 @@ function AgentSpeakingAvatar({ agent, roomId }: VoiceSessionViewProps) {
               backgroundColor: isSpeaking ? accentColor : "#22c55e",
             }}
           />
-          {voiceAssistant.state === "connecting"
+          {voiceState === "connecting"
             ? "Connecting..."
-            : voiceAssistant.state === "listening"
+            : voiceState === "listening"
               ? "Listening"
               : isSpeaking
                 ? "Speaking"
@@ -135,6 +144,23 @@ function AgentSpeakingAvatar({ agent, roomId }: VoiceSessionViewProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function AgentSpeakingAvatar({ agent, roomId }: VoiceSessionViewProps) {
+  const voiceAssistant = useVoiceAssistant();
+
+  if (!voiceAssistant.agent) {
+    return <ConnectingAvatar agent={agent} roomId={roomId} />;
+  }
+
+  return (
+    <ActiveAvatar
+      agent={agent}
+      roomId={roomId}
+      agentParticipant={voiceAssistant.agent}
+      voiceState={voiceAssistant.state}
+    />
   );
 }
 
