@@ -5,7 +5,7 @@ function toSlug(name: string): string {
   return name.toLowerCase().replace(/\s+/g, "-");
 }
 
-const LIVE_AGENTS = ["Legal Analyst"];
+const LIVE_AGENTS = ["Legal Analyst", "Market Analyst"];
 
 export function ExpertsGrid() {
   return (
