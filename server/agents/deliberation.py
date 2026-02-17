@@ -183,8 +183,8 @@ _EXPERT_PDF_PROMPTS: dict[str, str] = {}
 _EXPERT_PDF_KEY_TO_META: dict[str, dict] = {
     "legal_analyst": {"name": "The Legal Analyst", "domain": "Legal Strategy & Risk Assessment"},
     "market_analyst": {"name": "The Market Analyst", "domain": "Competitive Intelligence & Market Strategy"},
+    "financial_strategist": {"name": "The Financial Strategist", "domain": "Financial Analysis & Capital Strategy"},
     # Future experts:
-    # "financial_strategist": {"name": "The Financial Strategist", "domain": "Financial Analysis"},
     # "technical_architect": {"name": "The Technical Architect", "domain": "Systems & Architecture"},
     # "risk_assessor": {"name": "The Risk Assessor", "domain": "Threat Modeling & Contingency"},
     # "growth_strategist": {"name": "The Growth Strategist", "domain": "Go-to-Market & Scaling"},
