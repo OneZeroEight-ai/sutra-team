@@ -6,7 +6,9 @@ import {
   ControlBar,
   useVoiceAssistant,
   useIsSpeaking,
+  useConnectionState,
 } from "@livekit/components-react";
+import { ConnectionState } from "livekit-client";
 import { AGENT_AVATARS, RIGHTS_AGENTS } from "@/lib/constants";
 
 interface AgentInfo {
@@ -136,14 +138,58 @@ function AgentSpeakingAvatar({ agent, roomId }: VoiceSessionViewProps) {
   );
 }
 
+function ConnectingAvatar({ agent, roomId }: VoiceSessionViewProps) {
+  const { avatarSrc, accentColor: resolvedColor } =
+    resolveAvatarFromRoom(roomId);
+  const accentColor = agent.accentColor || resolvedColor;
+  const avatarUrl = agent.avatar || avatarSrc;
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      <div className="relative">
+        <div
+          className="relative w-[200px] h-[200px] rounded-full overflow-hidden border-[3px]"
+          style={{ borderColor: `${accentColor}40` }}
+        >
+          <Image
+            src={avatarUrl}
+            alt={agent.name}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-lg font-semibold text-[#e4e4e7]">{agent.name}</p>
+        <p className="text-sm text-[#71717a] mt-0.5">{agent.subtitle}</p>
+        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#1e1e2e] bg-[#12121a] px-4 py-1.5 text-xs text-[#71717a]">
+          <span
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{ backgroundColor: accentColor }}
+          />
+          Connecting...
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function VoiceSessionView({ agent, roomId }: VoiceSessionViewProps) {
+  const connectionState = useConnectionState();
+  const isConnected = connectionState === ConnectionState.Connected;
+
   return (
     <div className="flex flex-col h-full">
       <RoomAudioRenderer />
 
       {/* Centered avatar area */}
       <div className="flex-1 flex items-center justify-center">
-        <AgentSpeakingAvatar agent={agent} roomId={roomId} />
+        {isConnected ? (
+          <AgentSpeakingAvatar agent={agent} roomId={roomId} />
+        ) : (
+          <ConnectingAvatar agent={agent} roomId={roomId} />
+        )}
       </div>
 
       {/* Controls */}
