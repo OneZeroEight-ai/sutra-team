@@ -19,18 +19,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://sutra.team"),
   title: {
-    default: "Sutra.team — Persona Hosting Platform",
+    default: "Sutra.team — Your AI Agency",
     template: "%s | Sutra.team",
   },
   description:
-    "Your personal council of experts. Council deliberation with AI agents grounded in the Noble Eightfold Path, synthesized by Sutra.",
+    "Build AI agents. Assign roles. Command them across Telegram, Slack, email, and more. Every action governed by 8 security layers. Start free.",
   icons: {
     icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Sutra.team — Persona Hosting Platform",
-    description: "Your personal council of experts.",
+    title: "Sutra.team — Your AI Agency",
+    description:
+      "Build agents. Assign roles. Command them anywhere. Protected by Samm\u0101 Suit.",
     images: [{ url: "/images/og/og-default.png", width: 1200, height: 630 }],
     siteName: "Sutra.team",
     type: "website",
@@ -38,8 +39,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sutra.team — Persona Hosting Platform",
-    description: "Your personal council of experts.",
+    title: "Sutra.team — Your AI Agency",
+    description:
+      "Build agents. Assign roles. Command them anywhere. Protected by Samm\u0101 Suit.",
     images: ["/images/og/og-default.png"],
   },
 };

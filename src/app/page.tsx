@@ -1,352 +1,726 @@
 import { Button } from "@/components/ui/Button";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card } from "@/components/ui/Card";
-import { RightsGrid } from "@/components/council/RightsGrid";
-import { ExpertsGrid } from "@/components/council/ExpertsGrid";
-import { SynthesisFlow } from "@/components/council/SynthesisFlow";
-import { DiffScore } from "@/components/differentiation/DiffScore";
-import { HumanExpertSection } from "@/components/landing/HumanExpertSection";
 import Image from "next/image";
-import {
-  ArrowRight,
-  Zap,
-  Users,
-  Brain,
-  Shield,
-  Award,
-  BookOpen,
-  FileText,
-  Video,
-  Mic,
-  Phone,
-} from "lucide-react";
+import { ArrowRight, Shield } from "lucide-react";
+import { RIGHTS_AGENTS, AGENT_AVATARS } from "@/lib/constants";
+
+const AGENT_CARDS = [
+  {
+    icon: "\u{1F4CB}",
+    title: "Research Analyst",
+    desc: "Monitors your industry, summarizes trends, flags opportunities.",
+    bullets: [
+      "Track competitor announcements",
+      "Summarize weekly news",
+      "Alert on regulatory changes",
+    ],
+  },
+  {
+    icon: "\u{1F4E7}",
+    title: "Email Manager",
+    desc: "Reads, triages, drafts, and responds to your email.",
+    bullets: [
+      "Triage inbox by priority",
+      "Draft responses for review",
+      "Forward important items with summary",
+    ],
+  },
+  {
+    icon: "\u{1F4C8}",
+    title: "Growth Strategist",
+    desc: "Drafts content, monitors engagement, tracks your brand.",
+    bullets: [
+      "Write social posts for 4 platforms",
+      "Monitor Reddit and HN for mentions",
+      "Weekly engagement report",
+    ],
+  },
+  {
+    icon: "\u{2696}\u{FE0F}",
+    title: "Legal Reviewer",
+    desc: "Reviews contracts, flags risks, tracks compliance.",
+    bullets: [
+      "Highlight risky clauses",
+      "Compare against standard terms",
+      "Track renewal dates",
+    ],
+  },
+  {
+    icon: "\u{1F4B0}",
+    title: "Financial Watchdog",
+    desc: "Monitors spending, tracks budgets, alerts on anomalies.",
+    bullets: [
+      "Daily spend summary",
+      "Flag unusual charges",
+      "Monthly budget report",
+    ],
+  },
+  {
+    icon: "\u{1F916}",
+    title: "Custom Agent",
+    desc: "Build anything. Define the role. Assign the skills.",
+    bullets: [
+      "Your system prompt",
+      "Your skill selection",
+      "Your channel configuration",
+    ],
+  },
+];
+
+const CHANNELS = [
+  {
+    icon: "\u{1F4AC}",
+    title: "Dashboard",
+    desc: "Web-based chat with full agent management",
+  },
+  {
+    icon: "\u{2708}\u{FE0F}",
+    title: "Telegram",
+    desc: "Message your agents from your phone",
+  },
+  {
+    icon: "\u{1F4BC}",
+    title: "Slack",
+    desc: "Integrate agents into your workspace",
+  },
+  {
+    icon: "\u{1F4E7}",
+    title: "Email",
+    desc: "Agents read, reply, and forward \u2014 governed",
+  },
+  {
+    icon: "\u{1F493}",
+    title: "Heartbeat",
+    desc: "Agents work while you sleep. Budget-capped.",
+  },
+];
+
+const STEPS = [
+  {
+    num: "01",
+    title: "Create an agent",
+    desc: "Name it. Give it a role. Write its system prompt. Choose its model \u2014 Claude, GPT, or Gemini.",
+  },
+  {
+    num: "02",
+    title: "Give it skills and channels",
+    desc: "Select from 30+ governed skills. Connect Telegram, Slack, or email. Set a budget ceiling.",
+  },
+  {
+    num: "03",
+    title: "Let it work",
+    desc: "Chat with it. Set a heartbeat schedule. Watch the audit trail. Kill it if anything goes wrong.",
+  },
+];
+
+const SECURITY_LAYERS = [
+  "SUTRA",
+  "DHARMA",
+  "SANGHA",
+  "KARMA",
+  "BODHI",
+  "METTA",
+  "SILA",
+  "NIRVANA",
+];
+
+const COUNCIL_AGENTS = [
+  { key: "wisdom-judge", name: "The Wisdom Judge", role: "Strategic analysis, evidence evaluation" },
+  { key: "purpose", name: "The Purpose", role: "Motivation clarity, values-action alignment" },
+  { key: "communicator", name: "The Communicator", role: "Message evaluation, communication design" },
+  { key: "ethics-judge", name: "The Ethics Judge", role: "Ethical impact, consequence modeling" },
+  { key: "sustainer", name: "The Sustainer", role: "Sustainability, value creation assessment" },
+  { key: "determined", name: "The Determined", role: "Energy allocation, priority management" },
+  { key: "aware", name: "The Aware", role: "Pattern surfacing, blind spot detection" },
+  { key: "focused", name: "The Focused", role: "Deep analysis, single-problem immersion" },
+];
+
+const PUBLISHED_LINKS = [
+  { label: "Medium", href: "https://medium.com/@jbwagoner" },
+  { label: "Dev.to", href: "https://dev.to/jbwagoner" },
+  { label: "GitHub", href: "https://github.com/OneZeroEight-ai" },
+];
 
 export default function HomePage() {
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative py-24 sm:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-sutra-accent/5 via-transparent to-transparent" />
+      {/* ═══════════ HERO ═══════════ */}
+      <section className="relative py-24 sm:py-32 lg:py-40 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(124,58,237,0.12),transparent_60%)]" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sutra-border bg-sutra-surface px-4 py-1.5 text-xs text-sutra-muted mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-sutra-gold animate-pulse" />
-            Patent Pending &middot; Strategic Decision Intelligence
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-sutra-text max-w-4xl mx-auto leading-tight">
-            Strategic{" "}
-            <span className="text-sutra-accent">Decision Intelligence</span>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-sutra-text leading-[1.05]">
+            Your AI{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] to-[#00D4FF]">
+              Agency
+            </span>
+            .
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-sutra-muted max-w-2xl mx-auto leading-relaxed">
-            Eight principled perspectives analyze your question in parallel.
-            One synthesis agent reconciles them into unified guidance you can act on.
+          <p className="mt-6 text-lg sm:text-xl text-sutra-muted max-w-xl mx-auto leading-relaxed">
+            Build agents. Assign roles. Command them anywhere.
+            <br className="hidden sm:block" />
+            Every action governed, audited, signed.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button href="/council/deliberate">
-              Ask the Oracle <ArrowRight className="ml-2 h-4 w-4" />
+            <Button href="/sign-up" className="text-base px-7 py-3">
+              Create Your First Agent <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button variant="secondary" href="/pricing">
-              View Pricing
+            <Button variant="secondary" href="#how-it-works" className="text-base px-7 py-3">
+              See How It Works
             </Button>
+          </div>
+          <div className="mt-8 inline-flex items-center gap-2 text-sm text-sutra-muted">
+            <Shield className="h-4 w-4 text-[#7C3AED]" />
+            Protected by{" "}
+            <a
+              href="https://sammasuit.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sutra-accent hover:text-sutra-text transition-colors"
+            >
+              Samm&#x0101; Suit
+            </a>{" "}
+            &mdash; 8 security layers on every interaction
+          </div>
+
+          <div className="mt-12 mx-auto max-w-xl">
+            <Image
+              src="/images/council-meditation.png"
+              alt="AI agents in council"
+              width={600}
+              height={400}
+              className="w-full h-auto rounded-2xl shadow-2xl shadow-[#7C3AED]/20 border border-sutra-border"
+              priority
+            />
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20 border-t border-sutra-border">
+      {/* ═══════════ SOCIAL PROOF ═══════════ */}
+      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="How It Works"
-            subtitle="Three steps from question to unified insight"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <p className="text-center text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-12">
+            Built for production. Running in production.
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
             {[
-              {
-                icon: Brain,
-                step: "01",
-                title: "You ask a question",
-                desc: "Submit any query through the API or web interface. The system routes it to the appropriate council.",
-              },
-              {
-                icon: Users,
-                step: "02",
-                title: "8+ agents deliberate",
-                desc: "Specialized agents analyze your question in parallel, each from their unique perspective and domain expertise.",
-              },
-              {
-                icon: Zap,
-                step: "03",
-                title: "Sutra synthesizes",
-                desc: "The synthesis agent maps agreement, identifies tensions, detects gaps, and produces one unified recommendation.",
-              },
-            ].map((item) => (
-              <Card key={item.step} hover>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-xs font-mono text-sutra-accent">
-                    {item.step}
-                  </span>
-                  <item.icon className="h-5 w-5 text-sutra-muted" />
+              { num: "30+", label: "Governed agents in production" },
+              { num: "5", label: "Channel adapters live" },
+              { num: "30", label: "First-party skills" },
+              { num: "8", label: "Security layers enforced" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-3xl sm:text-4xl font-extrabold text-sutra-text">
+                  {stat.num}
                 </div>
-                <h3 className="text-lg font-semibold text-sutra-text">
-                  {item.title}
+                <div className="mt-2 text-sm text-sutra-muted">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <blockquote className="max-w-3xl mx-auto border-l-2 border-[#7C3AED] pl-6 sm:pl-8">
+            <p className="text-base sm:text-lg text-sutra-muted leading-relaxed italic">
+              &ldquo;We don&rsquo;t just sell agent governance &mdash; we run our entire
+              operation on it. Our DevRel agent drafts content, monitors forums,
+              and sends reports on an 8-hour heartbeat cycle. Every action
+              budget-capped, audited, and cryptographically signed.&rdquo;
+            </p>
+            <footer className="mt-4 text-sm text-sutra-text font-medium">
+              &mdash; JB Wagoner, Founder
+            </footer>
+          </blockquote>
+
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-sutra-muted">
+            {PUBLISHED_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sutra-text transition-colors font-medium"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ WHAT YOU CAN BUILD ═══════════ */}
+      <section className="py-20 border-t border-sutra-border" id="agents">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4 text-center">
+            What you can build
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center">
+            An agent for everything you need.
+          </h2>
+          <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto text-center mb-12">
+            Create specialized agents. Give them skills.
+            <br className="hidden sm:block" />
+            Let them work across every channel.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {AGENT_CARDS.map((agent) => (
+              <Card key={agent.title} hover>
+                <div className="text-3xl mb-3">{agent.icon}</div>
+                <h3 className="text-lg font-bold text-sutra-text">
+                  {agent.title}
                 </h3>
-                <p className="mt-2 text-sm text-sutra-muted leading-relaxed">
-                  {item.desc}
-                </p>
+                <p className="mt-1 text-sm text-sutra-muted">{agent.desc}</p>
+                <ul className="mt-4 space-y-1">
+                  {agent.bullets.map((b) => (
+                    <li
+                      key={b}
+                      className="text-xs text-sutra-muted/70 flex items-center gap-2"
+                    >
+                      <span className="text-[#7C3AED] text-[10px]">&rarr;</span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
               </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Connect Preview */}
-      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
+      {/* ═══════════ CHANNELS ═══════════ */}
+      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30" id="channels">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Talk to your council. Literally."
-            subtitle="Video call, voice session, or phone call &mdash; no app install, browser-native WebRTC, or just pick up the phone"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Video,
-                title: "Video Room",
-                tagline: "Face your council.",
-                desc: "Camera on, animated agent avatars, screen sharing, and a full real-time transcript.",
-                color: "#a78bfa",
-              },
-              {
-                icon: Mic,
-                title: "Voice Session",
-                tagline: "Hands-free wisdom.",
-                desc: "Audio only with agent avatars and live transcript. Perfect for mobile and multitasking.",
-                color: "#06b6d4",
-              },
-              {
-                icon: Phone,
-                title: "Phone Call",
-                tagline: "Dial in from anywhere.",
-                desc: "Call a number, choose your council via IVR. No internet required. Works from any phone.",
-                color: "#f59e0b",
-              },
-            ].map((item) => (
-              <Card key={item.title} hover>
-                <div
-                  className="w-12 h-12 rounded-xl mb-4 flex items-center justify-center"
-                  style={{ backgroundColor: `${item.color}15` }}
-                >
-                  <item.icon
-                    className="h-6 w-6"
-                    style={{ color: item.color }}
-                  />
-                </div>
-                <h3 className="text-lg font-semibold text-sutra-text">
-                  {item.title}
-                </h3>
-                <p
-                  className="text-sm font-medium mt-1"
-                  style={{ color: item.color }}
-                >
-                  {item.tagline}
-                </p>
-                <p className="mt-3 text-sm text-sutra-muted leading-relaxed">
-                  {item.desc}
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4 text-center">
+            Channels
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center">
+            Command them anywhere.
+          </h2>
+          <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto text-center mb-12">
+            One agent. Every channel. Same governance.
+          </p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            {CHANNELS.map((ch) => (
+              <Card key={ch.title} hover className="text-center">
+                <div className="text-3xl mb-2">{ch.icon}</div>
+                <h4 className="text-sm font-bold text-sutra-text">{ch.title}</h4>
+                <p className="mt-1 text-xs text-sutra-muted leading-relaxed">
+                  {ch.desc}
                 </p>
               </Card>
             ))}
           </div>
-          <div className="mt-8 text-center">
-            <Button href="/council/deliberate">
-              Start a Deliberation <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
 
-      {/* Council of Rights */}
-      <section className="py-20 border-t border-sutra-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Council of Rights"
-            subtitle="Eight agents grounded in the Noble Eightfold Path &mdash; a fixed council for principled deliberation"
-          />
-          <RightsGrid />
-        </div>
-      </section>
-
-      {/* Council of Experts */}
-      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Council of Experts"
-            subtitle="Domain-specialist agents configurable per use case &mdash; build your own council"
-          />
-          <ExpertsGrid />
-          <p className="text-center text-sm text-sutra-muted mt-8">
-            Legal Analyst is live. Additional experts launching soon.
-            Custom expert councils available on Professional and Enterprise plans.
+          <p className="text-sm text-sutra-muted max-w-2xl leading-relaxed">
+            Every message &mdash; regardless of channel &mdash; routes through 8
+            security layers. Budget checks. Audit logs. Kill switches. On every
+            single interaction.
           </p>
         </div>
       </section>
 
-      {/* Combined Council */}
-      <section className="py-20 border-t border-sutra-border">
+      {/* ═══════════ HOW IT WORKS ═══════════ */}
+      <section className="py-20 border-t border-sutra-border" id="how-it-works">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="mx-auto mb-6 w-16 h-16 rounded-full overflow-hidden border-2 border-sutra-accent/30 relative">
-              <Image
-                src="/images/agents/sutra.png"
-                alt="Sutra"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-sutra-gold/30 bg-sutra-gold/5 px-4 py-1.5 text-xs text-sutra-gold mb-6">
-              Premium Feature
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text">
-              Combined Council
-            </h2>
-            <p className="mt-4 text-lg text-sutra-muted leading-relaxed">
-              Run both councils on the same query. Get Strategic Analysis +
-              Principled Evaluation + Integrated Recommendation.
-            </p>
-            <blockquote className="mt-8 text-xl italic text-sutra-accent/90 border-l-2 border-sutra-accent pl-6 text-left max-w-xl mx-auto">
-              &ldquo;Not just <em>what should I do</em> &mdash; but{" "}
-              <em>what should I do and can I live with it.</em>&rdquo;
-            </blockquote>
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                {
-                  title: "Strategic Analysis",
-                  desc: "Expert-driven domain assessment",
-                },
-                {
-                  title: "Principled Evaluation",
-                  desc: "Values-based ethical review",
-                },
-                {
-                  title: "Integrated Recommendation",
-                  desc: "Synthesized actionable guidance",
-                },
-              ].map((item) => (
-                <Card key={item.title}>
-                  <h4 className="text-sm font-semibold text-sutra-text">
-                    {item.title}
-                  </h4>
-                  <p className="mt-1 text-xs text-sutra-muted">{item.desc}</p>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4 text-center">
+            How it works
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center mb-12">
+            Three steps. Your agency is live.
+          </h2>
 
-      {/* Human Expert Integration */}
-      <HumanExpertSection />
-
-      {/* Differentiation */}
-      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <div>
-              <SectionHeading
-                title="This isn't a prompt wrapper."
-                subtitle="Sutra.team personas have measurable differentiation scores, automated testing, and public differentiation certificates."
-                align="left"
-              />
-              <p className="text-sm text-sutra-muted leading-relaxed">
-                Every persona gets a differentiation portfolio: side-by-side
-                comparisons against the base model, a live score dashboard,
-                creative works catalog, and a public differentiation
-                certificate. This is what makes the platform defensible.
-              </p>
-              <div className="mt-6">
-                <Button variant="secondary" href="/docs">
-                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div>
-              <DiffScore />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Agents Protected by Sammāsuit */}
-      <section className="py-20 border-t border-sutra-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <SectionHeading
-            title="Agents Protected by Samm&#x0101;suit"
-            subtitle="Sutra.team agents operate within Samm&#x0101;suit.com&apos;s security framework &mdash; protecting persona integrity, memory privacy, and deliberation confidentiality."
-          />
-          <div className="max-w-md mx-auto">
-            <div className="rounded-2xl overflow-hidden border-2 border-violet-500/30 shadow-lg shadow-violet-500/20">
-              <Image
-                src="/images/sammasuit-protection.jpg"
-                alt="Sammāsuit Security Framework"
-                width={600}
-                height={600}
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          </div>
-          <div className="mt-8">
-            <Button
-              variant="secondary"
-              href="https://sammasuit.com"
-            >
-              Explore Samm&#x0101;suit.com{" "}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Patent & Credibility */}
-      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            title="Built on Research, Protected by Patent"
-            subtitle="A values-based AI alignment system backed by research, publication, and intellectual property"
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              {
-                icon: Shield,
-                title: "Patent Filed",
-                desc: "U.S. Provisional Application, January 2026. Inventor: JB Wagoner.",
-              },
-              {
-                icon: Award,
-                title: "IEEE CertifAIEd",
-                desc: "Alignment with IEEE standards for ethical AI development.",
-              },
-              {
-                icon: BookOpen,
-                title: "Zen AI",
-                desc: "Theoretical foundation for values-based alignment. Book by JB Wagoner.",
-              },
-              {
-                icon: FileText,
-                title: "Proven Alignment",
-                desc: "40+ songs, 4 albums of sustained creative alignment as proof of concept.",
-              },
-            ].map((item) => (
-              <Card key={item.title}>
-                <item.icon className="h-5 w-5 text-sutra-accent mb-3" />
-                <h4 className="text-sm font-semibold text-sutra-text">
-                  {item.title}
-                </h4>
-                <p className="mt-2 text-xs text-sutra-muted leading-relaxed">
-                  {item.desc}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {STEPS.map((step) => (
+              <Card key={step.num} className="relative overflow-hidden">
+                <span className="absolute top-4 right-5 text-5xl font-extrabold text-[#7C3AED]/[0.07] font-mono leading-none select-none">
+                  {step.num}
+                </span>
+                <h3 className="text-lg font-bold text-sutra-text relative">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm text-sutra-muted leading-relaxed relative">
+                  {step.desc}
                 </p>
               </Card>
             ))}
           </div>
-          <div className="mt-8 text-center">
-            <Button variant="secondary" href="/about">
-              Learn About Our Story <ArrowRight className="ml-2 h-4 w-4" />
+        </div>
+      </section>
+
+      {/* ═══════════ COUNCIL MODE ═══════════ */}
+      <section className="py-20 border-t border-sutra-border bg-sutra-surface/30" id="council">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4 text-center">
+            Council mode
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center">
+            When one agent isn&rsquo;t enough.
+          </h2>
+          <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto text-center mb-12">
+            Assemble your agents into councils. They deliberate.
+            <br className="hidden sm:block" />
+            You get unified guidance.
+          </p>
+
+          {/* Council agent arc */}
+          <div className="relative max-w-3xl mx-auto mb-12">
+            {/* Center Sutra avatar */}
+            <div className="flex justify-center mb-8">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#7C3AED]/40 shadow-lg shadow-[#7C3AED]/20">
+                <Image
+                  src="/images/agents/sutra.png"
+                  alt="Sutra — Synthesis Agent"
+                  width={80}
+                  height={80}
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* 8 Rights agents */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {COUNCIL_AGENTS.map((agent) => {
+                const agentData = RIGHTS_AGENTS.find(
+                  (r) => r.name === agent.name
+                );
+                const color = agentData?.accent_color || "#a78bfa";
+                return (
+                  <div key={agent.key} className="text-center group">
+                    <div
+                      className="w-14 h-14 mx-auto rounded-full overflow-hidden border-2 transition-all duration-200 group-hover:scale-110"
+                      style={{ borderColor: `${color}60` }}
+                    >
+                      <Image
+                        src={AGENT_AVATARS[agent.key]}
+                        alt={agent.name}
+                        width={56}
+                        height={56}
+                        className="object-cover"
+                      />
+                    </div>
+                    <p className="mt-2 text-xs font-semibold text-sutra-text">
+                      {agent.name}
+                    </p>
+                    <p className="text-[11px] text-sutra-muted leading-snug">
+                      {agent.role}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Council descriptions */}
+          <div className="max-w-3xl mx-auto space-y-4">
+            <Card>
+              <h3 className="text-base font-bold text-sutra-text mb-2">
+                Council of Experts
+              </h3>
+              <p className="text-sm text-sutra-muted leading-relaxed">
+                Legal, Financial, Technical, Market, Risk, Growth. Configure
+                which experts join based on your question.
+              </p>
+            </Card>
+
+            <div className="rounded-xl border-l-[3px] border-[#7C3AED] bg-sutra-surface border border-sutra-border p-6">
+              <p className="text-sm text-sutra-muted leading-relaxed">
+                <strong className="text-sutra-text">Combined Council:</strong>{" "}
+                Both councils deliberate simultaneously. Not just &ldquo;what
+                should I do&rdquo; &mdash; but &ldquo;what should I do and can I
+                live with it.&rdquo;
+              </p>
+            </div>
+
+            <p className="text-xs text-sutra-muted/70 italic text-center">
+              Available on Professional and Enterprise plans.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ GOVERNANCE ═══════════ */}
+      <section className="py-20 border-t border-sutra-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4">
+            Governance
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text">
+            Every agent. Every action. Governed.
+          </h2>
+          <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto mb-10">
+            Powered by Samm&#x0101; Suit &mdash; the open-source security
+            framework.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {SECURITY_LAYERS.map((layer) => (
+              <span
+                key={layer}
+                className="font-mono text-xs font-bold tracking-wider px-4 py-2 rounded-lg bg-[#7C3AED]/[0.08] border border-[#7C3AED]/15 text-[#8B5CF6]"
+              >
+                {layer}
+              </span>
+            ))}
+          </div>
+
+          <p className="text-sm text-sutra-muted max-w-xl mx-auto leading-relaxed mb-6">
+            Budget enforcement. Kill switches. Cryptographic identity. Audit
+            trails. Skill vetting. Model permissions. Process isolation. Gateway
+            protection. All on by default.
+          </p>
+
+          <a
+            href="https://sammasuit.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#7C3AED] hover:text-[#8B5CF6] transition-colors"
+          >
+            Learn more at sammasuit.com
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      </section>
+
+      {/* ═══════════ FOUNDER STORY ═══════════ */}
+      <section className="py-20 border-t border-sutra-border bg-sutra-surface/20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#00D4FF] flex items-center justify-center text-white text-xl font-bold shrink-0">
+              JB
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-sutra-text">
+                JB Wagoner, Founder
+              </div>
+              <div className="text-xs text-sutra-muted">
+                OneZeroEight.ai
+              </div>
+            </div>
+          </div>
+
+          <div className="text-sm text-sutra-muted leading-relaxed space-y-4">
+            <p>
+              I&rsquo;ve spent 13 years building technology products.
+            </p>
+            <p>
+              I built Sutra because I needed an AI agency I could actually trust.
+              Not a chatbot &mdash; a team of governed agents that work across
+              every channel, stay within budget, and leave an audit trail on
+              everything.
+            </p>
+            <p>
+              We run 30+ agents in production today. Our DevRel agent monitors
+              Reddit and Hacker News, drafts content for 4 social accounts, and
+              emails me a report every 8 hours &mdash; all under enforced budget
+              caps and cryptographic signing.
+            </p>
+            <p>
+              Every feature on this page exists because we use it ourselves.
+              Every security layer is enforced because we need it ourselves.
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-4 text-xs text-sutra-muted">
+            <a
+              href="https://x.com/jbwagoner"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-sutra-accent transition-colors"
+            >
+              @jbwagoner
+            </a>
+            <a
+              href="https://x.com/sammasuit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-sutra-accent transition-colors"
+            >
+              @sammasuit
+            </a>
+            <a
+              href="https://x.com/sutra_ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-sutra-accent transition-colors"
+            >
+              @sutra_ai
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ PRICING ═══════════ */}
+      <section className="py-20 border-t border-sutra-border" id="pricing">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4 text-center">
+            Pricing
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center mb-12">
+            Start free. Scale when you&rsquo;re ready.
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Free */}
+            <Card className="flex flex-col">
+              <p className="text-xs font-mono tracking-wider text-sutra-muted mb-3">
+                FREE
+              </p>
+              <p className="text-4xl font-extrabold text-sutra-text">$0</p>
+              <p className="text-xs text-sutra-muted/60 mb-6">forever</p>
+              <ul className="space-y-2 flex-1">
+                {[
+                  "2 agents",
+                  "Dashboard chat only",
+                  "10 skills",
+                  "Community support",
+                  "BYOK (bring your own key)",
+                ].map((f) => (
+                  <li
+                    key={f}
+                    className="text-sm text-sutra-muted flex items-start gap-2"
+                  >
+                    <span className="text-[#7C3AED] text-xs mt-0.5">&rarr;</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                <Button variant="secondary" href="/sign-up" className="w-full">
+                  Get Started Free
+                </Button>
+              </div>
+            </Card>
+
+            {/* Creator */}
+            <Card className="flex flex-col">
+              <p className="text-xs font-mono tracking-wider text-sutra-muted mb-3">
+                CREATOR
+              </p>
+              <p className="text-4xl font-extrabold text-sutra-text">
+                $29<span className="text-base font-normal text-sutra-muted">/mo</span>
+              </p>
+              <p className="text-xs text-sutra-muted/60 mb-6">per workspace</p>
+              <ul className="space-y-2 flex-1">
+                {[
+                  "10 agents",
+                  "All channels (Telegram, Slack, Email)",
+                  "30+ skills",
+                  "Heartbeat scheduling",
+                  "BYOK multi-provider (Claude, GPT, Gemini)",
+                  "Email support",
+                ].map((f) => (
+                  <li
+                    key={f}
+                    className="text-sm text-sutra-muted flex items-start gap-2"
+                  >
+                    <span className="text-[#7C3AED] text-xs mt-0.5">&rarr;</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                <Button href="/sign-up" className="w-full">
+                  Start Creating
+                </Button>
+              </div>
+            </Card>
+
+            {/* Professional — featured */}
+            <Card className="flex flex-col relative border-[#7C3AED] shadow-lg shadow-[#7C3AED]/20">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#7C3AED] text-white text-[10px] font-mono font-bold tracking-widest px-4 py-1 rounded-full">
+                RECOMMENDED
+              </span>
+              <p className="text-xs font-mono tracking-wider text-sutra-muted mb-3">
+                PROFESSIONAL
+              </p>
+              <p className="text-4xl font-extrabold text-sutra-text">
+                $99<span className="text-base font-normal text-sutra-muted">/mo</span>
+              </p>
+              <p className="text-xs text-sutra-muted/60 mb-6">per workspace</p>
+              <ul className="space-y-2 flex-1">
+                {[
+                  "Unlimited agents",
+                  "All channels + heartbeat",
+                  "All skills",
+                  "Council mode (Rights + Experts + Combined)",
+                  "Persistent cross-session memory",
+                  "Priority support",
+                  "Advanced audit & compliance",
+                ].map((f) => (
+                  <li
+                    key={f}
+                    className="text-sm text-sutra-muted flex items-start gap-2"
+                  >
+                    <span className="text-[#7C3AED] text-xs mt-0.5">&rarr;</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                <Button href="/sign-up" className="w-full">
+                  Go Professional
+                </Button>
+              </div>
+            </Card>
+
+            {/* Enterprise */}
+            <Card className="flex flex-col">
+              <p className="text-xs font-mono tracking-wider text-sutra-muted mb-3">
+                ENTERPRISE
+              </p>
+              <p className="text-4xl font-extrabold text-sutra-text">Custom</p>
+              <p className="text-xs text-sutra-muted/60 mb-6">talk to us</p>
+              <ul className="space-y-2 flex-1">
+                {[
+                  "Everything in Professional",
+                  "SSO / SAML",
+                  "Custom agents & skills",
+                  "Compliance reporting (SOC2, ISO)",
+                  "Dedicated SLA",
+                  "Human expert integration (roadmap)",
+                ].map((f) => (
+                  <li
+                    key={f}
+                    className="text-sm text-sutra-muted flex items-start gap-2"
+                  >
+                    <span className="text-[#7C3AED] text-xs mt-0.5">&rarr;</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                <Button
+                  variant="secondary"
+                  href="mailto:info@sammasuit.com?subject=Sutra%20Enterprise%20Inquiry"
+                  className="w-full"
+                >
+                  Talk to Sales
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <p className="mt-8 text-center text-sm text-sutra-muted">
+            All plans include Samm&#x0101; Suit&rsquo;s 8 security layers.{" "}
+            <span className="text-[#00D4FF] font-medium">BYOK</span> &mdash;
+            bring your own Anthropic, OpenAI, or Google API key. You control your
+            spend.
+          </p>
+        </div>
+      </section>
+
+      {/* ═══════════ BOTTOM CTA ═══════════ */}
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-transparent via-[#7C3AED]/[0.04] to-transparent">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sutra-text">
+            Build your agency today.
+          </h2>
+          <p className="mt-4 text-lg text-sutra-muted">
+            Start with 2 free agents. No credit card required.
+          </p>
+          <div className="mt-8">
+            <Button href="/sign-up" className="text-base px-8 py-3.5">
+              Create Your First Agent <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>

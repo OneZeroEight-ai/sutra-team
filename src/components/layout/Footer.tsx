@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ECOSYSTEM_LINKS } from "@/lib/constants";
 
 const productLinks = [
+  { label: "Agents", href: "/#agents" },
+  { label: "Channels", href: "/#channels" },
   { label: "Council", href: "/council" },
-  { label: "Connect", href: "/connect" },
-  { label: "Personas", href: "/personas" },
   { label: "Pricing", href: "/pricing" },
   { label: "Docs", href: "/docs" },
 ];
@@ -20,7 +20,6 @@ const companyLinks = [
 const legalLinks = [
   { label: "Terms", href: "/terms" },
   { label: "Privacy", href: "/privacy" },
-  { label: "Patent Notice", href: "/patent" },
 ];
 
 export function Footer() {
@@ -108,17 +107,26 @@ export function Footer() {
             <div className="text-sm text-sutra-muted">
               &copy; {new Date().getFullYear()}{" "}
               <span className="text-sutra-text font-medium">sutra.team</span>{" "}
-              &mdash; Protected by{" "}
+              &mdash;{" "}
               <a
-                href="https://sammasuit.com"
+                href="https://onezeroeight.ai"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-sutra-accent transition-colors"
               >
-                Samm&#x0101;suit.com
+                OneZeroEight.ai
               </a>
             </div>
+            <div className="flex gap-4 text-xs text-sutra-muted">
+              <a href="https://x.com/sutra_ai" target="_blank" rel="noopener noreferrer" className="hover:text-sutra-accent transition-colors">@sutra_ai</a>
+              <a href="https://x.com/sammasuit" target="_blank" rel="noopener noreferrer" className="hover:text-sutra-accent transition-colors">@sammasuit</a>
+              <a href="https://x.com/jbwagoner" target="_blank" rel="noopener noreferrer" className="hover:text-sutra-accent transition-colors">@jbwagoner</a>
+              <a href="https://x.com/OneZeroEight_ai" target="_blank" rel="noopener noreferrer" className="hover:text-sutra-accent transition-colors">@onezeroeight_ai</a>
+            </div>
           </div>
+          <p className="mt-4 text-center text-xs text-sutra-muted/60">
+            Protected by Samm&#x0101; Suit &middot; Open Source &middot; Built in Los Angeles
+          </p>
         </div>
       </div>
     </footer>

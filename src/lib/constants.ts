@@ -384,11 +384,8 @@ export const ECOSYSTEM_LINKS: EcosystemLink[] = [
 ];
 
 export const NAV_LINKS: NavLink[] = [
-  { label: "Council", href: "/council" },
-  { label: "Connect", href: "/connect" },
-  { label: "Personas", href: "/personas" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Docs", href: "/docs" },
-  { label: "About", href: "/about" },
-  { label: "Book", href: "/book" },
+  { label: "Agents", href: "/#agents" },
+  { label: "Channels", href: "/#channels" },
+  { label: "Council", href: "/#council" },
+  { label: "Pricing", href: "/#pricing" },
 ];
