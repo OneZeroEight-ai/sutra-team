@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ECOSYSTEM_LINKS } from "@/lib/constants";
 
@@ -102,7 +103,60 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-sutra-border">
+        {/* From the same mind */}
+        <div className="mt-10 pt-8 border-t border-sutra-border">
+          <p className="text-[11px] font-mono uppercase tracking-[2px] text-sutra-muted/50 mb-4 text-center">
+            From the same mind
+          </p>
+          <div className="flex items-center justify-center gap-8 flex-wrap">
+            <a
+              href="https://distrokid.com/hyperfollow/sutraandthenoble8/neosoul-2?ref=release"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 group"
+            >
+              <Image
+                src="/images/neosoul-cover.jpg"
+                alt="NEOSOUL album cover"
+                width={56}
+                height={56}
+                className="rounded-lg opacity-70 group-hover:opacity-100 transition-opacity"
+              />
+              <div>
+                <div className="text-xs font-semibold text-sutra-text/70 group-hover:text-sutra-text transition-colors">
+                  NEOSOUL
+                </div>
+                <div className="text-[11px] text-sutra-muted/60">
+                  Sutra and the Noble 8
+                </div>
+              </div>
+            </a>
+            <a
+              href="https://a.co/0iBAsM27"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 group"
+            >
+              <Image
+                src="/images/portable-mind-cover.png"
+                alt="Portable Mind book cover"
+                width={56}
+                height={56}
+                className="rounded-lg opacity-70 group-hover:opacity-100 transition-opacity"
+              />
+              <div>
+                <div className="text-xs font-semibold text-sutra-text/70 group-hover:text-sutra-text transition-colors">
+                  Portable Mind
+                </div>
+                <div className="text-[11px] text-sutra-muted/60">
+                  by JB Wagoner
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-sutra-border">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-sutra-muted">
               &copy; {new Date().getFullYear()}{" "}
