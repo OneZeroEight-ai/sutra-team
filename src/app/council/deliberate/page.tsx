@@ -4,15 +4,41 @@ import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect, useRef, Suspense } from "react";
 
 interface AgentPerspective {
-  agent_name?: string;
-  name?: string;
-  response?: string;
-  response_text?: string;
+  agent: string;
+  aspect: string | null;
+  perspective: string;
+  confidence: number;
+  metta_signature: string | null;
+  tokens_used: number;
+}
+
+interface Synthesis {
+  agreements: string[];
+  tensions: string[];
+  gaps: string[];
+  recommendation: string;
+  confidence: number;
 }
 
 interface DeliberationResult {
-  synthesis?: string;
-  perspectives?: AgentPerspective[];
+  deliberation_id: string;
+  query: string;
+  council_type: string;
+  perspectives: AgentPerspective[];
+  synthesis: Synthesis;
+  total_tokens: number;
+  total_cost_usd: number;
+  deliberation_time_ms: number;
+  agents_consulted: number;
+}
+
+interface CouncilStatus {
+  councils: {
+    rights: { active: boolean; agent_count: number };
+    experts: { active: boolean; agent_count: number };
+    combined: { active: boolean; agent_count: number };
+  };
+  has_synthesis_agent: boolean;
 }
 
 export default function DeliberatePage() {
@@ -31,7 +57,10 @@ function DeliberateContent() {
   const [error, setError] = useState("");
   const [councilMode, setCouncilMode] = useState<
     "rights" | "experts" | "combined"
-  >("rights");
+  >("combined");
+  const [councilStatus, setCouncilStatus] = useState<CouncilStatus | null>(
+    null,
+  );
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -133,15 +162,18 @@ function DeliberateContent() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // On first load: ensure council exists
+  // On first load: ensure council exists, get status
   useEffect(() => {
     if (!isSignedIn) return;
 
     fetch("/api/council/ensure", { method: "POST" })
       .then((r) => r.json())
       .then((data) => {
-        if (data.action === "created") {
-          console.log("[council] Auto-seeded combined council for new user");
+        if (data.councils) {
+          setCouncilStatus({
+            councils: data.councils,
+            has_synthesis_agent: data.has_synthesis_agent,
+          });
         }
       })
       .catch((err) => console.error("[council] Ensure failed:", err));
@@ -160,7 +192,6 @@ function DeliberateContent() {
         body: JSON.stringify({
           query: query.trim(),
           councilMode,
-          outputFormat: "structured",
         }),
       });
 
@@ -181,6 +212,20 @@ function DeliberateContent() {
 
   const canSubmit = query.trim().length > 0 && !loading;
 
+  const totalAgents = councilStatus
+    ? councilStatus.councils.rights.agent_count +
+      councilStatus.councils.experts.agent_count
+    : 0;
+
+  const modeDescriptions = {
+    rights:
+      "8 agents grounded in the Noble Eightfold Path analyze your question from ethical, strategic, and practical angles.",
+    experts:
+      "6 domain experts (finance, legal, tech, operations, growth, risk) provide specialized analysis.",
+    combined:
+      "All 14 agents deliberate together, with Sutra synthesizing across ethical and expert perspectives.",
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Subtle ambient glow */}
@@ -190,21 +235,47 @@ function DeliberateContent() {
 
       {/* Content */}
       <div className="relative z-10 p-6">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
+          {/* Council Status Banner */}
+          {councilStatus && (
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-sm text-zinc-300">
+                    {councilStatus.councils.rights.agent_count} Rights agents
+                    {" + "}
+                    {councilStatus.councils.experts.agent_count} Experts
+                    {councilStatus.has_synthesis_agent && " + Sutra synthesis"}
+                    {" = "}
+                    <span className="text-white font-medium">
+                      {totalAgents +
+                        (councilStatus.has_synthesis_agent ? 1 : 0)}{" "}
+                      agents ready
+                    </span>
+                  </span>
+                </div>
+                <span className="text-xs text-zinc-600">
+                  All 8 security layers enforced
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Oracle Header */}
           <div className="text-center mb-8">
             <div className="relative inline-block mb-4">
               <img
                 src="/images/oracle.gif"
                 alt="Sutra Oracle"
-                className="w-32 h-32 rounded-full object-cover border-2 border-violet-500/30 shadow-lg shadow-violet-500/20"
+                className="w-24 h-24 rounded-full object-cover border-2 border-violet-500/30 shadow-lg shadow-violet-500/20"
               />
               {loading && (
                 <div className="absolute inset-0 rounded-full border-2 border-violet-400 animate-ping" />
               )}
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-              Sutra
+              Ask your council anything
             </h1>
             <p className="text-sm text-zinc-500 mt-1">
               Strategic Decision Intelligence
@@ -212,7 +283,7 @@ function DeliberateContent() {
           </div>
 
           {/* Council Mode Selector */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-2 justify-center">
             {(["rights", "experts", "combined"] as const).map((mode) => (
               <button
                 key={mode}
@@ -223,12 +294,15 @@ function DeliberateContent() {
                     : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
                 }`}
               >
-                {mode === "rights" && "Council of Rights"}
-                {mode === "experts" && "Council of Experts"}
+                {mode === "rights" && "Rights Council"}
+                {mode === "experts" && "Experts Council"}
                 {mode === "combined" && "Combined"}
               </button>
             ))}
           </div>
+          <p className="text-xs text-zinc-600 text-center mb-6">
+            {modeDescriptions[councilMode]}
+          </p>
 
           {/* Input */}
           <div className="mb-8">
@@ -239,6 +313,11 @@ function DeliberateContent() {
               className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-white placeholder-zinc-600 resize-none focus:outline-none focus:border-violet-500/30 transition min-h-[100px]"
               rows={3}
               disabled={loading}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && canSubmit) {
+                  handleSubmit();
+                }
+              }}
             />
             <div className="flex justify-between items-center mt-3">
               <div className="text-xs text-zinc-600">
@@ -247,7 +326,9 @@ function DeliberateContent() {
                     Listening... click mic to stop
                   </span>
                 ) : (
-                  "All 8 security layers enforced"
+                  <span>
+                    Ctrl+Enter to submit
+                  </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -342,69 +423,194 @@ function DeliberateContent() {
                 The council is deliberating...
               </p>
               <p className="text-zinc-600 text-xs mt-2">
-                8 perspectives &middot; synthesizing &middot; ~30 seconds
+                Consulting {councilMode === "rights" ? "8" : councilMode === "experts" ? "6" : "14"} agents + synthesis
               </p>
             </div>
           )}
 
-          {/* Synthesis — The Oracle Speaks */}
-          {result?.synthesis && !loading && (
-            <div className="mb-8">
-              {/* Oracle avatar + label */}
-              <div className="flex items-center gap-3 mb-4">
-                <img
-                  src="/images/oracle.gif"
-                  alt="Sutra"
-                  className="w-10 h-10 rounded-full object-cover border border-violet-500/30"
-                />
+          {/* Results */}
+          {result && !loading && (
+            <div className="space-y-8">
+              {/* Synthesis — The Oracle Speaks */}
+              {result.synthesis && (
                 <div>
-                  <div className="text-sm font-semibold text-violet-400">
-                    Sutra
+                  <div className="flex items-center gap-3 mb-4">
+                    <img
+                      src="/images/oracle.gif"
+                      alt="Sutra"
+                      className="w-10 h-10 rounded-full object-cover border border-violet-500/30"
+                    />
+                    <div>
+                      <div className="text-sm font-semibold text-violet-400">
+                        Sutra Synthesis
+                      </div>
+                      <div className="text-xs text-zinc-600">
+                        {result.agents_consulted} perspectives analyzed
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-zinc-600">
-                    Synthesis of 8 perspectives
-                  </div>
-                </div>
-              </div>
 
-              {/* Synthesis content — prominent */}
-              <div className="bg-zinc-900/50 border border-violet-500/10 rounded-xl p-6 leading-relaxed">
-                <div className="text-zinc-200 whitespace-pre-wrap text-[15px] leading-7">
-                  {result.synthesis}
+                  {/* Recommendation — prominent */}
+                  {result.synthesis.recommendation && (
+                    <div className="bg-zinc-900/50 border border-violet-500/20 rounded-xl p-6 mb-4">
+                      <div className="text-xs font-medium text-violet-400 uppercase tracking-wider mb-3">
+                        Recommendation
+                      </div>
+                      <div className="text-zinc-200 whitespace-pre-wrap text-[15px] leading-7">
+                        {result.synthesis.recommendation}
+                      </div>
+                      {result.synthesis.confidence > 0 && (
+                        <div className="mt-4 flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-violet-500 rounded-full transition-all"
+                              style={{
+                                width: `${Math.round(result.synthesis.confidence * 100)}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="text-xs text-zinc-500">
+                            {Math.round(result.synthesis.confidence * 100)}%
+                            confidence
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Agreements / Tensions / Gaps */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {result.synthesis.agreements?.length > 0 && (
+                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+                        <div className="text-xs font-medium text-emerald-400 uppercase tracking-wider mb-2">
+                          Agreements
+                        </div>
+                        <ul className="space-y-2">
+                          {result.synthesis.agreements.map((a, i) => (
+                            <li
+                              key={i}
+                              className="text-sm text-zinc-400 leading-relaxed"
+                            >
+                              {a}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {result.synthesis.tensions?.length > 0 && (
+                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+                        <div className="text-xs font-medium text-amber-400 uppercase tracking-wider mb-2">
+                          Tensions
+                        </div>
+                        <ul className="space-y-2">
+                          {result.synthesis.tensions.map((t, i) => (
+                            <li
+                              key={i}
+                              className="text-sm text-zinc-400 leading-relaxed"
+                            >
+                              {t}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {result.synthesis.gaps?.length > 0 && (
+                      <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+                        <div className="text-xs font-medium text-rose-400 uppercase tracking-wider mb-2">
+                          Gaps
+                        </div>
+                        <ul className="space-y-2">
+                          {result.synthesis.gaps.map((g, i) => (
+                            <li
+                              key={i}
+                              className="text-sm text-zinc-400 leading-relaxed"
+                            >
+                              {g}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              )}
+
+              {/* Agent Perspectives */}
+              {result.perspectives?.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-medium text-zinc-400 mb-4">
+                    Council Perspectives
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {result.perspectives.map((p) => (
+                      <div
+                        key={p.agent}
+                        className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <div className="text-sm font-medium text-zinc-200">
+                              {p.agent}
+                            </div>
+                            {p.aspect && (
+                              <div className="text-xs text-violet-400/80">
+                                {p.aspect}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {p.confidence > 0 && (
+                              <span className="text-xs text-zinc-600">
+                                {Math.round(p.confidence * 100)}%
+                              </span>
+                            )}
+                            {p.metta_signature && (
+                              <span
+                                className="text-xs text-emerald-600"
+                                title="METTA signed"
+                              >
+                                Signed
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-sm text-zinc-400 whitespace-pre-wrap leading-relaxed line-clamp-6">
+                          {p.perspective}
+                        </div>
+                        {p.perspective.length > 400 && (
+                          <details className="mt-2">
+                            <summary className="text-xs text-violet-400 cursor-pointer hover:text-violet-300">
+                              Read full response
+                            </summary>
+                            <div className="text-sm text-zinc-400 whitespace-pre-wrap leading-relaxed mt-2">
+                              {p.perspective}
+                            </div>
+                          </details>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Cost & Metadata */}
+              <div className="flex items-center justify-between text-xs text-zinc-600 border-t border-zinc-800 pt-4">
+                <div className="flex items-center gap-4">
+                  <span>
+                    {result.agents_consulted} agents consulted
+                  </span>
+                  <span>
+                    {result.total_tokens.toLocaleString()} tokens
+                  </span>
+                  <span>
+                    ${result.total_cost_usd.toFixed(4)} USD
+                  </span>
+                </div>
+                <span>
+                  {(result.deliberation_time_ms / 1000).toFixed(1)}s
+                </span>
               </div>
             </div>
-          )}
-
-          {/* Council Perspectives — collapsed by default */}
-          {result?.perspectives && !loading && (
-            <details className="group mb-8">
-              <summary className="cursor-pointer text-sm text-zinc-500 hover:text-zinc-300 transition flex items-center gap-2 py-3">
-                <svg
-                  className="w-4 h-4 transition-transform group-open:rotate-90"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M9 5l7 7-7 7" />
-                </svg>
-                How the council deliberated &middot; {result.perspectives.length}{" "}
-                perspectives
-              </summary>
-              <div className="space-y-3 mt-3 pl-6 border-l border-zinc-800">
-                {result.perspectives.map((p) => (
-                  <details key={p.agent_name || p.name} className="group/agent">
-                    <summary className="cursor-pointer text-sm text-zinc-400 hover:text-zinc-200 transition py-1">
-                      {p.agent_name || p.name}
-                    </summary>
-                    <div className="text-sm text-zinc-500 whitespace-pre-wrap leading-relaxed mt-1 mb-3 pl-4">
-                      {p.response || p.response_text}
-                    </div>
-                  </details>
-                ))}
-              </div>
-            </details>
           )}
         </div>
       </div>

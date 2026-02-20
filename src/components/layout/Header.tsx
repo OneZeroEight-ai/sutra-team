@@ -68,7 +68,7 @@ export function Header() {
                 Council
               </Link>
               <Link
-                href="/connect"
+                href="/council/deliberate"
                 className="text-sm text-sutra-muted hover:text-sutra-text transition"
               >
                 Dashboard
@@ -118,7 +118,7 @@ export function Header() {
               </SignedOut>
               <SignedIn>
                 <Button href="/council/deliberate">Council</Button>
-                <Button href="/connect">Dashboard</Button>
+                <Button href="/council/deliberate">Dashboard</Button>
               </SignedIn>
             </div>
           </div>
