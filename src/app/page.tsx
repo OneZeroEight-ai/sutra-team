@@ -104,7 +104,7 @@ const STEPS = [
   {
     num: "02",
     title: "Give it skills and channels",
-    desc: "Select from 30+ governed skills. Connect Telegram, Slack, or email. Set a budget ceiling.",
+    desc: "Select from 30+ built-in skills + ecosystem. Connect Telegram, Slack, or email. Set a budget ceiling.",
   },
   {
     num: "03",
@@ -206,7 +206,7 @@ export default function HomePage() {
             {[
               { num: "30+", label: "Governed agents in production" },
               { num: "5", label: "Channel adapters live" },
-              { num: "30", label: "First-party skills" },
+              { num: "30+", label: "Built-in skills + ecosystem" },
               { num: "8", label: "Security layers enforced" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
@@ -499,10 +499,15 @@ export default function HomePage() {
             ))}
           </div>
 
-          <p className="text-sm text-sutra-muted max-w-xl mx-auto leading-relaxed mb-6">
+          <p className="text-sm text-sutra-muted max-w-xl mx-auto leading-relaxed mb-4">
             Budget enforcement. Kill switches. Cryptographic identity. Audit
             trails. Skill vetting. Model permissions. Process isolation. Gateway
             protection. All on by default.
+          </p>
+          <p className="text-sm text-sutra-muted max-w-xl mx-auto leading-relaxed mb-6">
+            Thousands of community skills from the OpenClaw ecosystem. Every one
+            governed &mdash; scanned, sandboxed, budget-tracked &mdash; before it
+            reaches your agent.
           </p>
 
           <a
@@ -607,7 +612,7 @@ export default function HomePage() {
                 {[
                   "2 agents",
                   "Dashboard chat only",
-                  "10 skills",
+                  "10 built-in skills",
                   "Community support",
                   "BYOK (bring your own key)",
                 ].map((f) => (
@@ -640,7 +645,8 @@ export default function HomePage() {
                 {[
                   "10 agents",
                   "All channels (Telegram, Slack, Email)",
-                  "30+ skills",
+                  "30+ built-in skills + ecosystem",
+                  "OpenClaw-compatible skill imports",
                   "Heartbeat scheduling",
                   "BYOK multi-provider (Claude, GPT, Gemini)",
                   "Email support",
@@ -677,7 +683,8 @@ export default function HomePage() {
                 {[
                   "Unlimited agents",
                   "All channels + heartbeat",
-                  "All skills",
+                  "All skills + ecosystem",
+                  "OpenClaw-compatible skill imports",
                   "Council mode (Rights + Experts + Combined)",
                   "Persistent cross-session memory",
                   "Priority support",
@@ -710,7 +717,8 @@ export default function HomePage() {
                 {[
                   "Everything in Professional",
                   "SSO / SAML",
-                  "Custom agents & skills",
+                  "Custom agents & skills + ecosystem",
+                  "OpenClaw-compatible skill imports",
                   "Compliance reporting (SOC2, ISO)",
                   "Dedicated SLA",
                   "Human expert integration (roadmap)",
