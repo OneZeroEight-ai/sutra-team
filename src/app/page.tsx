@@ -226,7 +226,7 @@ export default function HomePage() {
               budget-capped, audited, and cryptographically signed.&rdquo;
             </p>
             <footer className="mt-4 text-sm text-sutra-text font-medium">
-              &mdash; JB Wagoner, Founder
+              &mdash; JB Wagoner, Founder &middot; IEEE Certified in AI Ethics
             </footer>
           </blockquote>
 
@@ -531,17 +531,18 @@ export default function HomePage() {
             </div>
             <div>
               <div className="text-sm font-semibold text-sutra-text">
-                JB Wagoner, Founder
+                JB Wagoner, Founder &middot; OneZeroEight.ai
               </div>
               <div className="text-xs text-sutra-muted">
-                OneZeroEight.ai
+                IEEE Certified in AI Ethics
               </div>
             </div>
           </div>
 
           <div className="text-sm text-sutra-muted leading-relaxed space-y-4">
             <p>
-              I&rsquo;ve spent 13 years building technology products.
+              I&rsquo;m JB Wagoner. 20+ years building software. IEEE Certified
+              in AI Ethics.
             </p>
             <p>
               I built Sutra because I needed an AI agency I could actually trust.
