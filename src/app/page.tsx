@@ -56,9 +56,9 @@ const AGENT_CARDS = [
     ],
   },
   {
-    icon: "\u{1F916}",
-    title: "Custom Agent",
-    desc: "Build anything. Define the role. Assign the skills.",
+    icon: "\u{1F6E0}\u{FE0F}",
+    title: "Build Your Own",
+    desc: "Start from scratch. Define the role. Write the prompt. Pick the model. Assign the skills.",
     bullets: [
       "Your system prompt",
       "Your skill selection",
@@ -253,12 +253,11 @@ export default function HomePage() {
             What you can build
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center">
-            An agent for everything you need.
+            5 ready-made agents. Yours to customize.
           </h2>
           <p className="mt-4 text-lg text-sutra-muted max-w-2xl mx-auto text-center mb-12">
-            Create specialized agents. Give them skills.
-            <br className="hidden sm:block" />
-            Let them work across every channel.
+            Each comes with a tuned system prompt, relevant skills, and sensible
+            defaults. Use them as-is or make them your own.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -280,6 +279,12 @@ export default function HomePage() {
                     </li>
                   ))}
                 </ul>
+                <a
+                  href="/sign-up"
+                  className="mt-4 inline-flex items-center gap-1 text-xs text-[#7C3AED] hover:text-[#8B5CF6] transition-colors font-medium"
+                >
+                  Customize <span>&rarr;</span>
+                </a>
               </Card>
             ))}
           </div>
@@ -342,6 +347,37 @@ export default function HomePage() {
                   {step.desc}
                 </p>
               </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ PLATFORM SCREENSHOTS ═══════════ */}
+      <section className="py-20 border-t border-sutra-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-sm font-mono uppercase tracking-[3px] text-[#7C3AED] mb-4 text-center">
+            The platform
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-sutra-text text-center mb-12">
+            See the platform
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { src: "/images/screenshots/dashboard-overview.png", alt: "Dashboard overview", caption: "Your agents at a glance" },
+              { src: "/images/screenshots/heartbeat-channels.png", alt: "Heartbeat and channels", caption: "Autonomous operation, governed" },
+              { src: "/images/screenshots/cost-dashboard.png", alt: "Cost dashboard", caption: "Every dollar tracked" },
+            ].map((img) => (
+              <div key={img.src} className="text-center">
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  width={600}
+                  height={400}
+                  className="w-full h-auto rounded-xl border border-[#7C3AED]/15 shadow-[0_0_30px_rgba(124,58,237,0.2)]"
+                />
+                <p className="mt-3 text-sm text-sutra-muted">{img.caption}</p>
+              </div>
             ))}
           </div>
         </div>
