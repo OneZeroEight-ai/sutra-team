@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import { ConnectModeSelector } from "@/components/connect/ConnectModeSelector";
 import { Card } from "@/components/ui/Card";
 import type { CouncilMode, ConnectMode } from "@/lib/types";
+
+interface CouncilAgent {
+  id: string;
+  name: string;
+  persona_name: string;
+  council_type: string;
+  council_role: string;
+  voice_enabled: boolean;
+}
 
 const COUNCIL_OPTIONS: { mode: CouncilMode; label: string; desc: string }[] = [
   {
@@ -26,17 +36,45 @@ const COUNCIL_OPTIONS: { mode: CouncilMode; label: string; desc: string }[] = [
 
 export default function ConnectPage() {
   const router = useRouter();
+  const { isSignedIn } = useAuth();
   const [councilMode, setCouncilMode] = useState<CouncilMode>("rights");
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [agents, setAgents] = useState<CouncilAgent[]>([]);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+
+  // Load voice-enabled agents when council mode changes
+  useEffect(() => {
+    if (!isSignedIn) return;
+    fetch(`/api/council/agents?council_type=${councilMode}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const voiceAgents = (data.agents || []).filter(
+          (a: CouncilAgent) => a.voice_enabled && a.council_role !== "synthesis",
+        );
+        setAgents(voiceAgents);
+        if (voiceAgents.length > 0) {
+          setSelectedAgentId(voiceAgents[0].id);
+        }
+      })
+      .catch(() => setAgents([]));
+  }, [isSignedIn, councilMode]);
 
   function handleModeSelect(connectMode: ConnectMode) {
     if (connectMode === "phone") {
-      // Phone still coming soon until SIP trunk provisioned
       setShowComingSoon(true);
       return;
     }
+    if (connectMode === "video") {
+      setShowComingSoon(true);
+      return;
+    }
+    // Voice session — include agentId in room metadata
     const roomId = `${connectMode}-${Date.now()}`;
-    router.push(`/connect/room/${roomId}?council=${councilMode}`);
+    const params = new URLSearchParams({
+      council: councilMode,
+      ...(selectedAgentId ? { agentId: selectedAgentId } : {}),
+    });
+    router.push(`/connect/room/${roomId}?${params.toString()}`);
   }
 
   return (
@@ -85,6 +123,40 @@ export default function ConnectPage() {
           </div>
         </div>
       </section>
+
+      {/* Agent Selector (for voice sessions) */}
+      {agents.length > 0 && (
+        <section className="pb-8">
+          <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+            <p className="text-sm font-medium text-sutra-text mb-4 text-center">
+              Select Agent for Voice Session
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {agents.map((agent) => (
+                <button
+                  key={agent.id}
+                  onClick={() => setSelectedAgentId(agent.id)}
+                  className={`cursor-pointer rounded-lg border p-3 text-left transition-all ${
+                    selectedAgentId === agent.id
+                      ? "border-cyan-500 bg-cyan-500/5"
+                      : "border-sutra-border bg-sutra-surface hover:border-sutra-muted"
+                  }`}
+                >
+                  <p
+                    className={`text-xs font-semibold truncate ${
+                      selectedAgentId === agent.id
+                        ? "text-cyan-400"
+                        : "text-sutra-text"
+                    }`}
+                  >
+                    {agent.persona_name || agent.name}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Mode Selector */}
       <section className="pb-20 border-t border-sutra-border pt-12">

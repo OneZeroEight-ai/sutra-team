@@ -1,9 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { deductCredit, getCredits } from "@/lib/credits";
+import { sammaApiFetch } from "@/lib/api";
 
 export async function POST(request: Request) {
   // 1. Authenticate
-  const { userId } = await auth();
+  const { userId, getToken } = await auth();
   if (!userId) {
     return Response.json({ error: "Authentication required" }, { status: 401 });
   }
@@ -24,31 +25,29 @@ export async function POST(request: Request) {
   // 3. Parse request
   const body = await request.json();
 
-  // 4. Forward to agent server
-  const agentUrl = process.env.AGENT_SERVER_URL;
-  if (!agentUrl) {
-    return Response.json(
-      { error: "Agent server not configured" },
-      { status: 503 },
-    );
+  // 4. Get Clerk JWT for Samma Suit API auth
+  const token = await getToken();
+  if (!token) {
+    return Response.json({ error: "Failed to get auth token" }, { status: 401 });
   }
 
   try {
-    const response = await fetch(`${agentUrl}/deliberate`, {
+    // 5. Forward to Samma Suit API
+    const response = await sammaApiFetch("/api/council/deliberate", token, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.DELIBERATION_API_KEY || ""}`,
-        "X-User-Id": userId,
-      },
-      body: JSON.stringify({ ...body, userId }),
+      body: JSON.stringify({
+        query: body.query,
+        council_type: body.councilMode || body.council_type || "rights",
+        model_override: body.model_override,
+        conversation_id: body.conversation_id,
+      }),
       signal: AbortSignal.timeout(120_000),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
-        "[deliberate] Agent server error:",
+        "[deliberate] Samma API error:",
         response.status,
         errorText,
       );
@@ -58,10 +57,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Deduct credit AFTER successful deliberation (not before)
+    // 6. Deduct credit AFTER successful deliberation (not before)
     const { remaining } = await deductCredit(userId);
 
-    // 6. Return result with credit info
+    // 7. Return result with credit info
     const data = await response.json();
     return Response.json({
       ...data,

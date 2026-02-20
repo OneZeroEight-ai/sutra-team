@@ -138,9 +138,21 @@ function DeliberateContent() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // Load credits
+  // On first load: ensure council exists, then load credits
   useEffect(() => {
     if (!isSignedIn) return;
+
+    // Auto-ensure council (seeds combined council on first login)
+    fetch("/api/council/ensure", { method: "POST" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.action === "created") {
+          console.log("[council] Auto-seeded combined council for new user");
+        }
+      })
+      .catch((err) => console.error("[council] Ensure failed:", err));
+
+    // Load credits
     fetch("/api/credits")
       .then((r) => r.json())
       .then((data) => setCredits(data.credits))

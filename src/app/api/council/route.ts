@@ -1,42 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { getCouncilStatus } from "@/lib/api";
 
-const AGENT_SERVER_URL = process.env.AGENT_SERVER_URL;
-const DELIBERATION_API_KEY = process.env.DELIBERATION_API_KEY;
+/**
+ * GET /api/council — proxy to Samma Suit council status.
+ */
+export async function GET() {
+  const { userId, getToken } = await auth();
+  if (!userId) {
+    return Response.json({ error: "Authentication required" }, { status: 401 });
+  }
 
-export async function POST(req: NextRequest) {
+  const token = await getToken();
+  if (!token) {
+    return Response.json({ error: "Failed to get auth token" }, { status: 401 });
+  }
+
   try {
-    const body = await req.json();
-
-    if (!AGENT_SERVER_URL) {
-      // If agent server isn't provisioned yet, return a stub response
-      return NextResponse.json({
-        deliberation_id: `stub-${Date.now()}`,
-        status: "backend_not_configured",
-        message:
-          "Council deliberation backend is not yet provisioned. Set AGENT_SERVER_URL to enable.",
-        query: body.query,
-        council_mode: body.councilMode || "rights",
-      });
-    }
-
-    // Proxy to agent server deliberation endpoint
-    const response = await fetch(`${AGENT_SERVER_URL}/deliberate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(DELIBERATION_API_KEY
-          ? { Authorization: `Bearer ${DELIBERATION_API_KEY}` }
-          : {}),
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error("Council proxy error:", error);
-    return NextResponse.json(
-      { error: "Failed to process council request" },
+    const status = await getCouncilStatus(token);
+    return Response.json(status);
+  } catch (error: unknown) {
+    console.error("[council/status] Error:", error);
+    return Response.json(
+      { error: "Failed to fetch council status" },
       { status: 500 },
     );
   }

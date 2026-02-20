@@ -54,6 +54,7 @@ export default function RoomPage({ params }: RoomPageProps) {
 
   const isVoice = roomId.startsWith("voice-");
   const councilMode = searchParams.get("council") ?? "rights";
+  const agentId = searchParams.get("agentId") ?? undefined;
   const agent = useMemo(() => resolveAgent(roomId), [roomId]);
 
   useEffect(() => {
@@ -65,7 +66,10 @@ export default function RoomPage({ params }: RoomPageProps) {
           body: JSON.stringify({
             roomName: roomId,
             participantName: `user-${Date.now()}`,
-            metadata: JSON.stringify({ councilMode }),
+            metadata: JSON.stringify({
+              councilMode,
+              ...(agentId ? { agentId } : {}),
+            }),
           }),
         });
 

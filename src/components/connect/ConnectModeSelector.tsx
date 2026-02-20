@@ -57,12 +57,12 @@ export function ConnectModeSelector({ onSelect }: ConnectModeSelectorProps) {
           <p className="mt-3 text-sm text-sutra-muted leading-relaxed flex-1">
             {m.description}
           </p>
-          {m.mode === "phone" ? (
+          {m.mode === "voice" ? (
             <Button
               className="mt-5 w-full"
               onClick={() => onSelect(m.mode)}
             >
-              View Dial-In Info
+              Start Voice Session
             </Button>
           ) : (
             <div className="mt-5">
