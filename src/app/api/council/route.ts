@@ -2,21 +2,16 @@ import { auth } from "@clerk/nextjs/server";
 import { getCouncilStatus } from "@/lib/api";
 
 /**
- * GET /api/council — proxy to Samma Suit council status.
+ * GET /api/council — proxy to Samma Suit council status (service key auth).
  */
 export async function GET() {
-  const { userId, getToken } = await auth();
+  const { userId } = await auth();
   if (!userId) {
     return Response.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const token = await getToken();
-  if (!token) {
-    return Response.json({ error: "Failed to get auth token" }, { status: 401 });
-  }
-
   try {
-    const status = await getCouncilStatus(token);
+    const status = await getCouncilStatus();
     return Response.json(status);
   } catch (error: unknown) {
     console.error("[council/status] Error:", error);

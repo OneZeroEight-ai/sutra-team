@@ -11,7 +11,6 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
-import { CreditBadge } from "@/components/CreditBadge";
 import { NAV_LINKS } from "@/lib/constants";
 
 export function Header() {
@@ -62,16 +61,18 @@ export function Header() {
               <Button href="/sign-up">Get Started</Button>
             </SignedOut>
             <SignedIn>
-              <CreditBadge />
               <Link
                 href="/council/deliberate"
                 className="text-sm text-sutra-muted hover:text-sutra-text transition"
               >
                 Council
               </Link>
-              <Button variant="secondary" href="/pricing">
-                Pricing
-              </Button>
+              <Link
+                href="/connect"
+                className="text-sm text-sutra-muted hover:text-sutra-text transition"
+              >
+                Dashboard
+              </Link>
               <UserButton
                 afterSignOutUrl="/"
                 appearance={{
@@ -116,11 +117,8 @@ export function Header() {
                 <Button href="/sign-up">Get Started</Button>
               </SignedOut>
               <SignedIn>
-                <CreditBadge />
                 <Button href="/council/deliberate">Council</Button>
-                <Button variant="secondary" href="/pricing">
-                  Pricing
-                </Button>
+                <Button href="/connect">Dashboard</Button>
               </SignedIn>
             </div>
           </div>

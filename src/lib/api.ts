@@ -1,41 +1,46 @@
 /**
  * Server-side helper for calling the Samma Suit API.
  *
- * All calls forward the Clerk JWT so the backend authenticates the user
- * the same way the dashboard does.
+ * Authenticates with the service key (SAMMA_SERVICE_KEY) since sutra.team
+ * uses a different Clerk instance than sammasuit.com.  The service key
+ * bypasses Clerk JWT validation on the backend.
  */
 
 const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
+
+const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
 
 export interface SammaApiOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
 }
 
 /**
- * Call a Samma Suit API endpoint with the given Clerk JWT.
+ * Call a Samma Suit API endpoint, authenticated with the service key.
  */
 export async function sammaApiFetch(
   path: string,
-  token: string,
   options: SammaApiOptions = {},
 ): Promise<Response> {
+  if (!SERVICE_KEY) {
+    throw new Error("SAMMA_SERVICE_KEY is not configured");
+  }
   const url = `${SAMMA_API_URL}${path}`;
   return fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${SERVICE_KEY}`,
       ...options.headers,
     },
   });
 }
 
 /**
- * GET /api/council/status — check which councils the user has set up.
+ * GET /api/council/status — check which councils the service account has.
  */
-export async function getCouncilStatus(token: string) {
-  const res = await sammaApiFetch("/api/council/status", token);
+export async function getCouncilStatus() {
+  const res = await sammaApiFetch("/api/council/status");
   if (!res.ok) {
     throw new Error(`Council status check failed: ${res.status}`);
   }
@@ -50,13 +55,12 @@ export async function getCouncilStatus(token: string) {
 }
 
 /**
- * POST /api/council/setup — seed a council for the user.
+ * POST /api/council/setup — seed a council under the service account.
  */
 export async function setupCouncil(
-  token: string,
   councilType: "rights" | "experts" | "combined" = "combined",
 ) {
-  const res = await sammaApiFetch("/api/council/setup", token, {
+  const res = await sammaApiFetch("/api/council/setup", {
     method: "POST",
     body: JSON.stringify({ council_type: councilType }),
   });
@@ -68,11 +72,28 @@ export async function setupCouncil(
 }
 
 /**
+ * POST /api/council/deliberate — run a council deliberation.
+ */
+export async function runDeliberation(body: {
+  query: string;
+  council_type: string;
+  model_override?: string;
+  conversation_id?: string;
+}) {
+  const res = await sammaApiFetch("/api/council/deliberate", {
+    method: "POST",
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(120_000),
+  });
+  return res;
+}
+
+/**
  * GET /api/council/agents — list council agents (with their IDs).
  */
-export async function listCouncilAgents(token: string, councilType?: string) {
+export async function listCouncilAgents(councilType?: string) {
   const qs = councilType ? `?council_type=${councilType}` : "";
-  const res = await sammaApiFetch(`/api/council/agents${qs}`, token);
+  const res = await sammaApiFetch(`/api/council/agents${qs}`);
   if (!res.ok) {
     throw new Error(`Council agents list failed: ${res.status}`);
   }

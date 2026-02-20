@@ -2,7 +2,6 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 
 interface AgentPerspective {
   agent_name?: string;
@@ -14,7 +13,6 @@ interface AgentPerspective {
 interface DeliberationResult {
   synthesis?: string;
   perspectives?: AgentPerspective[];
-  credits?: { remaining: number; deducted: number };
 }
 
 export default function DeliberatePage() {
@@ -27,13 +25,10 @@ export default function DeliberatePage() {
 
 function DeliberateContent() {
   const { isSignedIn } = useAuth();
-  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<DeliberationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [credits, setCredits] = useState<number | null>(null);
-  const [showPurchaseSuccess, setShowPurchaseSuccess] = useState(false);
   const [councilMode, setCouncilMode] = useState<
     "rights" | "experts" | "combined"
   >("rights");
@@ -138,11 +133,10 @@ function DeliberateContent() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // On first load: ensure council exists, then load credits
+  // On first load: ensure council exists
   useEffect(() => {
     if (!isSignedIn) return;
 
-    // Auto-ensure council (seeds combined council on first login)
     fetch("/api/council/ensure", { method: "POST" })
       .then((r) => r.json())
       .then((data) => {
@@ -151,26 +145,7 @@ function DeliberateContent() {
         }
       })
       .catch((err) => console.error("[council] Ensure failed:", err));
-
-    // Load credits
-    fetch("/api/credits")
-      .then((r) => r.json())
-      .then((data) => setCredits(data.credits))
-      .catch(() => {});
   }, [isSignedIn]);
-
-  // Handle post-purchase redirect
-  useEffect(() => {
-    if (searchParams.get("purchased") === "true") {
-      setShowPurchaseSuccess(true);
-      window.history.replaceState({}, "", "/council/deliberate");
-      // Refresh credits
-      fetch("/api/credits")
-        .then((r) => r.json())
-        .then((data) => setCredits(data.credits))
-        .catch(() => {});
-    }
-  }, [searchParams]);
 
   async function handleSubmit() {
     if (!query.trim() || loading) return;
@@ -192,19 +167,11 @@ function DeliberateContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 402) {
-          setError("No credits remaining.");
-          setCredits(0);
-          return;
-        }
-        setError(data.error || "Deliberation failed");
+        setError(data.error || data.detail || "Deliberation failed");
         return;
       }
 
       setResult(data);
-      if (data.credits?.remaining !== undefined) {
-        setCredits(data.credits.remaining);
-      }
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -212,8 +179,7 @@ function DeliberateContent() {
     }
   }
 
-  const canSubmit =
-    credits !== null && credits > 0 && query.trim().length > 0 && !loading;
+  const canSubmit = query.trim().length > 0 && !loading;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -243,27 +209,7 @@ function DeliberateContent() {
             <p className="text-sm text-zinc-500 mt-1">
               Strategic Decision Intelligence
             </p>
-            {credits !== null && (
-              <div
-                className={`inline-block text-xs px-3 py-1 rounded-full mt-3 ${
-                  credits > 5
-                    ? "bg-zinc-800/50 text-zinc-500"
-                    : credits > 0
-                      ? "bg-amber-900/30 text-amber-400"
-                      : "bg-red-900/30 text-red-400"
-                }`}
-              >
-                {credits} credit{credits !== 1 ? "s" : ""}
-              </div>
-            )}
           </div>
-
-          {/* Purchase success banner */}
-          {showPurchaseSuccess && (
-            <div className="bg-green-900/30 border border-green-500/30 rounded-lg p-4 mb-6 text-sm text-green-300">
-              Pilot access activated — 10 deliberations added to your account.
-            </div>
-          )}
 
           {/* Council Mode Selector */}
           <div className="flex gap-2 mb-4">
@@ -300,15 +246,8 @@ function DeliberateContent() {
                   <span className="text-red-400 animate-pulse">
                     Listening... click mic to stop
                   </span>
-                ) : credits === 0 ? (
-                  <a
-                    href="/pricing"
-                    className="text-violet-400 hover:text-violet-300"
-                  >
-                    Purchase credits to continue &rarr;
-                  </a>
                 ) : (
-                  "1 credit per deliberation · ~30 seconds"
+                  "All 8 security layers enforced"
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -388,14 +327,6 @@ function DeliberateContent() {
           {error && (
             <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 mb-6 text-sm text-red-400">
               {error}
-              {credits === 0 && (
-                <a
-                  href="/pricing"
-                  className="block mt-2 text-violet-400 hover:text-violet-300"
-                >
-                  &rarr; Purchase more credits
-                </a>
-              )}
             </div>
           )}
 
@@ -411,7 +342,7 @@ function DeliberateContent() {
                 The council is deliberating...
               </p>
               <p className="text-zinc-600 text-xs mt-2">
-                8 perspectives · synthesizing · ~30 seconds
+                8 perspectives &middot; synthesizing &middot; ~30 seconds
               </p>
             </div>
           )}
@@ -458,7 +389,7 @@ function DeliberateContent() {
                 >
                   <path d="M9 5l7 7-7 7" />
                 </svg>
-                How the council deliberated · {result.perspectives.length}{" "}
+                How the council deliberated &middot; {result.perspectives.length}{" "}
                 perspectives
               </summary>
               <div className="space-y-3 mt-3 pl-6 border-l border-zinc-800">
