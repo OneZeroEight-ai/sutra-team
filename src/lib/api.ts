@@ -109,3 +109,61 @@ export async function listCouncilAgents(councilType?: string) {
     total: number;
   }>;
 }
+
+// ─── Agent API (all agents, not just council) ───
+
+/**
+ * GET /api/agents — list all agents for the service account.
+ */
+export async function getAgents() {
+  const res = await sammaApiFetch("/api/agents");
+  if (!res.ok) {
+    throw new Error(`Agents list failed: ${res.status}`);
+  }
+  return res.json() as Promise<{
+    agents: Array<Record<string, unknown>>;
+    total: number;
+  }>;
+}
+
+/**
+ * POST /api/agents/{id}/gateway — send a message to an agent via the gateway.
+ */
+export async function sendGatewayMessage(
+  agentId: string,
+  messages: Array<{ role: string; content: string }>,
+  options?: { model_override?: string; conversation_id?: string },
+) {
+  const res = await sammaApiFetch(`/api/agents/${agentId}/gateway`, {
+    method: "POST",
+    body: JSON.stringify({ messages, ...options }),
+    signal: AbortSignal.timeout(120_000),
+  });
+  return res;
+}
+
+/**
+ * POST /api/agents/{id}/kill — terminate an agent.
+ */
+export async function killAgent(agentId: string) {
+  const res = await sammaApiFetch(`/api/agents/${agentId}/kill`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`Kill agent failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+/**
+ * POST /api/agents/{id}/revive — revive a terminated agent.
+ */
+export async function reviveAgent(agentId: string) {
+  const res = await sammaApiFetch(`/api/agents/${agentId}/revive`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`Revive agent failed: ${res.status}`);
+  }
+  return res.json();
+}
