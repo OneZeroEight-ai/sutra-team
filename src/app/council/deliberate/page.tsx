@@ -442,7 +442,7 @@ function DeliberateContent() {
                     />
                     <div>
                       <div className="text-sm font-semibold text-violet-400">
-                        Sutra Synthesis
+                        Sutra — Ethics Analysis &amp; Synthesis
                       </div>
                       <div className="text-xs text-zinc-600">
                         {result.agents_consulted} perspectives analyzed

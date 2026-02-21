@@ -62,16 +62,22 @@ export function Header() {
             </SignedOut>
             <SignedIn>
               <Link
-                href="/council/deliberate"
+                href="/dashboard"
                 className="text-sm text-sutra-muted hover:text-sutra-text transition"
               >
-                Council
+                Dashboard
               </Link>
               <Link
                 href="/council/deliberate"
                 className="text-sm text-sutra-muted hover:text-sutra-text transition"
               >
-                Dashboard
+                Deliberate
+              </Link>
+              <Link
+                href="/connect"
+                className="text-sm text-sutra-muted hover:text-sutra-text transition"
+              >
+                Voice
               </Link>
               <UserButton
                 afterSignOutUrl="/"
@@ -117,8 +123,8 @@ export function Header() {
                 <Button href="/sign-up">Get Started</Button>
               </SignedOut>
               <SignedIn>
-                <Button href="/council/deliberate">Council</Button>
-                <Button href="/council/deliberate">Dashboard</Button>
+                <Button href="/dashboard">Dashboard</Button>
+                <Button href="/council/deliberate">Deliberate</Button>
               </SignedIn>
             </div>
           </div>
