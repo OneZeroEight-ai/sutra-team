@@ -1466,6 +1466,40 @@ select.audit-filter {
   flex: 1; padding: 6px 10px; background: var(--bg2); border: 1px solid var(--card-border);
   border-radius: 6px; color: var(--white); font-size: 12px; outline: none;
 }
+.skill-tier {
+  font-family: var(--font-mono); font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  letter-spacing: 0.5px; display: inline-block;
+}
+.skill-tier.tier-1 { background: rgba(124,58,237,0.15); color: var(--purple); }
+.skill-tier.tier-2 { background: rgba(0,212,255,0.1); color: var(--cyan); }
+.skill-tier.tier-3 { background: rgba(239,68,68,0.1); color: #f87171; }
+.skill-tier.tier-4 { background: rgba(255,215,0,0.1); color: var(--gold); }
+.skill-tier.tier-5 { background: rgba(5,150,105,0.1); color: var(--green); }
+.skill-detail-section { margin-bottom: 16px; }
+.skill-detail-section h4 {
+  font-family: var(--font-mono); font-size: 11px; color: var(--gray);
+  letter-spacing: 1px; text-transform: uppercase; margin: 0 0 8px;
+}
+.skill-param-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.skill-param-table th {
+  text-align: left; padding: 6px 10px; background: var(--bg2); color: var(--gray);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border);
+}
+.skill-param-table td {
+  padding: 6px 10px; border-bottom: 1px solid var(--card-border); color: var(--white);
+}
+.skill-param-table td:first-child { font-family: var(--font-mono); color: var(--cyan); font-size: 12px; }
+.skill-included {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2);
+  border-radius: 6px; color: var(--green); font-size: 12px; font-weight: 600;
+}
+.btn-view-details {
+  padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+  background: rgba(124,58,237,0.08); color: var(--purple); border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 6px; font-family: var(--font-display); transition: all 0.2s;
+}
+.btn-view-details:hover { background: rgba(124,58,237,0.15); border-color: var(--purple); }
 
 /* ── LIVE FEED ── */
 .live-feed { max-height: 500px; overflow-y: auto; border: 1px solid var(--card-border); border-radius: 8px; }
@@ -1839,17 +1873,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <input type="text" class="audit-filter" id="skill-search" placeholder="Search skills..." style="width:220px;max-width:100%" oninput="filterSkills()">
     </div>
     <div class="audit-filters" id="skill-filters">
-      <select class="audit-filter" id="skill-filter-source" onchange="filterSkills()">
-        <option value="">All Sources</option>
-        <option value="built-in">Built-in</option>
-        <option value="clawhub">ClawHub</option>
-      </select>
-      <select class="audit-filter" id="skill-filter-status" onchange="filterSkills()">
-        <option value="">All Status</option>
-        <option value="approved">Approved</option>
-        <option value="pending">Pending</option>
-        <option value="flagged">Flagged</option>
-      </select>
+      <span style="font-size:12px;color:var(--gray-dim)">32 built-in skills \u2014 all included with your plan</span>
     </div>
     <div id="skills-container">
       <div class="loading-state"><div class="spinner"></div> Loading skills...</div>
@@ -2049,6 +2073,27 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <button class="btn btn-sm btn-deny" onclick="resolveExec('deny')">Deny</button>
       <button class="btn btn-sm btn-allow-once" onclick="resolveExec('allow_once')">Allow Once</button>
       <button class="btn btn-sm btn-allow-always" onclick="resolveExec('allow_always')">Always Allow</button>
+    </div>
+  </div>
+</div>
+
+<!-- SKILL DETAIL MODAL -->
+<div class="modal-overlay" id="modal-skill-detail">
+  <div class="modal-content" style="max-width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <h3 id="skill-detail-name" style="font-size:18px;font-weight:700;margin:0 0 4px">—</h3>
+        <div id="skill-detail-badges" style="display:flex;gap:6px;align-items:center"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-skill-detail')" style="padding:4px 10px">&times;</button>
+    </div>
+    <div id="skill-detail-desc" style="font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:16px"></div>
+    <div id="skill-detail-body">
+      <div class="loading-state" style="padding:20px"><div class="spinner"></div></div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;justify-content:space-between">
+      <span class="skill-included">&#x2705; Included with your plan</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-skill-detail')">Close</button>
     </div>
   </div>
 </div>
@@ -4488,6 +4533,38 @@ async function rollbackSnapshot(agentId, snapshotId) {
 }
 
 // ── SKILLS TAB ──
+const SKILL_TIER_MAP = {
+  'text-summarizer': 1, 'sentiment-analyzer': 1, 'json-formatter': 1,
+  'prompt-template-engine': 1, 'response-validator': 1, 'content-classifier': 1,
+  'markdown-stripper': 1, 'token-counter': 1,
+  'web-fetcher': 2, 'code-executor': 2, 'file-reader': 2,
+  'memory-store': 2, 'email-sender': 2, 'zoom-scheduler': 2, 'moltbook': 2,
+  'secret-scanner': 3, 'pii-redactor': 3, 'prompt-guard': 3,
+  'cost-estimator': 3, 'audit-report': 3,
+  'conversation-compressor': 4, 'output-schema-enforcer': 4,
+  'intent-router': 4, 'skill-chain': 4, 'council-deliberation': 4,
+  'retry-engine': 5, 'response-cache': 5, 'data-transformer': 5,
+  'structured-logger': 5, 'eval-harness': 5, 'usage-tracker': 5, 'health-monitor': 5,
+};
+const TIER_LABELS = {
+  1: 'Tier 1 \u2014 Utility', 2: 'Tier 2 \u2014 Integration',
+  3: 'Tier 3 \u2014 Security', 4: 'Tier 4 \u2014 Orchestration',
+  5: 'Tier 5 \u2014 Production',
+};
+const SKILL_ICONS = {
+  'text-summarizer': '\uD83D\uDCDD', 'sentiment-analyzer': '\uD83D\uDE0A', 'json-formatter': '{}',
+  'prompt-template-engine': '\uD83D\uDCC4', 'response-validator': '\u2705', 'content-classifier': '\uD83C\uDFF7\uFE0F',
+  'markdown-stripper': '\uD83E\uDDF9', 'token-counter': '\uD83D\uDD22',
+  'web-fetcher': '\uD83C\uDF10', 'code-executor': '\uD83D\uDCBB', 'file-reader': '\uD83D\uDCC2',
+  'memory-store': '\uD83E\uDDE0', 'email-sender': '\uD83D\uDCE7', 'zoom-scheduler': '\uD83D\uDCF9', 'moltbook': '\uD83D\uDCDA',
+  'secret-scanner': '\uD83D\uDD0D', 'pii-redactor': '\uD83D\uDEE1\uFE0F', 'prompt-guard': '\uD83D\uDEE1\uFE0F',
+  'cost-estimator': '\uD83D\uDCB0', 'audit-report': '\uD83D\uDCCB',
+  'conversation-compressor': '\uD83D\uDDDC\uFE0F', 'output-schema-enforcer': '\uD83D\uDCCF',
+  'intent-router': '\uD83D\uDEA6', 'skill-chain': '\uD83D\uDD17', 'council-deliberation': '\uD83E\uDDD1\u200D\u2696\uFE0F',
+  'retry-engine': '\uD83D\uDD04', 'response-cache': '\uD83D\uDCBE', 'data-transformer': '\uD83D\uDD00',
+  'structured-logger': '\uD83D\uDCCA', 'eval-harness': '\uD83E\uDDEA', 'usage-tracker': '\uD83D\uDCC8', 'health-monitor': '\uD83D\uDC93',
+};
+
 async function loadSkills() {
   const container = document.getElementById('skills-container');
   try {
@@ -4495,7 +4572,7 @@ async function loadSkills() {
     state.skills = data.skills || [];
     renderSkills(state.skills);
   } catch (e) {
-    container.innerHTML = '<div class="empty-state"><p>Unable to load skills marketplace.</p></div>';
+    container.innerHTML = '<div class="empty-state"><p>Unable to load skills browser.</p></div>';
   }
 }
 
@@ -4505,29 +4582,28 @@ function renderSkills(skills) {
     container.innerHTML = '<div class="empty-state"><p>No skills found.</p></div>';
     return;
   }
-  const agents = state.agents?.agents || [];
-  const agentOpts = agents.filter(a => (a.status || 'active') === 'active')
-    .map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('');
 
   container.innerHTML = '<div class="skill-cards">' + skills.map(s => {
-    const source = (s.source || 'built-in').toLowerCase();
+    const slug = s.slug || '';
+    const tier = SKILL_TIER_MAP[slug] || 1;
+    const tierLabel = TIER_LABELS[tier] || 'Tier 1';
+    const icon = SKILL_ICONS[slug] || '\u2699\uFE0F';
     const status = (s.vetting_status || 'pending').toLowerCase();
-    const shield = status === 'approved' ? '<span class="skill-shield" style="color:var(--green)">&#x1F6E1;</span>' :
-                   status === 'flagged' ? '<span class="skill-shield" style="color:var(--red)">&#x1F6E1;</span>' :
-                   '<span class="skill-shield" style="color:var(--gold)">&#x1F6E1;</span>';
-    const imports = (s.safe_imports || []).join(', ') || 'none';
-    const sangha = s.sangha_summary || 'Not scanned';
-    return `<div class="skill-card" data-source="${source}" data-status="${status}" data-name="${esc(s.name || '').toLowerCase()}">
+    const shield = status === 'approved' ? '\uD83D\uDFE2' : status === 'flagged' ? '\uD83D\uDD34' : '\uD83D\uDFE1';
+    const desc = (s.description || '').length > 120 ? (s.description || '').slice(0, 120) + '\u2026' : (s.description || '');
+
+    return `<div class="skill-card" data-source="built-in" data-status="${status}" data-name="${esc(s.name || '').toLowerCase()}">
       <div class="skill-card-header">
-        <div class="skill-card-name">${esc(s.name || '—')}</div>
-        <span class="skill-source ${source}">${source}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:20px">${icon}</span>
+          <div class="skill-card-name">${esc(s.name || '\u2014')}</div>
+        </div>
+        <span class="skill-tier tier-${tier}">${tierLabel}</span>
       </div>
-      <div class="skill-desc">${esc(s.description || '')}</div>
-      <div class="skill-status">${shield} <span style="text-transform:capitalize">${status}</span> — SANGHA: ${esc(sangha)}</div>
-      <div class="skill-imports">imports: ${esc(imports)}</div>
-      <div class="skill-install-wrap">
-        <select class="skill-agent-select" id="skill-agent-${s.id}">${agentOpts || '<option disabled>No agents</option>'}</select>
-        <button class="btn btn-primary btn-sm" style="padding:6px 14px;font-size:12px" onclick="installSkill('${s.id}')">Install</button>
+      <div class="skill-desc">${esc(desc)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+        <span style="font-size:12px;color:var(--gray-dim)">${shield} ${status === 'approved' ? 'SANGHA approved' : status}</span>
+        <button class="btn-view-details" onclick="event.stopPropagation();openSkillDetail('${s.id}','${esc(s.name)}')">View Details</button>
       </div>
     </div>`;
   }).join('') + '</div>';
@@ -4545,14 +4621,85 @@ function filterSkills() {
   });
 }
 
-async function installSkill(skillId) {
-  const sel = document.getElementById('skill-agent-' + skillId);
-  const agentId = sel?.value;
-  if (!agentId) { toast('Select an agent first', 'error'); return; }
+async function openSkillDetail(skillId, skillName) {
+  document.getElementById('skill-detail-name').textContent = skillName;
+  document.getElementById('skill-detail-desc').textContent = '';
+  document.getElementById('skill-detail-badges').innerHTML = '';
+  document.getElementById('skill-detail-body').innerHTML = '<div class="loading-state" style="padding:20px"><div class="spinner"></div></div>';
+  openModal('modal-skill-detail');
+
   try {
-    await api('POST', `/api/agents/${agentId}/skills/install`, { skill_id: skillId });
-    toast('Skill installed successfully', 'success');
-  } catch (e) { toast('Install failed: ' + e.message, 'error'); }
+    const data = await api('GET', `/api/marketplace/skills/${skillId}`);
+    const s = data.skill;
+    const slug = s.slug || '';
+    const tier = SKILL_TIER_MAP[slug] || 1;
+    const tierLabel = TIER_LABELS[tier] || 'Tier 1';
+    const icon = SKILL_ICONS[slug] || '\u2699\uFE0F';
+    const status = (s.vetting_status || 'pending').toLowerCase();
+
+    document.getElementById('skill-detail-name').innerHTML = `<span style="margin-right:8px;font-size:22px">${icon}</span>${esc(s.name)}`;
+    document.getElementById('skill-detail-desc').textContent = s.description || '';
+    document.getElementById('skill-detail-badges').innerHTML = `
+      <span class="skill-tier tier-${tier}">${tierLabel}</span>
+      <span class="skill-source built-in">Built-in</span>
+      <span style="font-size:12px;color:var(--gray-dim)">v${esc(s.version || '1.0.0')}</span>
+    `;
+
+    let body = '';
+
+    // Parse manifest
+    let manifest = s.manifest;
+    if (typeof manifest === 'string') { try { manifest = JSON.parse(manifest); } catch(e) { manifest = null; } }
+
+    if (manifest) {
+      // Functions / Inputs
+      const inputs = manifest.inputs || [];
+      const outputs = manifest.outputs || [];
+      const perms = manifest.permissions || [];
+
+      if (inputs.length) {
+        body += `<div class="skill-detail-section"><h4>Inputs</h4>
+          <table class="skill-param-table"><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody>
+          ${inputs.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.type || 'any')}</td></tr>`).join('')}
+          </tbody></table></div>`;
+      }
+      if (outputs.length) {
+        body += `<div class="skill-detail-section"><h4>Outputs</h4>
+          <table class="skill-param-table"><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody>
+          ${outputs.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.type || 'any')}</td></tr>`).join('')}
+          </tbody></table></div>`;
+      }
+      if (perms.length) {
+        body += `<div class="skill-detail-section"><h4>Permissions</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${perms.map(p => `<span style="padding:3px 10px;background:var(--bg2);border:1px solid var(--card-border);border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--gray)">${esc(p)}</span>`).join('')}
+          </div></div>`;
+      }
+    }
+
+    // SANGHA security info
+    const scan = s.sangha_scan;
+    let scanInfo = '';
+    if (scan && typeof scan === 'object') {
+      scanInfo = `<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">
+        <span>Network access: <strong style="color:${scan.network_access ? 'var(--gold)' : 'var(--green)'}">${scan.network_access ? 'Yes' : 'No'}</strong></span>
+        <span>AST scanned: <strong style="color:var(--green)">Yes</strong></span>
+        <span>Safe: <strong style="color:${scan.safe ? 'var(--green)' : 'var(--red)'}">${scan.safe ? 'Yes' : 'No'}</strong></span>
+      </div>`;
+    }
+    body += `<div class="skill-detail-section"><h4>SANGHA Security</h4>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:14px">${status === 'approved' ? '\uD83D\uDFE2' : '\uD83D\uDFE1'}</span>
+        <span style="font-size:13px;color:var(--white);font-weight:600;text-transform:capitalize">${status}</span>
+        ${s.vetting_notes ? `<span style="font-size:12px;color:var(--gray-dim)">\u2014 ${esc(s.vetting_notes)}</span>` : ''}
+      </div>
+      ${scanInfo || '<span style="font-size:12px;color:var(--gray-dim)">First-party skill \u2014 trusted by default</span>'}
+    </div>`;
+
+    document.getElementById('skill-detail-body').innerHTML = body;
+  } catch (e) {
+    document.getElementById('skill-detail-body').innerHTML = `<div style="color:var(--red);font-size:13px">Failed to load skill details: ${esc(e.message)}</div>`;
+  }
 }
 
 // ── LIVE FEED ──
