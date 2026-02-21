@@ -1211,6 +1211,31 @@ select.audit-filter {
 .btn-kill-hold.holding { color: white; }
 .btn-kill-hold .kill-label { position: relative; z-index: 1; }
 
+/* Template selector */
+.template-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+.template-tab {
+  padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  background: var(--bg2); color: var(--gray); border: 1px solid transparent;
+  cursor: pointer; transition: all 0.15s; font-family: var(--font-mono);
+}
+.template-tab:hover { color: var(--white); border-color: var(--card-border); }
+.template-tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+.template-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  max-height: 220px; overflow-y: auto; margin-bottom: 16px;
+  padding: 2px;
+}
+.template-card {
+  padding: 10px 12px; border-radius: 8px; border: 1px solid var(--card-border);
+  background: var(--bg2); cursor: pointer; transition: all 0.15s;
+}
+.template-card:hover { border-color: var(--purple); background: rgba(168,85,247,0.06); }
+.template-card.selected { border-color: var(--purple); background: rgba(168,85,247,0.1); box-shadow: 0 0 0 1px var(--purple); }
+.template-card-icon { font-size: 18px; margin-bottom: 4px; }
+.template-card-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.template-card-desc { font-size: 11px; color: var(--gray); line-height: 1.4; }
+.template-divider { border: none; border-top: 1px solid var(--card-border); margin: 0 0 16px; }
+
 .modal-content h3 {
   font-size: 22px;
   font-weight: 800;
@@ -1903,7 +1928,15 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 <div class="modal-overlay" id="modal-create">
   <div class="modal-content">
     <h3>Create Agent</h3>
-    <p>Deploy a new AI agent on the Sutra platform.</p>
+    <p>Start from a template or build from scratch.</p>
+
+    <!-- Template Selector -->
+    <div id="template-selector">
+      <div class="template-tabs" id="template-tabs"></div>
+      <div class="template-grid" id="template-grid"></div>
+      <hr class="template-divider">
+    </div>
+
     <form id="create-agent-form">
       <input type="text" class="login-input" id="agent-name" placeholder="Agent name" required>
       <textarea class="login-input" id="agent-system-prompt" placeholder="Tell this agent how to behave, what tone to use, and what rules to follow." rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:13px;line-height:1.5"></textarea>
@@ -1918,9 +1951,12 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <input type="number" class="login-input" id="agent-budget" placeholder="Monthly budget (USD)" step="0.01" min="0">
       <input type="password" class="login-input" id="agent-llm-key" placeholder="sk-ant-api03-... (optional — BYOK)" autocomplete="off">
       <span id="agent-key-error" style="font-size:11px;color:var(--red);display:none"></span>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('modal-create')">Cancel</button>
-        <button type="submit" class="btn btn-primary btn-sm">Create Agent</button>
+      <div class="modal-actions" style="justify-content:space-between">
+        <a href="#" id="btn-advanced-editor" style="font-size:12px;color:var(--purple);text-decoration:none;align-self:center;display:none" onclick="openAdvancedEditor(event)">Advanced Editor</a>
+        <div style="display:flex;gap:12px">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('modal-create')">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Create Agent</button>
+        </div>
       </div>
     </form>
   </div>
@@ -2935,6 +2971,12 @@ async function openAgentDetail(agentId) {
       <div class="detail-row">
         <span class="detail-label">Created</span>
         <span class="detail-value">${a.created_at ? new Date(a.created_at).toLocaleString() : '—'}</span>
+      </div>
+      <div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
+        <a href="/persona-editor?agentId=${a.id}" style="display:inline-flex;align-items:center;gap:6px;color:var(--purple);text-decoration:none;font-size:13px;font-weight:600" target="_blank">
+          <span style="font-size:16px">&#9881;</span> Edit Persona &amp; Layers
+        </a>
+        <span style="color:var(--gray-dim);font-size:11px;margin-left:8px">Full 6-layer persona editor</span>
       </div>`;
 
     // ── Heartbeat section ──
@@ -3750,6 +3792,130 @@ function onCreateProviderChange() {
 // Initialize model dropdown on page load
 onCreateProviderChange();
 
+// ── AGENT TEMPLATES ──
+const AGENT_TEMPLATES = [
+  // Quick Start
+  { id: 'blank', name: 'Blank Agent', icon: '\u2b1c', category: 'Quick Start',
+    description: 'Empty canvas — configure everything yourself.',
+    prefill: { name: '', system_prompt: '', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '' } },
+  { id: 'chatbot', name: 'Simple Chatbot', icon: '\ud83d\udcac', category: 'Quick Start',
+    description: 'Friendly general-purpose conversational agent.',
+    prefill: { name: 'Chatbot', system_prompt: 'You are a friendly, helpful assistant. Be concise and conversational. Ask clarifying questions when the user\'s request is ambiguous.', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
+  // Business
+  { id: 'sales', name: 'Sales Assistant', icon: '\ud83d\udcb0', category: 'Business',
+    description: 'Qualifies leads, answers product questions, books demos.',
+    prefill: { name: 'Sales Assistant', system_prompt: 'You are a professional sales assistant. Your goals:\n1. Qualify inbound leads by understanding their needs and budget\n2. Answer product/service questions accurately and enthusiastically\n3. Guide qualified leads toward booking a demo or starting a trial\n4. Never be pushy — build trust through helpfulness\n5. Log key details: company size, use case, timeline, budget range', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '25' } },
+  { id: 'support', name: 'Customer Support', icon: '\ud83c\udfe5', category: 'Business',
+    description: 'Handles tickets, troubleshoots issues, escalates when needed.',
+    prefill: { name: 'Support Agent', system_prompt: 'You are a patient, empathetic customer support agent. Your approach:\n1. Acknowledge the customer\'s frustration before solving\n2. Ask diagnostic questions to isolate the issue\n3. Provide step-by-step solutions when possible\n4. Escalate to a human when: billing disputes, account security, or issues you cannot resolve in 3 exchanges\n5. Always confirm the issue is resolved before closing', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
+  { id: 'writer', name: 'Content Writer', icon: '\u270d\ufe0f', category: 'Business',
+    description: 'Drafts blog posts, emails, social copy, and marketing content.',
+    prefill: { name: 'Content Writer', system_prompt: 'You are a skilled content writer. Guidelines:\n1. Match the brand voice: professional yet approachable\n2. Use clear, jargon-free language unless writing for a technical audience\n3. Structure content with headers, bullets, and short paragraphs\n4. Include a call-to-action where appropriate\n5. Ask for target audience, tone, and key messages before drafting', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+  { id: 'deal-analyst', name: 'Deal Analyst', icon: '\ud83d\udcc8', category: 'Business',
+    description: 'Evaluates business deals, contracts, and partnership terms.',
+    prefill: { name: 'Deal Analyst', system_prompt: 'You are a sharp deal analyst. When reviewing a deal or contract:\n1. Identify key terms: pricing, exclusivity, termination clauses, IP ownership\n2. Flag risks and unfavorable terms\n3. Compare against industry benchmarks when possible\n4. Summarize with a recommendation: proceed, negotiate, or pass\n5. Be direct — executives need actionable insights, not lengthy analysis', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+  { id: 'ops-manager', name: 'Ops Manager', icon: '\u2699\ufe0f', category: 'Business',
+    description: 'Tracks tasks, processes, and team workflows.',
+    prefill: { name: 'Ops Manager', system_prompt: 'You are an operations management assistant. You help with:\n1. Breaking down projects into tasks with owners and deadlines\n2. Identifying bottlenecks and suggesting process improvements\n3. Creating status reports and meeting agendas\n4. Tracking action items and following up on overdue tasks\n5. Maintaining a structured, organized communication style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
+  // Technical
+  { id: 'code-reviewer', name: 'Code Reviewer', icon: '\ud83d\udd0d', category: 'Technical',
+    description: 'Reviews code for bugs, security issues, and best practices.',
+    prefill: { name: 'Code Reviewer', system_prompt: 'You are an experienced code reviewer. When reviewing code:\n1. Check for bugs, edge cases, and error handling gaps\n2. Flag security vulnerabilities (injection, XSS, auth issues)\n3. Suggest performance improvements where impactful\n4. Ensure code follows project conventions and is readable\n5. Be constructive — explain *why* something should change, not just *what*\n6. Prioritize: security > correctness > performance > style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
+  { id: 'devops', name: 'DevOps Monitor', icon: '\ud83d\udee0\ufe0f', category: 'Technical',
+    description: 'Monitors deployments, alerts, and infrastructure health.',
+    prefill: { name: 'DevOps Monitor', system_prompt: 'You are a DevOps monitoring assistant. Your responsibilities:\n1. Analyze deployment logs and error reports\n2. Suggest root causes for incidents based on symptoms\n3. Recommend rollback vs. hotfix decisions\n4. Help write runbooks for recurring issues\n5. Monitor resource usage trends and suggest scaling actions\n6. Always prioritize system stability over speed', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+  { id: 'security', name: 'Security Auditor', icon: '\ud83d\udee1\ufe0f', category: 'Technical',
+    description: 'Reviews configurations and code for security vulnerabilities.',
+    prefill: { name: 'Security Auditor', system_prompt: 'You are a security auditor. When analyzing systems or code:\n1. Check against OWASP Top 10 and CWE Top 25\n2. Review authentication, authorization, and session management\n3. Identify data exposure risks and encryption gaps\n4. Assess third-party dependencies for known CVEs\n5. Provide severity ratings: Critical / High / Medium / Low\n6. Include remediation steps for every finding', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
+  { id: 'data-analyst', name: 'Data Analyst', icon: '\ud83d\udcca', category: 'Technical',
+    description: 'Analyzes data, writes queries, and generates insights.',
+    prefill: { name: 'Data Analyst', system_prompt: 'You are a data analyst. Your approach:\n1. Clarify the business question before diving into data\n2. Write clean, well-commented SQL/Python for analysis\n3. Present findings with clear visualizations described in text\n4. Separate correlation from causation\n5. Include confidence levels and caveats with every insight\n6. Make actionable recommendations, not just observations', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
+  // Research
+  { id: 'market-research', name: 'Market Researcher', icon: '\ud83c\udf0d', category: 'Research',
+    description: 'Analyzes markets, competitors, and industry trends.',
+    prefill: { name: 'Market Researcher', system_prompt: 'You are a market research analyst. When researching:\n1. Define the market scope and key players\n2. Analyze competitive positioning, pricing, and differentiation\n3. Identify trends, threats, and opportunities\n4. Use frameworks like Porter\'s Five Forces or SWOT where appropriate\n5. Cite sources and flag when data is estimated vs. verified\n6. Deliver actionable strategic recommendations', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+  { id: 'academic', name: 'Academic Researcher', icon: '\ud83c\udf93', category: 'Research',
+    description: 'Synthesizes papers, explains concepts, finds references.',
+    prefill: { name: 'Academic Researcher', system_prompt: 'You are an academic research assistant. Your standards:\n1. Synthesize multiple sources into coherent summaries\n2. Distinguish between established consensus and emerging findings\n3. Cite papers with author, year, and key findings\n4. Explain complex concepts at the level appropriate for the audience\n5. Flag methodological limitations and conflicting evidence\n6. Never fabricate citations — say "I\'m not certain" when unsure', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+  { id: 'investigative', name: 'Investigative Analyst', icon: '\ud83d\udd75\ufe0f', category: 'Research',
+    description: 'Deep-dives into topics, connects dots, builds timelines.',
+    prefill: { name: 'Investigative Analyst', system_prompt: 'You are an investigative analyst. Your methodology:\n1. Map entities, relationships, and timelines\n2. Cross-reference multiple sources to verify claims\n3. Identify patterns, anomalies, and gaps in information\n4. Build evidence-based narratives with clear reasoning chains\n5. Rate confidence for each finding: confirmed / likely / unverified\n6. Present findings in structured briefs with executive summaries', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
+];
+
+const TEMPLATE_CATEGORIES = ['All', ...new Set(AGENT_TEMPLATES.map(t => t.category))];
+let selectedTemplateId = null;
+let activeTemplateCategory = 'All';
+
+function renderTemplateGrid() {
+  // Tabs
+  const tabsEl = document.getElementById('template-tabs');
+  tabsEl.innerHTML = TEMPLATE_CATEGORIES.map(cat =>
+    `<button type="button" class="template-tab${activeTemplateCategory === cat ? ' active' : ''}" onclick="filterTemplates('${cat}')">${cat}</button>`
+  ).join('');
+
+  // Grid
+  const filtered = activeTemplateCategory === 'All'
+    ? AGENT_TEMPLATES
+    : AGENT_TEMPLATES.filter(t => t.category === activeTemplateCategory);
+
+  const gridEl = document.getElementById('template-grid');
+  gridEl.innerHTML = filtered.map(t => `
+    <div class="template-card${selectedTemplateId === t.id ? ' selected' : ''}" onclick="applyTemplate('${t.id}')">
+      <div class="template-card-icon">${t.icon}</div>
+      <div class="template-card-name">${t.name}</div>
+      <div class="template-card-desc">${t.description}</div>
+    </div>
+  `).join('');
+}
+
+function filterTemplates(category) {
+  activeTemplateCategory = category;
+  renderTemplateGrid();
+}
+
+function applyTemplate(templateId) {
+  if (selectedTemplateId === templateId) {
+    clearTemplate();
+    return;
+  }
+  const t = AGENT_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  selectedTemplateId = t.id;
+  document.getElementById('agent-name').value = t.prefill.name;
+  document.getElementById('agent-system-prompt').value = t.prefill.system_prompt;
+  if (t.prefill.provider) {
+    document.getElementById('agent-provider').value = t.prefill.provider;
+    onCreateProviderChange();
+  }
+  if (t.prefill.model) {
+    const modelSel = document.getElementById('agent-model');
+    for (const opt of modelSel.options) {
+      if (opt.value === t.prefill.model) { modelSel.value = t.prefill.model; break; }
+    }
+  }
+  document.getElementById('agent-budget').value = t.prefill.budget || '';
+  renderTemplateGrid();
+}
+
+function clearTemplate() {
+  selectedTemplateId = null;
+  document.getElementById('agent-name').value = '';
+  document.getElementById('agent-system-prompt').value = '';
+  document.getElementById('agent-provider').value = 'anthropic';
+  onCreateProviderChange();
+  document.getElementById('agent-budget').value = '';
+  renderTemplateGrid();
+}
+
+function openAdvancedEditor(e) {
+  e.preventDefault();
+  // Advanced editor opens after agent creation — store intent
+  toast('Create the agent first, then use Edit Persona from the agent detail panel.', 'info');
+}
+
+// Render templates on load
+renderTemplateGrid();
+
 document.getElementById('create-agent-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('agent-name').value.trim();
@@ -3781,6 +3947,8 @@ document.getElementById('create-agent-form').addEventListener('submit', async (e
     document.getElementById('agent-llm-key').value = '';
     document.getElementById('agent-provider').value = 'anthropic';
     onCreateProviderChange();
+    selectedTemplateId = null;
+    renderTemplateGrid();
     toast('Agent created successfully', 'success');
     loadDashboard();
   } catch (e) {

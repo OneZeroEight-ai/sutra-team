@@ -4,6 +4,7 @@ const isProtectedRoute = createRouteMatcher([
   "/council/deliberate(.*)",
   "/council/session(.*)",
   "/dashboard(.*)",
+  "/persona-editor(.*)",
   "/api/council/deliberate(.*)",
 ]);
 
