@@ -64,7 +64,7 @@ export function Header() {
             </SignedOut>
             <SignedIn>
               <Link
-                href="/dashboard"
+                href="/dashboard.html"
                 className="text-sm text-sutra-muted hover:text-sutra-text transition"
               >
                 Dashboard
@@ -127,7 +127,7 @@ export function Header() {
             </SignedOut>
             <SignedIn>
               <Link
-                href="/dashboard"
+                href="/dashboard.html"
                 className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
                 onClick={() => setMobileOpen(false)}
               >
