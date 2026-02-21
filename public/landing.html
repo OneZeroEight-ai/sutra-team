@@ -358,8 +358,8 @@ nav {
 /* ── PRICING ── */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .price-card {
@@ -378,7 +378,7 @@ nav {
   position: relative;
 }
 .price-card.featured::after {
-  content: 'RECOMMENDED';
+  content: 'MOST POPULAR';
   position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
   background: var(--purple); color: white;
   font-family: var(--mono); font-size: 10px;
@@ -732,71 +732,62 @@ footer {
 <section class="section" id="pricing">
   <div class="container">
     <div class="section-label">PRICING</div>
-    <h2 class="section-title">Start free. Scale when you're ready.</h2>
+    <h2 class="section-title">Start with 15 specialists. Build your team.</h2>
 
     <div class="pricing-grid fade-in">
       <div class="price-card">
-        <div class="tier">FREE</div>
-        <div class="amount">$0</div>
-        <div class="period">forever</div>
-        <ul>
-          <li>2 agents</li>
-          <li>Dashboard chat only</li>
-          <li>10 skills</li>
-          <li>Community support</li>
-          <li>BYOK (bring your own key)</li>
-        </ul>
-        <a href="/sign-up" class="btn btn-secondary">Get Started Free</a>
-      </div>
-
-      <div class="price-card">
-        <div class="tier">CREATOR</div>
-        <div class="amount">$29<span>/mo</span></div>
+        <div class="tier">EXPLORER</div>
+        <div class="amount">$9<span>/mo</span></div>
         <div class="period">per workspace</div>
         <ul>
-          <li>10 agents</li>
-          <li>All channels (Telegram, Slack, Email)</li>
-          <li>30+ skills</li>
-          <li>Heartbeat scheduling</li>
-          <li>BYOK multi-provider (Claude, GPT, Gemini)</li>
-          <li>Email support</li>
+          <li>15 AI council agents + 5 custom agents</li>
+          <li>Individual agent chat (unlimited)</li>
+          <li>3 council deliberations/mo</li>
+          <li>Basic skills (Tier 1&#8211;2)</li>
+          <li>Platform credits included</li>
+          <li>Community support</li>
         </ul>
-        <a href="/sign-up" class="btn btn-primary">Start Creating</a>
+        <a href="/sign-up" class="btn btn-secondary">Get Started</a>
       </div>
 
       <div class="price-card featured">
-        <div class="tier">PROFESSIONAL</div>
+        <div class="tier">PRO</div>
+        <div class="amount">$29<span>/mo</span></div>
+        <div class="period">per workspace</div>
+        <ul>
+          <li>Unlimited custom agents</li>
+          <li>Unlimited deliberations</li>
+          <li>All 32 skills</li>
+          <li>Voice sessions</li>
+          <li>BYOK (bring your own API keys)</li>
+          <li>Persona editor (Portable Mind Format)</li>
+          <li>Local LLM support (Ollama, LM Studio, vLLM)</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="/sign-up" class="btn btn-primary">Go Pro</a>
+      </div>
+
+      <div class="price-card" style="border-color:rgba(0,212,255,0.2);position:relative">
+        <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#0ea5e9,#06b6d4);color:white;font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:4px 14px;border-radius:100px">&#127470;&#127480; ICELAND</div>
+        <div class="tier">INTERNATIONAL</div>
         <div class="amount">$99<span>/mo</span></div>
         <div class="period">per workspace</div>
         <ul>
-          <li>Unlimited agents</li>
-          <li>All channels + heartbeat</li>
-          <li>All skills</li>
-          <li>Council mode (Rights + Experts + Combined)</li>
-          <li>Persistent cross-session memory</li>
+          <li>Everything in Pro</li>
+          <li>Iceland-hosted dedicated VPS</li>
+          <li>EU/GDPR compliant &#8212; outside US jurisdiction</li>
+          <li>100% renewable geothermal energy</li>
+          <li>Dedicated PostgreSQL (encrypted at rest)</li>
+          <li>WireGuard encrypted tunnel</li>
+          <li>99.95% SLA</li>
+          <li>White-label ready</li>
           <li>Priority support</li>
-          <li>Advanced audit &amp; compliance</li>
         </ul>
-        <a href="/sign-up" class="btn btn-primary">Go Professional</a>
-      </div>
-
-      <div class="price-card">
-        <div class="tier">ENTERPRISE</div>
-        <div class="amount">Custom</div>
-        <div class="period">talk to us</div>
-        <ul>
-          <li>Everything in Professional</li>
-          <li>SSO / SAML</li>
-          <li>Custom agents &amp; skills</li>
-          <li>Compliance reporting (SOC2, ISO)</li>
-          <li>Dedicated SLA</li>
-          <li>Human expert integration (roadmap)</li>
-        </ul>
-        <a href="mailto:info@sammasuit.com?subject=Sutra%20Enterprise%20Inquiry" class="btn btn-secondary">Talk to Sales</a>
+        <a href="/sign-up" class="btn btn-primary" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4)">Go Global</a>
       </div>
     </div>
 
-    <p class="pricing-note">All plans include Samm&#x101; Suit's 8 security layers. <strong>BYOK</strong> &#8212; bring your own Anthropic, OpenAI, or Google API key. You control your spend.</p>
+    <p class="pricing-note">All tiers include 8-layer security enforcement, audit trails, cryptographic identity, and kill switches.</p>
   </div>
 </section>
 
@@ -804,7 +795,7 @@ footer {
 <section class="bottom-cta">
   <div class="container">
     <h2>Build your agency today.</h2>
-    <p>Start with 2 free agents. No credit card required.</p>
+    <p>Start with 15 specialists for $9/mo.</p>
     <a href="/sign-up" class="btn btn-primary btn-lg">Create Your First Agent &#8594;</a>
   </div>
 </section>

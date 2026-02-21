@@ -662,8 +662,9 @@ select.login-input { appearance: auto; cursor: pointer; }
 }
 
 .tier-free { background: rgba(136,136,170,0.15); color: var(--gray); }
+.tier-explorer { background: rgba(136,136,170,0.15); color: var(--gray); }
 .tier-pro { background: var(--purple-dim); color: var(--purple); }
-.tier-team { background: rgba(0,212,255,0.1); color: var(--cyan); }
+.tier-team, .tier-international { background: rgba(0,212,255,0.1); color: var(--cyan); }
 .tier-enterprise { background: rgba(255,215,0,0.1); color: var(--gold); }
 
 .dash-actions {
@@ -1727,6 +1728,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     <a href="/pricing">Pricing</a>
     <a href="/docs">Docs</a>
     <a href="/dashboard.html" class="active">Dashboard</a>
+    <a href="/persona-editor">Persona Editor</a>
     <a href="/connect">Voice</a>
   </div>
 </nav>
@@ -1977,7 +1979,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <input type="password" class="login-input" id="agent-llm-key" placeholder="sk-ant-api03-... (optional — BYOK)" autocomplete="off">
       <span id="agent-key-error" style="font-size:11px;color:var(--red);display:none"></span>
       <div class="modal-actions" style="justify-content:space-between">
-        <a href="#" id="btn-advanced-editor" style="font-size:12px;color:var(--purple);text-decoration:none;align-self:center;display:none" onclick="openAdvancedEditor(event)">Advanced Editor</a>
+        <a href="/persona-editor" id="btn-advanced-editor" style="font-size:12px;color:var(--purple);text-decoration:none;align-self:center" target="_blank">Advanced Editor (PMF)</a>
         <div style="display:flex;gap:12px">
           <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('modal-create')">Cancel</button>
           <button type="submit" class="btn btn-primary btn-sm">Create Agent</button>
@@ -2698,10 +2700,12 @@ function downloadBlob(blob, filename) {
 
 // ── BILLING ──
 const TIER_INFO = {
-  free:       { name: 'Free',       price: '$0/mo',   maxAgents: '1',         budget: '$0' },
-  pro:        { name: 'Pro',        price: '$29/mo',  maxAgents: '5',         budget: '$500' },
-  team:       { name: 'Team',       price: '$99/mo',  maxAgents: '20',        budget: '$5,000' },
-  enterprise: { name: 'Enterprise', price: 'Custom',  maxAgents: 'Unlimited', budget: 'Custom' },
+  explorer:      { name: 'Explorer',      price: '$9/mo',   maxAgents: '20',        budget: '$50' },
+  pro:           { name: 'Pro',           price: '$29/mo',  maxAgents: 'Unlimited', budget: '$500' },
+  international: { name: 'International', price: '$99/mo',  maxAgents: 'Unlimited', budget: '$5,000' },
+  enterprise:    { name: 'Enterprise',    price: 'Custom',  maxAgents: 'Unlimited', budget: 'Custom' },
+  free:          { name: 'Free',          price: '$0/mo',   maxAgents: '1',         budget: '$0' },
+  team:          { name: 'International', price: '$99/mo',  maxAgents: 'Unlimited', budget: '$5,000' },
 };
 
 async function loadBillingStatus() {
@@ -2728,7 +2732,7 @@ function renderBilling() {
   let planHtml = `
     <div class="billing-card">
       <h4>Current Plan</h4>
-      <div class="billing-plan-name" style="color:${tier === 'free' ? 'var(--gray)' : tier === 'pro' ? 'var(--purple)' : tier === 'team' ? 'var(--cyan)' : 'var(--gold)'}">${esc(info.name)}</div>
+      <div class="billing-plan-name" style="color:${tier === 'free' || tier === 'explorer' ? 'var(--gray)' : tier === 'pro' ? 'var(--purple)' : tier === 'international' || tier === 'team' ? 'var(--cyan)' : 'var(--gold)'}">${esc(info.name)}</div>
       <div class="billing-price">${info.price}</div>
       <ul class="billing-features">
         <li>Max Agents <span>${info.maxAgents}</span></li>
@@ -2738,9 +2742,12 @@ function renderBilling() {
       </ul>
       <div class="billing-actions">`;
 
-  if (tier === 'free') {
+  if (tier === 'free' || tier === 'explorer') {
     planHtml += `<button class="btn btn-primary btn-sm" onclick="upgradePlan('pro')">Upgrade to Pro</button>`;
-    planHtml += `<button class="btn btn-ghost btn-sm" onclick="upgradePlan('team')">Upgrade to Team</button>`;
+    planHtml += `<button class="btn btn-ghost btn-sm" onclick="upgradePlan('international')">Go International</button>`;
+  } else if (tier === 'pro') {
+    planHtml += `<button class="btn btn-ghost btn-sm" onclick="upgradePlan('international')">Go International</button>`;
+    planHtml += `<button class="btn btn-ghost btn-sm" onclick="openBillingPortal()">Manage Subscription</button>`;
   } else {
     planHtml += `<button class="btn btn-ghost btn-sm" onclick="openBillingPortal()">Manage Subscription</button>`;
   }
@@ -4051,11 +4058,6 @@ function clearTemplate() {
   renderTemplateGrid();
 }
 
-function openAdvancedEditor(e) {
-  e.preventDefault();
-  // Advanced editor opens after agent creation — store intent
-  toast('Create the agent first, then use Edit Persona from the agent detail panel.', 'info');
-}
 
 // Render templates on load
 renderTemplateGrid();
