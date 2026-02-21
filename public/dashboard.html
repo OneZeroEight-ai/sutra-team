@@ -798,6 +798,10 @@ select.login-input { appearance: auto; cursor: pointer; }
   box-shadow: 0 0 24px rgba(220,38,38,0.05);
 }
 .agent-card.glow-paused { border-color: rgba(136,136,170,0.2); }
+.agent-card.glow-sleeping {
+  border-color: rgba(99,102,241,0.25);
+  box-shadow: 0 0 24px rgba(99,102,241,0.06);
+}
 .agent-card.kill-flash { animation: killFlash 0.6s ease !important; }
 .agent-card.death-shake { animation: deathShake 0.6s ease, killFlash 0.6s ease !important; }
 .agent-card.revive-flash { animation: reviveFlash 2.5s ease-out !important; }
@@ -841,6 +845,7 @@ select.login-input { appearance: auto; cursor: pointer; }
 .status-dot.active { background: var(--green); animation: pulseGreen 2s ease-in-out infinite; }
 .status-dot.terminated { background: var(--red); }
 .status-dot.paused { background: var(--gold); }
+.status-dot.sleeping { background: #6366f1; }
 .agent-card-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -922,6 +927,11 @@ select.login-input { appearance: auto; cursor: pointer; }
 .status-badge.terminated {
   background: rgba(220,38,38,0.1);
   color: var(--red);
+}
+
+.status-badge.sleeping {
+  background: rgba(99,102,241,0.15);
+  color: #818cf8;
 }
 
 /* Agent state icons */
@@ -2492,11 +2502,16 @@ function renderAgents() {
     // Determine dynamic state icon
     const hb = state.heartbeats[a.id];
     const isReviving = state.revivingAgents.has(a.id);
+    const isCouncil = !!(a.conference_group && a.conference_group.length > 0);
     let stateIcon, stateLabel, stateLabelClass, stateClickable = false;
     if (status === 'terminated') {
       stateIcon = '<span class="agent-state-icon">\uD83D\uDC80</span>';
       stateLabel = 'Killed';
       stateLabelClass = 'killed';
+    } else if (status === 'sleeping') {
+      stateIcon = '<span class="agent-state-icon">\uD83C\uDF19</span>';
+      stateLabel = 'Sleeping';
+      stateLabelClass = 'sleeping';
     } else if (isReviving) {
       stateIcon = '<span class="agent-state-icon reviving">\u26A1</span>';
       stateLabel = 'Reviving\u2026';
@@ -2537,9 +2552,13 @@ function renderAgents() {
         </div>
         <div class="agent-card-key" title="${esc(pubKey)}">${esc(truncKey)}</div>
         <div class="agent-card-actions">
-          ${status === 'active' ? `<button class="btn-chat" onclick="event.stopPropagation();openChat('${a.id}','${esc(a.name)}')">Chat</button>` : ''}
+          ${status === 'active' || status === 'sleeping' ? `<button class="btn-chat" onclick="event.stopPropagation();openChat('${a.id}','${esc(a.name)}')"${status === 'sleeping' ? ' title="Wake agent to chat"' : ''}>Chat</button>` : ''}
           <button class="btn-audit" onclick="event.stopPropagation();scrollToAudit('${a.id}','${esc(a.name)}')">Audit</button>
-          ${status !== 'terminated' ? `<button class="btn-kill" onclick="event.stopPropagation();confirmKill('${a.id}','${esc(a.name)}')">Kill <span class="key-badge">K</span></button>` : ''}
+          ${isCouncil && status !== 'terminated' ? (status === 'sleeping'
+            ? `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();wakeAgent('${a.id}','${esc(a.name)}')">Wake</button>`
+            : `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();sleepAgent('${a.id}','${esc(a.name)}')">Sleep</button>`)
+          : ''}
+          ${!isCouncil && status !== 'terminated' ? `<button class="btn-kill" onclick="event.stopPropagation();confirmKill('${a.id}','${esc(a.name)}')">Kill <span class="key-badge">K</span></button>` : ''}
           ${status === 'terminated' ? `<button class="btn-revive" onclick="event.stopPropagation();reviveAgent('${a.id}','${esc(a.name)}')">Revive</button>` : ''}
         </div>
       </div>`;
@@ -2935,9 +2954,9 @@ async function openAgentDetail(agentId) {
     state.detailAgentId = a.id;
     state.detailAgentName = a.name;
     document.getElementById('detail-agent-name').textContent = a.name;
-    // Show/hide chat button based on status
+    // Show/hide chat button based on status (active + sleeping can chat)
     const chatBtn = document.getElementById('btn-detail-chat');
-    if (chatBtn) chatBtn.style.display = (a.status || 'active') === 'active' ? '' : 'none';
+    if (chatBtn) chatBtn.style.display = ['active','sleeping'].includes(a.status || 'active') ? '' : 'none';
 
     const pubKey = a.metta_public_key || a.public_key || '—';
     const truncKey = pubKey.length > 24 ? pubKey.slice(0, 12) + '...' + pubKey.slice(-8) : pubKey;
@@ -2956,6 +2975,17 @@ async function openAgentDetail(agentId) {
         <span class="detail-label">Status</span>
         <span><span class="status-badge ${(a.status||'active').toLowerCase()}">${(a.status||'active').toUpperCase()}</span></span>
       </div>
+      ${(a.conference_group && a.conference_group.length > 0) ? `<div class="detail-row">
+        <span class="detail-label">Do Not Disturb</span>
+        <span style="display:flex;align-items:center;gap:10px">
+          <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+            <input type="checkbox" id="dnd-toggle-${a.id}" ${(a.status||'active')==='sleeping'?'checked':''} onchange="toggleDND('${a.id}','${esc(a.name)}',this.checked)" style="opacity:0;width:0;height:0">
+            <span style="position:absolute;inset:0;background:${(a.status||'active')==='sleeping'?'#6366f1':'var(--bg2)'};border-radius:24px;transition:all 0.3s;border:1px solid var(--card-border)"></span>
+            <span style="position:absolute;top:3px;left:${(a.status||'active')==='sleeping'?'22px':'3px'};width:18px;height:18px;background:white;border-radius:50%;transition:all 0.3s"></span>
+          </label>
+          <span style="font-size:13px;color:var(--gray)">${(a.status||'active')==='sleeping'?'\uD83C\uDF19 Sleeping — skipped in deliberations':'Awake — participates in deliberations'}</span>
+        </span>
+      </div>` : ''}
       <div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <span style="color:var(--gray);font-size:14px">Agent Instructions</span>
@@ -4159,6 +4189,45 @@ async function reviveAgent(agentId, agentName) {
   } catch (e) {
     toast('Failed to revive agent: ' + e.message, 'error');
   }
+}
+
+// ── SLEEP / WAKE (DND) ──
+async function sleepAgent(agentId, agentName) {
+  try {
+    await api('POST', `/api/agents/${agentId}/sleep`);
+    toast(`${agentName} is now sleeping (DND)`, 'success');
+    const card = document.getElementById('agent-card-' + agentId);
+    if (card) {
+      const stateEl = card.querySelector('.agent-state');
+      if (stateEl) stateEl.innerHTML = '<span class="agent-state-icon">\uD83C\uDF19</span><span class="agent-state-label sleeping">Sleeping</span>';
+      card.className = card.className.replace(/glow-\w+/, 'glow-sleeping');
+    }
+    setTimeout(() => loadDashboard(), 600);
+  } catch (e) { toast('Failed to sleep agent: ' + e.message, 'error'); }
+}
+
+async function wakeAgent(agentId, agentName) {
+  try {
+    await api('POST', `/api/agents/${agentId}/wake`);
+    toast(`${agentName} is now awake`, 'success');
+    const card = document.getElementById('agent-card-' + agentId);
+    if (card) {
+      const stateEl = card.querySelector('.agent-state');
+      if (stateEl) stateEl.innerHTML = '<span class="agent-state-icon">\uD83D\uDFE2</span><span class="agent-state-label active">Active</span>';
+      card.className = card.className.replace(/glow-\w+/, 'glow-active');
+    }
+    setTimeout(() => loadDashboard(), 600);
+  } catch (e) { toast('Failed to wake agent: ' + e.message, 'error'); }
+}
+
+async function toggleDND(agentId, agentName, sleeping) {
+  if (sleeping) {
+    await sleepAgent(agentId, agentName);
+  } else {
+    await wakeAgent(agentId, agentName);
+  }
+  // Refresh the detail panel
+  setTimeout(() => openAgentDetail(agentId), 800);
 }
 
 // ── LOGIN FLOW ──
