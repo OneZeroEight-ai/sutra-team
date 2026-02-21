@@ -127,6 +127,26 @@ export async function getAgents() {
 }
 
 /**
+ * POST /api/agents — create a new agent.
+ */
+export async function createAgent(body: {
+  name: string;
+  system_prompt: string;
+  model?: string;
+  monthly_budget_usd?: number;
+}) {
+  const res = await sammaApiFetch("/api/agents", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Create agent failed (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
+/**
  * POST /api/agents/{id}/gateway — send a message to an agent via the gateway.
  */
 export async function sendGatewayMessage(
