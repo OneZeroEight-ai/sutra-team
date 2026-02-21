@@ -3,118 +3,352 @@
 import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 
+const tiers = [
+  {
+    id: "explorer",
+    name: "Explorer",
+    price: 9,
+    period: "per workspace",
+    features: [
+      "15 AI council agents + 5 custom agents",
+      "Individual agent chat (unlimited)",
+      "3 council deliberations/mo",
+      "Basic skills (Tier 1–2)",
+      "Platform credits included",
+      "Community support",
+    ],
+    cta: "Get Started",
+    featured: false,
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: 29,
+    period: "per workspace",
+    features: [
+      "Unlimited custom agents",
+      "Unlimited deliberations",
+      "All 32 skills",
+      "Voice sessions",
+      "BYOK (bring your own API keys)",
+      "Persona editor (Portable Mind Format)",
+      "Local LLM support (Ollama, LM Studio, vLLM)",
+      "Priority support",
+    ],
+    cta: "Go Pro",
+    featured: true,
+  },
+  {
+    id: "international",
+    name: "International",
+    price: 99,
+    period: "per workspace",
+    features: [
+      "Everything in Pro",
+      "Iceland-hosted dedicated VPS",
+      "EU/GDPR compliant — outside US jurisdiction",
+      "100% renewable geothermal energy",
+      "Dedicated PostgreSQL (encrypted at rest)",
+      "WireGuard encrypted tunnel",
+      "99.95% SLA",
+      "White-label ready",
+      "Priority support",
+    ],
+    cta: "Go Global",
+    featured: false,
+    badge: "🇮🇸 ICELAND",
+  },
+];
+
 export default function PricingPage() {
   const { isSignedIn } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
 
-  async function handlePurchase() {
+  async function handlePurchase(tierId: string) {
     if (!isSignedIn) {
       window.location.href = "/sign-up";
       return;
     }
 
-    setLoading(true);
+    setLoadingTier(tierId);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ tier: tierId }),
       });
       const { url } = await res.json();
       if (url) window.location.href = url;
     } catch (error) {
       console.error("Checkout error:", error);
     } finally {
-      setLoading(false);
+      setLoadingTier(null);
     }
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Try the Council</h1>
-          <p className="text-zinc-400">
-            8 AI agents grounded in the Noble Eightfold Path deliberate on your
-            question. One synthesis. Decisions you can live with.
-          </p>
-        </div>
-
-        {/* Pilot Offer */}
-        <div className="bg-zinc-900 border border-violet-500/30 rounded-xl p-6 mb-6">
-          <div className="text-xs text-violet-400 uppercase tracking-wider mb-2">
-            Pilot Access
-          </div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-4xl font-bold">$20</span>
-            <span className="text-zinc-500">one-time</span>
-          </div>
-          <ul className="space-y-2 mb-6 text-sm text-zinc-300">
-            <li className="flex items-center gap-2">
-              <span className="text-violet-400">&#10003;</span> 10 council
-              deliberations
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-violet-400">&#10003;</span> All 8 Rights
-              agents + Sutra synthesis
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-violet-400">&#10003;</span> Full perspective
-              reports
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-zinc-600">&mdash;</span>
-              <span className="text-zinc-500">No subscription required</span>
-            </li>
-          </ul>
-          <button
-            onClick={handlePurchase}
-            disabled={loading}
-            className="w-full bg-violet-600 hover:bg-violet-700 disabled:bg-zinc-700 text-white font-semibold py-3 px-6 rounded-lg transition cursor-pointer disabled:cursor-wait"
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#06060E",
+        color: "#E2E8F0",
+        fontFamily: "'Outfit', system-ui, sans-serif",
+        padding: "80px 24px 60px",
+      }}
+    >
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: 3,
+              color: "#7C3AED",
+              textTransform: "uppercase",
+              fontFamily: "'JetBrains Mono', monospace",
+              marginBottom: 12,
+            }}
           >
-            {loading
-              ? "Loading..."
-              : isSignedIn
-                ? "Purchase Pilot Access"
-                : "Sign Up & Purchase"}
-          </button>
-        </div>
-
-        {/* Free trial note */}
-        <div className="text-center text-sm text-zinc-500">
-          <p>New accounts include 3 free deliberations to try the council.</p>
-          <p className="mt-1">
-            Questions?{" "}
-            <a
-              href="mailto:info@onezeroeight.ai"
-              className="text-violet-400 hover:text-violet-300"
-            >
-              info@onezeroeight.ai
-            </a>
+            PRICING
+          </div>
+          <h1
+            style={{
+              fontSize: 40,
+              fontWeight: 700,
+              color: "#F0EFF4",
+              marginBottom: 12,
+            }}
+          >
+            Start with 15 specialists. Build your team.
+          </h1>
+          <p style={{ fontSize: 17, color: "#8892B0", maxWidth: 520, margin: "0 auto" }}>
+            Every tier includes 8-layer security enforcement, audit trails,
+            cryptographic identity, and kill switches.
           </p>
         </div>
 
-        {/* Future tiers (greyed out) */}
-        <div className="mt-8 pt-8 border-t border-zinc-800">
-          <p className="text-xs text-zinc-600 text-center mb-4">Coming soon</p>
-          <div className="grid grid-cols-2 gap-4 opacity-40">
-            <div className="bg-zinc-900 rounded-lg p-4">
-              <div className="text-sm font-semibold">Creator</div>
-              <div className="text-lg font-bold">
-                $49<span className="text-xs text-zinc-500">/mo</span>
+        {/* Pricing Grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 24,
+            marginBottom: 40,
+          }}
+        >
+          {tiers.map((tier) => (
+            <div
+              key={tier.id}
+              style={{
+                background: "#0f0f24",
+                border: tier.featured
+                  ? "1px solid rgba(124, 58, 237, 0.5)"
+                  : tier.id === "international"
+                    ? "1px solid rgba(0, 212, 255, 0.2)"
+                    : "1px solid #1e1e3a",
+                borderRadius: 16,
+                padding: "36px 28px 28px",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                ...(tier.featured
+                  ? {
+                      boxShadow: "0 0 40px rgba(124, 58, 237, 0.15)",
+                      transform: "scale(1.03)",
+                    }
+                  : {}),
+              }}
+            >
+              {/* Badges */}
+              {tier.featured && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -11,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "linear-gradient(135deg, #7C3AED, #8B5CF6)",
+                    color: "white",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 10,
+                    letterSpacing: 2,
+                    padding: "4px 14px",
+                    borderRadius: 100,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  MOST POPULAR
+                </div>
+              )}
+              {tier.badge && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -11,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "linear-gradient(135deg, #0ea5e9, #06b6d4)",
+                    color: "white",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 10,
+                    letterSpacing: 2,
+                    padding: "4px 14px",
+                    borderRadius: 100,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {tier.badge}
+                </div>
+              )}
+
+              {/* Tier name */}
+              <div
+                style={{
+                  fontSize: 12,
+                  letterSpacing: 2,
+                  color: "#8892B0",
+                  textTransform: "uppercase",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  marginBottom: 8,
+                }}
+              >
+                {tier.name}
               </div>
-              <div className="text-xs text-zinc-500">30 deliberations/mo</div>
-            </div>
-            <div className="bg-zinc-900 rounded-lg p-4">
-              <div className="text-sm font-semibold">Professional</div>
-              <div className="text-lg font-bold">
-                $149<span className="text-xs text-zinc-500">/mo</span>
+
+              {/* Price */}
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: 48, fontWeight: 700, color: "#F0EFF4" }}>
+                  ${tier.price}
+                </span>
+                <span style={{ fontSize: 16, color: "#4A5568" }}>/mo</span>
               </div>
-              <div className="text-xs text-zinc-500">75 deliberations/mo</div>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: "#4A5568",
+                  marginBottom: 24,
+                }}
+              >
+                {tier.period}
+              </div>
+
+              {/* Features */}
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: 0,
+                  flex: 1,
+                  marginBottom: 24,
+                }}
+              >
+                {tier.features.map((feature, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 10,
+                      fontSize: 14,
+                      color: "#CBD5E1",
+                      marginBottom: 10,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: tier.id === "international" ? "#06b6d4" : "#7C3AED",
+                        flexShrink: 0,
+                        marginTop: 2,
+                      }}
+                    >
+                      ✓
+                    </span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => handlePurchase(tier.id)}
+                disabled={loadingTier === tier.id}
+                style={{
+                  width: "100%",
+                  padding: "12px 24px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: "'Outfit', system-ui, sans-serif",
+                  border: "none",
+                  borderRadius: 10,
+                  cursor: loadingTier === tier.id ? "wait" : "pointer",
+                  transition: "all 0.2s",
+                  ...(tier.featured
+                    ? {
+                        background: "linear-gradient(135deg, #7C3AED, #6D28D9)",
+                        color: "white",
+                      }
+                    : tier.id === "international"
+                      ? {
+                          background: "linear-gradient(135deg, #0ea5e9, #06b6d4)",
+                          color: "white",
+                        }
+                      : {
+                          background: "transparent",
+                          color: "#8B5CF6",
+                          border: "1px solid rgba(124, 58, 237, 0.3)",
+                        }),
+                  ...(loadingTier === tier.id
+                    ? { opacity: 0.6 }
+                    : {}),
+                }}
+              >
+                {loadingTier === tier.id
+                  ? "Loading..."
+                  : isSignedIn
+                    ? tier.cta
+                    : "Sign Up"}
+              </button>
             </div>
-          </div>
+          ))}
+        </div>
+
+        {/* Footer note */}
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: 13,
+            color: "#4A5568",
+            marginBottom: 32,
+          }}
+        >
+          All tiers include 8-layer security enforcement, audit trails,
+          cryptographic identity, and kill switches.
+        </p>
+
+        {/* Contact */}
+        <div style={{ textAlign: "center", fontSize: 14, color: "#8892B0" }}>
+          Questions?{" "}
+          <a
+            href="mailto:info@onezeroeight.ai"
+            style={{ color: "#7C3AED", textDecoration: "none" }}
+          >
+            info@onezeroeight.ai
+          </a>
         </div>
       </div>
+
+      {/* Responsive override */}
+      <style>{`
+        @media (max-width: 900px) {
+          div[style*="grid-template-columns: repeat(3"] {
+            grid-template-columns: 1fr !important;
+            max-width: 420px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
