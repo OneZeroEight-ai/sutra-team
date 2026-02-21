@@ -15,6 +15,7 @@ interface AgentData {
   model: string | null;
   monthly_budget_usd: number;
   installed_skills: string[];
+  llm_base_url: string | null;
   // Identity
   persona_name: string | null;
   persona_designation: string | null;
@@ -624,16 +625,25 @@ function ValuesTab({ form, updateField }: TabProps) {
 }
 
 function CapabilitiesTab({ form, updateField }: TabProps) {
-  const providers = ["anthropic", "openai", "google"];
+  const providers = [
+    "anthropic", "openai", "google",
+    "ollama", "lmstudio", "vllm", "custom",
+  ];
+  const localProviders = new Set(["ollama", "lmstudio", "vllm", "custom"]);
   const modelsByProvider: Record<string, string[]> = {
     anthropic: [
       "claude-sonnet-4-5-20250929",
       "claude-opus-4-6",
       "claude-haiku-4-5-20251001",
     ],
-    openai: ["gpt-4o", "gpt-4o-mini", "o1-preview"],
-    google: ["gemini-2.5-pro", "gemini-2.5-flash"],
+    openai: ["gpt-4o", "gpt-4o-mini", "gpt-4.1"],
+    google: ["gemini-2.5-pro", "gemini-2.0-flash"],
+    ollama: ["llama3", "mistral", "codellama", "gemma2", "phi3"],
+    lmstudio: ["default"],
+    vllm: ["default"],
+    custom: ["default"],
   };
+  const isLocal = localProviders.has(form.provider || "anthropic");
 
   return (
     <div style={styles.fields}>
@@ -644,11 +654,20 @@ function CapabilitiesTab({ form, updateField }: TabProps) {
             onChange={(e) => updateField("provider", e.target.value)}
             style={styles.select}
           >
-            {providers.map((p) => (
-              <option key={p} value={p}>
-                {p.charAt(0).toUpperCase() + p.slice(1)}
-              </option>
-            ))}
+            <optgroup label="Cloud">
+              {providers.filter(p => !localProviders.has(p)).map((p) => (
+                <option key={p} value={p}>
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Local / Self-Hosted">
+              {providers.filter(p => localProviders.has(p)).map((p) => (
+                <option key={p} value={p}>
+                  {p === "lmstudio" ? "LM Studio" : p === "vllm" ? "vLLM" : p.charAt(0).toUpperCase() + p.slice(1)}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </FieldGroup>
         <FieldGroup label="Model">
@@ -667,6 +686,22 @@ function CapabilitiesTab({ form, updateField }: TabProps) {
           </select>
         </FieldGroup>
       </div>
+      {isLocal && (
+        <FieldGroup label="Endpoint URL" hint="OpenAI-compatible base URL for your local model server">
+          <Input
+            value={form.llm_base_url || ""}
+            onChange={(v) => updateField("llm_base_url", v)}
+            placeholder={
+              form.provider === "ollama" ? "http://localhost:11434" :
+              form.provider === "lmstudio" ? "http://localhost:1234" :
+              "http://localhost:8000"
+            }
+          />
+          <p style={{ fontSize: 11, color: "#71717a", marginTop: 4 }}>
+            Local model — no credit charge. You provide the compute.
+          </p>
+        </FieldGroup>
+      )}
       <FieldGroup label="Monthly Budget (USD)">
         <Input
           type="number"

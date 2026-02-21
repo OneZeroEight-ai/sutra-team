@@ -1942,11 +1942,24 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <textarea class="login-input" id="agent-system-prompt" placeholder="Tell this agent how to behave, what tone to use, and what rules to follow." rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:13px;line-height:1.5"></textarea>
       <div style="display:flex;gap:8px">
         <select class="login-input" id="agent-provider" style="flex:1" onchange="onCreateProviderChange()">
-          <option value="anthropic">Anthropic</option>
-          <option value="openai">OpenAI</option>
-          <option value="google">Google</option>
+          <optgroup label="Cloud Providers">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="google">Google (Gemini)</option>
+          </optgroup>
+          <optgroup label="Local / Self-Hosted">
+            <option value="ollama">Ollama</option>
+            <option value="lmstudio">LM Studio</option>
+            <option value="vllm">vLLM</option>
+            <option value="custom">Custom Endpoint</option>
+          </optgroup>
         </select>
         <select class="login-input" id="agent-model" style="flex:1"></select>
+      </div>
+      <div id="local-endpoint-fields" style="display:none;margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Endpoint URL</label>
+        <input type="url" class="login-input" id="agent-base-url" placeholder="http://localhost:11434" style="margin-bottom:4px">
+        <span style="font-size:11px;color:var(--gray-dim)">OpenAI-compatible chat/completions endpoint</span>
       </div>
       <div id="credit-hint" style="font-size:11px;color:var(--gray-dim);margin:-4px 0 8px;padding:0 2px"></div>
       <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Monthly Budget (USD)</label>
@@ -2091,24 +2104,48 @@ const PROVIDER_COLORS = {
   "anthropic": "#7C3AED",
   "openai": "#10A37F",
   "google": "#4285F4",
+  "ollama": "#1A1A2E",
+  "lmstudio": "#4FC3F7",
+  "vllm": "#FF6B35",
+  "custom": "#888",
 };
 
 const PROVIDER_DISPLAY = {
   "anthropic": "Anthropic",
   "openai": "OpenAI",
   "google": "Google",
+  "ollama": "Ollama",
+  "lmstudio": "LM Studio",
+  "vllm": "vLLM",
+  "custom": "Custom Endpoint",
 };
 
 const PROVIDER_MODELS = {
   "anthropic": ["claude-sonnet-4-5-20250929", "claude-haiku-4-5-20251001"],
   "openai": ["gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini"],
   "google": ["gemini-2.0-flash", "gemini-2.5-pro"],
+  "ollama": ["llama3", "mistral", "codellama", "gemma2", "phi3"],
+  "lmstudio": ["default"],
+  "vllm": ["default"],
+  "custom": ["default"],
 };
 
 const PROVIDER_KEY_PREFIXES = {
   "anthropic": { prefix: "sk-ant-", placeholder: "sk-ant-api03-..." },
   "openai": { prefix: "sk-", placeholder: "sk-proj-..." },
   "google": { prefix: "AI", placeholder: "AIza..." },
+  "ollama": { prefix: "", placeholder: "(not required)" },
+  "lmstudio": { prefix: "", placeholder: "(not required)" },
+  "vllm": { prefix: "", placeholder: "(not required)" },
+  "custom": { prefix: "", placeholder: "API key (if required)" },
+};
+
+const LOCAL_PROVIDERS = new Set(["ollama", "lmstudio", "vllm", "custom"]);
+const LOCAL_PROVIDER_DEFAULTS = {
+  "ollama": "http://localhost:11434",
+  "lmstudio": "http://localhost:1234",
+  "vllm": "http://localhost:8000",
+  "custom": "",
 };
 
 function getModelDisplay(model) {
@@ -3796,8 +3833,14 @@ const MODEL_CREDIT_RATES = {
 function updateCreditHint() {
   const hint = document.getElementById('credit-hint');
   if (!hint) return;
+  const prov = document.getElementById('agent-provider')?.value;
   const model = document.getElementById('agent-model')?.value;
   const keyVal = document.getElementById('agent-llm-key')?.value?.trim();
+
+  if (LOCAL_PROVIDERS.has(prov)) {
+    hint.innerHTML = '<span style="color:var(--cyan)">Local model — no credit charge. You provide the compute.</span>';
+    return;
+  }
   if (keyVal) {
     hint.innerHTML = '<span style="color:var(--green)">Using your API key — no credit charge</span>';
   } else {
@@ -3816,9 +3859,44 @@ function onCreateProviderChange() {
   const modelSel = document.getElementById('agent-model');
   const keyInput = document.getElementById('agent-llm-key');
   const models = PROVIDER_MODELS[prov] || [];
+  const isLocal = LOCAL_PROVIDERS.has(prov);
+
   modelSel.innerHTML = models.map(m => `<option value="${m}">${getModelDisplay(m)}</option>`).join('');
-  keyInput.placeholder = (PROVIDER_KEY_PREFIXES[prov]?.placeholder || '') + ' (optional — BYOK)';
+  keyInput.placeholder = (PROVIDER_KEY_PREFIXES[prov]?.placeholder || '') + (isLocal ? '' : ' (optional — BYOK)');
   document.getElementById('agent-key-error').style.display = 'none';
+
+  // Show/hide local endpoint fields
+  const localFields = document.getElementById('local-endpoint-fields');
+  if (localFields) {
+    localFields.style.display = isLocal ? 'block' : 'none';
+    if (isLocal) {
+      document.getElementById('agent-base-url').value = LOCAL_PROVIDER_DEFAULTS[prov] || '';
+      document.getElementById('agent-base-url').placeholder = LOCAL_PROVIDER_DEFAULTS[prov] || 'http://localhost:8000';
+    }
+  }
+
+  // For local providers, allow typing a custom model name
+  if (isLocal && models.length <= 1) {
+    const wrapper = modelSel.parentElement;
+    let customInput = document.getElementById('agent-model-custom');
+    if (!customInput) {
+      customInput = document.createElement('input');
+      customInput.type = 'text';
+      customInput.className = 'login-input';
+      customInput.id = 'agent-model-custom';
+      customInput.style.flex = '1';
+      customInput.placeholder = 'Model name (e.g. llama3)';
+      wrapper.appendChild(customInput);
+    }
+    customInput.style.display = '';
+    customInput.value = models[0] !== 'default' ? models[0] : '';
+    modelSel.style.display = 'none';
+  } else {
+    const customInput = document.getElementById('agent-model-custom');
+    if (customInput) customInput.style.display = 'none';
+    modelSel.style.display = '';
+  }
+
   updateCreditHint();
 }
 
@@ -3957,15 +4035,29 @@ document.getElementById('create-agent-form').addEventListener('submit', async (e
   const name = document.getElementById('agent-name').value.trim();
   const systemPrompt = document.getElementById('agent-system-prompt').value.trim();
   const provider = document.getElementById('agent-provider').value;
-  const model = document.getElementById('agent-model').value;
+  const isLocal = LOCAL_PROVIDERS.has(provider);
+  // Use custom model input for local providers if visible
+  const customModelInput = document.getElementById('agent-model-custom');
+  const model = (isLocal && customModelInput && customModelInput.style.display !== 'none' && customModelInput.value.trim())
+    ? customModelInput.value.trim()
+    : document.getElementById('agent-model').value;
   const budget = parseFloat(document.getElementById('agent-budget').value) || undefined;
   const llmKey = document.getElementById('agent-llm-key').value.trim();
+  const baseUrl = document.getElementById('agent-base-url')?.value?.trim();
   if (!name) return;
 
-  // Validate key prefix
-  if (llmKey && !validateKeyPrefix(llmKey, provider)) {
+  // Validate key prefix (skip for local providers)
+  if (llmKey && !isLocal && !validateKeyPrefix(llmKey, provider)) {
     const errEl = document.getElementById('agent-key-error');
     errEl.textContent = `Key doesn't match ${PROVIDER_DISPLAY[provider]} — expected prefix: ${PROVIDER_KEY_PREFIXES[provider]?.prefix || '?'}`;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Validate base URL for local providers
+  if (isLocal && !baseUrl) {
+    const errEl = document.getElementById('agent-key-error');
+    errEl.textContent = `${PROVIDER_DISPLAY[provider]} requires an endpoint URL`;
     errEl.style.display = 'block';
     return;
   }
@@ -3975,6 +4067,7 @@ document.getElementById('create-agent-form').addEventListener('submit', async (e
     if (systemPrompt) body.system_prompt = systemPrompt;
     if (budget != null && budget > 0) body.monthly_budget_usd = budget;
     if (llmKey) body.llm_api_key = llmKey;
+    if (isLocal && baseUrl) body.llm_base_url = baseUrl;
     await api('POST', '/api/agents', body);
     closeModal('modal-create');
     document.getElementById('agent-name').value = '';
