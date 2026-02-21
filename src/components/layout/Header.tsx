@@ -36,17 +36,19 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-sutra-muted hover:text-sutra-text transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <SignedOut>
+            <nav className="hidden md:flex items-center gap-8">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-sutra-muted hover:text-sutra-text transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </SignedOut>
 
           <div className="hidden md:flex items-center gap-3">
             <SignedOut>
@@ -105,28 +107,47 @@ export function Header() {
       {mobileOpen && (
         <div className="md:hidden border-t border-sutra-border bg-sutra-bg">
           <div className="px-4 py-4 space-y-3">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="pt-3 flex flex-col gap-2">
-              <SignedOut>
+            <SignedOut>
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="pt-3 flex flex-col gap-2">
                 <Button variant="secondary" href="/pricing">
                   View Pricing
                 </Button>
                 <Button href="/sign-up">Get Started</Button>
-              </SignedOut>
-              <SignedIn>
-                <Button href="/dashboard">Dashboard</Button>
-                <Button href="/council/deliberate">Deliberate</Button>
-              </SignedIn>
-            </div>
+              </div>
+            </SignedOut>
+            <SignedIn>
+              <Link
+                href="/dashboard"
+                className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/council/deliberate"
+                className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                Deliberate
+              </Link>
+              <Link
+                href="/connect"
+                className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                Voice
+              </Link>
+            </SignedIn>
           </div>
         </div>
       )}

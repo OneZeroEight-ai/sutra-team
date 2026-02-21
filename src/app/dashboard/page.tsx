@@ -134,7 +134,11 @@ function DashboardContent() {
   const loadAgents = useCallback(async () => {
     try {
       // Ensure council exists
-      await fetch("/api/council/ensure", { method: "POST" });
+      const ensureRes = await fetch("/api/council/ensure", { method: "POST" });
+      if (!ensureRes.ok) {
+        const errData = await ensureRes.json().catch(() => ({}));
+        console.error("[dashboard] Ensure failed:", ensureRes.status, errData);
+      }
       // Fetch all agents
       const res = await fetch("/api/agents");
       if (res.ok) {
@@ -158,7 +162,12 @@ function DashboardContent() {
     setSetting(true);
     setError("");
     try {
-      await fetch("/api/council/ensure", { method: "POST" });
+      const ensureRes = await fetch("/api/council/ensure", { method: "POST" });
+      if (!ensureRes.ok) {
+        const errData = await ensureRes.json().catch(() => ({}));
+        setError(errData.error || `Setup failed (${ensureRes.status})`);
+        return;
+      }
       const res = await fetch("/api/agents");
       if (res.ok) {
         const data = await res.json();
