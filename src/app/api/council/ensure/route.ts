@@ -4,18 +4,12 @@ import { getCouncilStatus, setupCouncil } from "@/lib/api";
 /**
  * POST /api/council/ensure
  *
- * Checks if the shared council is set up (under the service account).
- * If not, seeds a combined council (8 Rights + 6 Experts + Sutra synthesis).
- * Returns the current council status either way.
+ * Checks if the current user has a council set up.
+ * If not, seeds a combined council (8 Rights + 6 Experts + Sutra synthesis)
+ * under their customer record. Returns the current council status either way.
  *
- * TODO: Per-user customer records
- * Currently all sutra.team users share the __service__ customer via the
- * service key proxy. For proper billing and agent ownership:
- * 1. Create a real samma_customer record per Clerk userId (upsert on first visit)
- * 2. User-created agents should belong to that customer, not __service__
- * 3. Council agents stay under __service__ but remain accessible to all users
- * 4. This endpoint (or a new /api/auth/init) should handle the upsert
- * See: Fix 3 in the persona-editor commit for context.
+ * User isolation: sammaApiFetch sends X-Customer-Id so the backend scopes
+ * council agents to the authenticated Clerk user, not __service__.
  */
 export async function POST() {
   const { userId } = await auth();
@@ -24,7 +18,7 @@ export async function POST() {
   }
 
   try {
-    // Check current council status (service key auth)
+    // Check current council status (scoped to this user via X-Customer-Id)
     const status = await getCouncilStatus();
     const totalAgents =
       status.councils.rights.agent_count + status.councils.experts.agent_count;

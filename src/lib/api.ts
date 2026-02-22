@@ -1,10 +1,12 @@
 /**
  * Server-side helper for calling the Samma Suit API.
  *
- * Authenticates with the service key (SAMMA_SERVICE_KEY) since sutra.team
- * uses a different Clerk instance than sammasuit.com.  The service key
- * bypasses Clerk JWT validation on the backend.
+ * Authenticates with the service key (SAMMA_SERVICE_KEY) and scopes all
+ * requests to the current Clerk user via X-Customer-Id / X-Customer-Email
+ * headers.  The backend auto-creates a customer record on first visit.
  */
+
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
@@ -16,7 +18,41 @@ export interface SammaApiOptions extends Omit<RequestInit, "headers"> {
 }
 
 /**
- * Call a Samma Suit API endpoint, authenticated with the service key.
+ * Build X-Customer-* headers from the current Clerk session.
+ * auth() is cheap (reads cookie); currentUser() does a Clerk API call
+ * but is needed for email on first-visit auto-provisioning.
+ */
+async function getCustomerHeaders(): Promise<Record<string, string>> {
+  try {
+    const { userId } = await auth();
+    if (!userId) return {};
+    const headers: Record<string, string> = {
+      "X-Customer-Id": userId,
+    };
+    try {
+      const user = await currentUser();
+      if (user?.emailAddresses?.[0]?.emailAddress) {
+        headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
+      }
+      const name = user?.firstName
+        ? `${user.firstName} ${user.lastName || ""}`.trim()
+        : "";
+      if (name) {
+        headers["X-Customer-Name"] = name;
+      }
+    } catch {
+      // currentUser() may fail in edge cases — proceed with just userId
+    }
+    return headers;
+  } catch {
+    // No request context (e.g. webhook) — proceed without customer scoping
+    return {};
+  }
+}
+
+/**
+ * Call a Samma Suit API endpoint, authenticated with the service key
+ * and scoped to the current Clerk user.
  */
 export async function sammaApiFetch(
   path: string,
@@ -26,18 +62,20 @@ export async function sammaApiFetch(
     throw new Error("SAMMA_SERVICE_KEY is not configured");
   }
   const url = `${SAMMA_API_URL}${path}`;
+  const customerHeaders = await getCustomerHeaders();
   return fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${SERVICE_KEY}`,
+      ...customerHeaders,
       ...options.headers,
     },
   });
 }
 
 /**
- * GET /api/council/status — check which councils the service account has.
+ * GET /api/council/status — check which councils the current user has.
  */
 export async function getCouncilStatus() {
   const res = await sammaApiFetch("/api/council/status");
@@ -55,7 +93,7 @@ export async function getCouncilStatus() {
 }
 
 /**
- * POST /api/council/setup — seed a council under the service account.
+ * POST /api/council/setup — seed a council for the current user.
  */
 export async function setupCouncil(
   councilType: "rights" | "experts" | "combined" = "combined",
@@ -113,7 +151,7 @@ export async function listCouncilAgents(councilType?: string) {
 // ─── Agent API (all agents, not just council) ───
 
 /**
- * GET /api/agents — list all agents for the service account.
+ * GET /api/agents — list all agents for the current user.
  */
 export async function getAgents() {
   const res = await sammaApiFetch("/api/agents");

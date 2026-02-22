@@ -2,7 +2,8 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 
 /**
- * Catch-all API proxy: forwards /api/* to api.sammasuit.com with service key.
+ * Catch-all API proxy: forwards /api/* to api.sammasuit.com with service key
+ * and user-scoping headers (X-Customer-Id, X-Customer-Email).
  *
  * The dashboard.html makes ~35 different API calls. Instead of creating
  * individual proxy routes for each, this catch-all handles them all.
@@ -10,7 +11,7 @@ import { NextRequest } from "next/server";
  * this catch-all in Next.js App Router.
  *
  * Special cases:
- * - /api/auth/me → returns Clerk user info directly (not proxied)
+ * - /api/auth/me → returns Clerk user info + backend customer (not proxied)
  * - /api/auth/logout → no-op (Clerk handles sign-out client-side)
  */
 
@@ -23,18 +24,41 @@ async function handleAuthMe() {
   if (!user) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
-  // Return shape matching sammasuit.com /api/auth/me response
+  const email = user.emailAddresses[0]?.emailAddress || "";
+  const name = user.firstName
+    ? `${user.firstName} ${user.lastName || ""}`.trim()
+    : email;
+
+  // Fetch real customer data from backend (triggers auto-creation on first visit)
+  let backendCustomer: Record<string, unknown> | null = null;
+  if (SERVICE_KEY) {
+    try {
+      const res = await fetch(`${SAMMA_API_URL}/api/billing/status`, {
+        headers: {
+          Authorization: `Bearer ${SERVICE_KEY}`,
+          "Content-Type": "application/json",
+          "X-Customer-Id": user.id,
+          "X-Customer-Email": email,
+          "X-Customer-Name": name,
+        },
+      });
+      if (res.ok) {
+        backendCustomer = await res.json();
+      }
+    } catch {
+      // Backend unavailable — return Clerk-only data
+    }
+  }
+
   return Response.json({
     customer: {
-      id: user.id,
-      email: user.emailAddresses[0]?.emailAddress || "",
-      name: user.firstName
-        ? `${user.firstName} ${user.lastName || ""}`.trim()
-        : user.emailAddresses[0]?.emailAddress || "",
-      tier: "enterprise",
-      max_agents: 999,
-      key_mode: "credits",
-      credit_balance: 99999,
+      id: (backendCustomer?.customer_id as string) || user.id,
+      email,
+      name,
+      tier: (backendCustomer?.tier as string) || "free",
+      max_agents: (backendCustomer?.max_agents as number) || 20,
+      key_mode: (backendCustomer?.key_mode as string) || "credits",
+      credit_balance: (backendCustomer?.credit_balance as number) || 100,
     },
   });
 }
@@ -77,7 +101,24 @@ async function proxyToBackend(
   const headers: Record<string, string> = {
     Authorization: `Bearer ${SERVICE_KEY}`,
     "Content-Type": "application/json",
+    "X-Customer-Id": userId,
   };
+
+  // Get email + name for auto-provisioning (first visit)
+  try {
+    const user = await currentUser();
+    if (user?.emailAddresses?.[0]?.emailAddress) {
+      headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
+    }
+    const name = user?.firstName
+      ? `${user.firstName} ${user.lastName || ""}`.trim()
+      : "";
+    if (name) {
+      headers["X-Customer-Name"] = name;
+    }
+  } catch {
+    // Proceed with just userId
+  }
 
   const fetchOptions: RequestInit = {
     method: request.method,

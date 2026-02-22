@@ -1,12 +1,17 @@
-import { auth } from "@clerk/nextjs/server";
-import { sendGatewayMessage } from "@/lib/api";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 
 /**
  * POST /api/agents/[id]/gateway
  *
- * Proxy to Samma Suit API — send a message to an agent via the gateway.
+ * Proxy to Samma Suit API — streams agent responses back to the client.
+ * Passes through SSE streams transparently for real-time chat.
  */
+
+const SAMMA_API_URL =
+  process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
+const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -18,29 +23,48 @@ export async function POST(
 
   const { id } = await params;
 
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${SERVICE_KEY}`,
+    "Content-Type": "application/json",
+    "X-Customer-Id": userId,
+  };
+
   try {
-    const body = await request.json();
-    const { messages, model_override, conversation_id } = body;
-
-    if (!messages || !Array.isArray(messages)) {
-      return Response.json(
-        { error: "messages array is required" },
-        { status: 400 },
-      );
+    const user = await currentUser();
+    if (user?.emailAddresses?.[0]?.emailAddress) {
+      headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
     }
+    const name = user?.firstName
+      ? `${user.firstName} ${user.lastName || ""}`.trim()
+      : "";
+    if (name) headers["X-Customer-Name"] = name;
+  } catch {
+    // Proceed with just userId
+  }
 
-    const res = await sendGatewayMessage(id, messages, {
-      model_override,
-      conversation_id,
+  try {
+    const body = await request.text();
+
+    const res = await fetch(`${SAMMA_API_URL}/api/agents/${id}/gateway`, {
+      method: "POST",
+      headers,
+      body,
+      signal: AbortSignal.timeout(120_000),
     });
 
-    const data = await res.json();
-    return Response.json(data, { status: res.status });
+    // Pass through the response (including SSE streams) transparently
+    return new Response(res.body, {
+      status: res.status,
+      headers: {
+        "Content-Type": res.headers.get("Content-Type") || "application/json",
+        "Cache-Control": "no-cache",
+      },
+    });
   } catch (error: unknown) {
     console.error("[agents/gateway] Error:", error);
-    return Response.json(
-      { error: "Gateway request failed" },
-      { status: 500 },
-    );
+    if (error instanceof Error && error.name === "TimeoutError") {
+      return Response.json({ error: "Gateway request timed out" }, { status: 504 });
+    }
+    return Response.json({ error: "Gateway request failed" }, { status: 500 });
   }
 }
