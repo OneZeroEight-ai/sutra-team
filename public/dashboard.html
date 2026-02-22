@@ -2605,7 +2605,7 @@ function renderAgents() {
     // Determine dynamic state icon
     const hb = state.heartbeats[a.id];
     const isReviving = state.revivingAgents.has(a.id);
-    const isCouncil = !!(a.conference_group && a.conference_group.length > 0);
+    const isCouncil = !!(a.council_type && (a.council_type === 'rights' || a.council_type === 'experts'));
     let stateIcon, stateLabel, stateLabelClass, stateClickable = false;
     if (status === 'terminated') {
       stateIcon = '<span class="agent-state-icon">\uD83D\uDC80</span>';
@@ -3083,7 +3083,7 @@ async function openAgentDetail(agentId) {
         <span class="detail-label">Status</span>
         <span><span class="status-badge ${(a.status||'active').toLowerCase()}">${(a.status||'active').toUpperCase()}</span></span>
       </div>
-      ${(a.conference_group && a.conference_group.length > 0) ? `<div class="detail-row">
+      ${(a.council_type && (a.council_type === 'rights' || a.council_type === 'experts')) ? `<div class="detail-row">
         <span class="detail-label">Do Not Disturb</span>
         <span style="display:flex;align-items:center;gap:10px">
           <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
@@ -5157,7 +5157,7 @@ document.addEventListener('keydown', (e) => {
   if (key === '/') { e.preventDefault(); const sf = document.getElementById('skill-search') || document.getElementById('audit-filter-agent'); if (sf) { switchTab(sf.id.includes('skill') ? 'skills' : 'audit'); sf.focus(); } return; }
   if (state.selectedAgentId) {
     if (key === 'c') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status === 'active') openChat(a.id, a.name); return; }
-    if (key === 'k') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status !== 'terminated' && !(a.conference_group && a.conference_group.length > 0)) confirmKill(a.id, a.name); return; }
+    if (key === 'k') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status !== 'terminated' && !(a.council_type === 'rights' || a.council_type === 'experts')) confirmKill(a.id, a.name); return; }
     if (key === 'r') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status === 'terminated') reviveAgent(a.id, a.name); return; }
   }
 });
