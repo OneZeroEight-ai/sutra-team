@@ -225,29 +225,68 @@ nav {
   display: flex; align-items: center; justify-content: center;
 }
 .chat-header .chat-close:hover { color: var(--white); }
-.chat-convos {
-  overflow-y: auto; border-bottom: 1px solid var(--card-border);
-  background: var(--bg); flex-shrink: 0;
+.chat-threads-section {
+  flex-shrink: 0; border-bottom: 1px solid var(--card-border); background: var(--bg);
 }
+.chat-threads-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 16px; cursor: pointer; user-select: none;
+  border-bottom: 1px solid rgba(30,30,58,0.3);
+}
+.chat-threads-header:hover { background: var(--purple-dim); }
+.chat-threads-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-dim); font-family: var(--font-mono); }
+.chat-threads-toggle { font-size: 10px; color: var(--gray-dim); transition: transform 0.2s; }
+.chat-threads-section.collapsed .chat-threads-toggle { transform: rotate(-90deg); }
+.chat-threads-section.collapsed .chat-convos { display: none; }
+.chat-threads-section.collapsed .chat-new-convo { display: none; }
+.chat-convos {
+  overflow-y: auto; background: var(--bg); flex-shrink: 0;
+}
+.chat-sidebar.convo-list-view .chat-threads-section { flex: 1; display: flex; flex-direction: column; }
 .chat-sidebar.convo-list-view .chat-convos { flex: 1; max-height: none; }
 .chat-sidebar.convo-list-view .chat-messages,
 .chat-sidebar.convo-list-view .chat-input-bar { display: none; }
-.chat-sidebar:not(.convo-list-view) .chat-convos { max-height: 160px; }
+.chat-sidebar:not(.convo-list-view) .chat-convos { max-height: 180px; }
 .chat-convo-item {
-  padding: 8px 20px; font-size: 12px; cursor: pointer;
-  border-bottom: 1px solid rgba(30,30,58,0.5); transition: background 0.2s;
-  display: flex; justify-content: space-between; align-items: center; min-height: 44px;
+  padding: 8px 16px; cursor: pointer; position: relative;
+  border-bottom: 1px solid rgba(30,30,58,0.3); transition: background 0.2s;
+  display: flex; flex-direction: column; gap: 2px; min-height: 48px;
 }
 .chat-convo-item:hover { background: var(--purple-dim); }
-.chat-convo-item.active { background: rgba(124,58,237,0.12); border-left: 2px solid var(--purple); }
-.chat-convo-preview { color: var(--gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 8px; }
-.chat-convo-time { color: var(--gray-dim); font-family: var(--font-mono); font-size: 10px; flex-shrink: 0; }
+.chat-convo-item.active { background: rgba(124,58,237,0.10); border-left: 2px solid var(--purple); padding-left: 14px; }
+.chat-convo-title {
+  font-size: 12px; color: var(--gray); font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding-right: 20px;
+}
+.chat-convo-item.active .chat-convo-title { color: var(--white); }
+.chat-convo-meta {
+  display: flex; align-items: center; gap: 8px; font-size: 10px;
+}
+.chat-convo-time { color: var(--gray-dim); font-family: var(--font-mono); }
+.chat-convo-count {
+  background: rgba(124,58,237,0.15); color: var(--purple); font-family: var(--font-mono);
+  padding: 1px 6px; border-radius: 8px; font-size: 9px;
+}
+.chat-convo-delete {
+  position: absolute; top: 8px; right: 8px; width: 20px; height: 20px;
+  border: none; background: transparent; color: var(--gray-dim); cursor: pointer;
+  border-radius: 4px; font-size: 12px; display: none; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.chat-convo-item:hover .chat-convo-delete { display: flex; }
+.chat-convo-delete:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
 .chat-new-convo {
-  padding: 6px 20px; font-size: 11px; color: var(--cyan); cursor: pointer;
-  background: var(--bg); border-bottom: 1px solid var(--card-border); min-height: 36px;
+  padding: 6px 16px; font-size: 11px; color: var(--cyan); cursor: pointer;
+  background: var(--bg); min-height: 34px;
   display: flex; align-items: center; gap: 4px;
+  border-bottom: 1px solid rgba(30,30,58,0.3);
 }
 .chat-new-convo:hover { background: var(--purple-dim); }
+.chat-convo-empty {
+  padding: 12px 16px; font-size: 11px; color: var(--gray-dim); text-align: center;
+  font-style: italic;
+}
 .chat-messages {
   flex: 1; overflow-y: auto; padding: 16px 16px 120px; display: flex;
   flex-direction: column; -webkit-overflow-scrolling: touch;
@@ -2054,8 +2093,14 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     </div>
     <button class="chat-close" onclick="closeChat()" title="Close">&times;</button>
   </div>
-  <div class="chat-new-convo" onclick="startNewConversation()">+ New Conversation</div>
-  <div class="chat-convos" id="chat-convos"></div>
+  <div class="chat-threads-section" id="chat-threads-section">
+    <div class="chat-threads-header" onclick="toggleThreadsList()">
+      <span class="chat-threads-label">Threads</span>
+      <span class="chat-threads-toggle" id="chat-threads-toggle">&#9660;</span>
+    </div>
+    <div class="chat-new-convo" onclick="startNewConversation()">+ New Conversation</div>
+    <div class="chat-convos" id="chat-convos"></div>
+  </div>
   <div class="chat-messages" id="chat-messages"></div>
   <div class="chat-input-bar">
     <textarea id="chat-input" rows="1" placeholder="Message..." autocomplete="off"></textarea>
@@ -3509,6 +3554,9 @@ function closeChat() {
 function chatBackToList() {
   const sidebar = document.getElementById('chat-sidebar');
   sidebar.classList.add('convo-list-view');
+  // Ensure threads section is expanded when viewing the list
+  const threadsSection = document.getElementById('chat-threads-section');
+  if (threadsSection) threadsSection.classList.remove('collapsed');
   // Keep chatConversationId and localStorage intact — user is just browsing the list
   document.getElementById('chat-messages').innerHTML = '';
   loadConversations(chatAgentId);
@@ -3541,23 +3589,75 @@ function chatBackToList() {
   }
 })();
 
+function relativeTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr = Math.floor(diffMs / 3600000);
+  const diffDay = Math.floor(diffMs / 86400000);
+  if (diffMin < 1) return 'just now';
+  if (diffMin < 60) return diffMin + 'm ago';
+  if (diffHr < 24) return diffHr + 'h ago';
+  if (diffDay === 1) return 'Yesterday';
+  if (diffDay < 7) return diffDay + 'd ago';
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function toggleThreadsList() {
+  const section = document.getElementById('chat-threads-section');
+  if (section) section.classList.toggle('collapsed');
+}
+
+async function deleteConversation(e, convId) {
+  e.stopPropagation();
+  if (!confirm('Delete this conversation?')) return;
+  try {
+    await api('DELETE', `/api/agents/${chatAgentId}/conversations/${convId}`);
+    // If we deleted the active conversation, clear it
+    if (chatConversationId === convId) {
+      chatConversationId = null;
+      if (chatAgentId) localStorage.removeItem(`sutra_conv_${chatAgentId}`);
+      document.getElementById('chat-messages').innerHTML = '';
+    }
+    loadConversations(chatAgentId);
+  } catch (e) { toast('Failed to delete conversation', 'error'); }
+}
+
 async function loadConversations(agentId) {
   const container = document.getElementById('chat-convos');
   if (!container) return;
+  // Update threads header count
+  const headerLabel = document.querySelector('.chat-threads-label');
   try {
     const data = await api('GET', `/api/agents/${agentId}/conversations`);
     const convos = data.conversations || [];
-    if (convos.length === 0) { container.innerHTML = ''; return; }
+    if (headerLabel) headerLabel.textContent = `Threads (${convos.length})`;
+    if (convos.length === 0) {
+      container.innerHTML = '<div class="chat-convo-empty">No conversations yet</div>';
+      return;
+    }
     container.innerHTML = convos.map(c => {
       const cid = c.conversation_id || c.id;
-      const preview = c.title || c.first_message || cid?.slice(0, 12) || 'Untitled';
-      const ts = c.created_at ? new Date(c.created_at).toLocaleTimeString() : '';
+      const title = c.title || c.first_message || 'New conversation';
+      const preview = title.length > 50 ? title.slice(0, 47) + '...' : title;
+      const ts = relativeTime(c.updated_at || c.created_at);
+      const count = c.message_count || 0;
       const active = cid === chatConversationId ? ' active' : '';
       return `<div class="chat-convo-item${active}" onclick="loadConversation('${cid}')">
-        <span class="chat-convo-preview">${esc(preview.length > 50 ? preview.slice(0, 47) + '...' : preview)}</span>
-        <span class="chat-convo-time">${ts} (${c.message_count || 0})</span></div>`;
+        <span class="chat-convo-title">${esc(preview)}</span>
+        <div class="chat-convo-meta">
+          <span class="chat-convo-time">${ts}</span>
+          <span class="chat-convo-count">${count} msg${count !== 1 ? 's' : ''}</span>
+        </div>
+        <button class="chat-convo-delete" onclick="deleteConversation(event,'${cid}')" title="Delete thread">&times;</button>
+      </div>`;
     }).join('');
-  } catch (e) { container.innerHTML = ''; }
+  } catch (e) {
+    container.innerHTML = '';
+    if (headerLabel) headerLabel.textContent = 'Threads';
+  }
 }
 
 async function loadConversation(conversationId) {
