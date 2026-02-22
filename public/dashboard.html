@@ -3471,11 +3471,10 @@ let chatAgentId = null;
 let chatConversationId = null;
 let chatAgentName = '';
 
-function openChat(agentId, agentName) {
+async function openChat(agentId, agentName) {
   chatAgentId = agentId;
   chatAgentName = agentName || 'Agent';
-  // Restore persisted conversation from localStorage
-  chatConversationId = localStorage.getItem(`sutra_conv_${agentId}`) || null;
+  chatConversationId = null;
   _lastChatRole = null;
   _chatMsgIdx = 0;
   document.getElementById('chat-agent-name').textContent = chatAgentName;
@@ -3497,9 +3496,19 @@ function openChat(agentId, agentName) {
   sidebar.classList.add('open');
   document.getElementById('chat-backdrop').classList.add('open');
   document.getElementById('chat-input').focus();
-  // Auto-resume last conversation — load full history
-  if (chatConversationId) {
-    loadConversation(chatConversationId);
+  // Load most recent conversation from SERVER (cross-device sync)
+  try {
+    const data = await api('GET', `/api/agents/${agentId}/conversations?limit=1`);
+    const convs = data.conversations || [];
+    if (convs.length > 0 && convs[0].message_count > 0) {
+      await loadConversation(convs[0].id);
+    }
+  } catch (e) {
+    // Fallback: try localStorage hint if server unavailable
+    const cached = localStorage.getItem(`sutra_conv_${agentId}`);
+    if (cached) {
+      try { await loadConversation(cached); } catch (_) {}
+    }
   }
 }
 
