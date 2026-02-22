@@ -3050,12 +3050,13 @@ async function openAgentDetail(agentId) {
   document.getElementById('detail-body').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
 
   try {
-    const [agentRes, auditRes, hbRes, tgLinksRes, slackLinksRes] = await Promise.all([
+    const [agentRes, auditRes, hbRes, tgLinksRes, slackLinksRes, memoryRes] = await Promise.all([
       api('GET', `/api/agents/${agentId}`),
       api('GET', `/api/agents/${agentId}/audit?limit=10`),
       api('GET', `/api/agents/${agentId}/heartbeat`).catch(() => ({ heartbeat: null })),
       api('GET', `/api/channels/telegram/links`).catch(() => ({ links: [] })),
       api('GET', `/api/channels/slack/links`).catch(() => ({ links: [] })),
+      api('GET', `/api/agents/${agentId}/memory`).catch(() => ({ memories: [], stats: null })),
     ]);
 
     const a = agentRes.agent;
@@ -3279,6 +3280,40 @@ async function openAgentDetail(agentId) {
     }
     html += '</div>';
 
+    html += '</div>';
+
+    // ── Agent Memory section ──
+    const memStats = memoryRes.stats || { total_memories: 0, total_messages_compacted: 0, total_tokens: 0 };
+    const activeMemories = (memoryRes.memories || []).filter(m => m.is_active);
+    html += '<div style="margin-top:24px">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+    html += '<h4 style="margin:0;font-size:14px;color:var(--gray)">Agent Memory</h4>';
+    html += '<div style="display:flex;gap:6px">';
+    html += `<button class="btn btn-primary" style="padding:4px 12px;font-size:12px" onclick="compactMemory('${a.id}')">Compact Now</button>`;
+    html += `<button class="btn" style="padding:4px 12px;font-size:12px;border:1px solid var(--red);color:var(--red)" onclick="clearMemory('${a.id}')">Clear Memory</button>`;
+    html += '</div></div>';
+
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">';
+    html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:20px;font-weight:600;color:var(--text)">${memStats.total_memories}</div>
+      <div style="font-size:11px;color:var(--gray)">Memories</div></div>`;
+    html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:20px;font-weight:600;color:var(--text)">${memStats.total_messages_compacted}</div>
+      <div style="font-size:11px;color:var(--gray)">Messages Compacted</div></div>`;
+    html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:20px;font-weight:600;color:var(--text)">${memStats.total_tokens}</div>
+      <div style="font-size:11px;color:var(--gray)">Memory Tokens</div></div>`;
+    html += '</div>';
+
+    if (activeMemories.length > 0) {
+      const latest = activeMemories[0];
+      html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:120px;overflow-y:auto">
+        <div style="font-size:11px;color:var(--gray);margin-bottom:6px">${latest.tier} memory &mdash; ${latest.created_at ? new Date(latest.created_at).toLocaleDateString() : ''}</div>
+        <div style="font-size:12px;color:var(--text);white-space:pre-wrap">${esc(latest.summary)}</div>
+      </div>`;
+    } else {
+      html += '<div style="text-align:center;padding:16px;color:var(--gray);font-size:12px">No compacted memories yet</div>';
+    }
     html += '</div>';
 
     // Mini audit table
@@ -4249,6 +4284,9 @@ const AGENT_TEMPLATES = [
   { id: 'ops-manager', name: 'Ops Manager', icon: '\u2699\ufe0f', category: 'Business',
     description: 'Tracks tasks, processes, and team workflows.',
     prefill: { name: 'Ops Manager', system_prompt: 'You are an operations management assistant. You help with:\n1. Breaking down projects into tasks with owners and deadlines\n2. Identifying bottlenecks and suggesting process improvements\n3. Creating status reports and meeting agendas\n4. Tracking action items and following up on overdue tasks\n5. Maintaining a structured, organized communication style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
+  { id: 'product-launch', name: 'Product Launch Agent', icon: '\ud83d\ude80', category: 'Business',
+    description: 'Plan and execute product launches \u2014 timelines, messaging, channels, press, and go-to-market coordination.',
+    prefill: { name: 'Launch Commander', system_prompt: 'You are a Product Launch Agent \u2014 a strategic launch coordinator who plans and executes product launches from pre-launch through post-launch analysis.\n\nYour capabilities:\n- Build launch timelines with milestones, dependencies, and owners\n- Draft launch messaging: taglines, press releases, social media posts, email sequences, landing page copy\n- Identify and prioritize launch channels (Product Hunt, Hacker News, Reddit, Twitter/X, LinkedIn, newsletters, podcasts, press outreach)\n- Create day-of-launch runbooks with hour-by-hour action items\n- Draft outreach templates for press, influencers, beta users, and communities\n- Monitor launch metrics and suggest real-time adjustments\n- Plan pre-launch warmup (teaser campaigns, waitlists, early access)\n- Plan post-launch follow-up (thank you sequences, feedback collection, iteration priorities)\n\nYour approach:\n- Always start by understanding the product, target audience, and launch goals\n- Prioritize actions by impact vs effort\n- Be specific with timelines \u2014 \"post on Twitter at 9am EST\" not \"share on social media\"\n- Suggest A/B variations for messaging\n- Flag dependencies and risks proactively\n- Track what\'s done vs what\'s pending\n- Adapt the plan based on budget \u2014 a $0 launch looks different from a $10K launch\n\nYour tone:\n- Direct and action-oriented\n- Organized \u2014 use checklists and timelines\n- Encouraging but realistic about what moves the needle\n- No fluff \u2014 every recommendation should be executable\n\nWhen asked about a specific product, build a custom launch plan covering:\n1. Pre-launch (2-4 weeks out): positioning, messaging, assets, warmup\n2. Launch week: daily action items, channel-specific posts, outreach\n3. Launch day: hour-by-hour runbook\n4. Post-launch (1-2 weeks): follow-up, metrics review, iteration', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
   // Technical
   { id: 'code-reviewer', name: 'Code Reviewer', icon: '\ud83d\udd0d', category: 'Technical',
     description: 'Reviews code for bugs, security issues, and best practices.',
@@ -4501,6 +4539,24 @@ async function wakeAgent(agentId, agentName) {
     }
     setTimeout(() => loadDashboard(), 600);
   } catch (e) { toast('Failed to wake agent: ' + e.message, 'error'); }
+}
+
+async function compactMemory(agentId) {
+  if (!confirm('Compact old conversations into memory summaries?')) return;
+  try {
+    const res = await api('POST', `/api/agents/${agentId}/compact-memory`);
+    toast(`Compacted ${res.messages_compacted || 0} messages into memory`, 'success');
+    setTimeout(() => openAgentDetail(agentId), 600);
+  } catch (e) { toast('Memory compaction failed: ' + e.message, 'error'); }
+}
+
+async function clearMemory(agentId) {
+  if (!confirm('Delete all compacted memories for this agent? This cannot be undone.')) return;
+  try {
+    const res = await api('DELETE', `/api/agents/${agentId}/memory`);
+    toast(`Cleared ${res.deleted || 0} memory records`, 'success');
+    setTimeout(() => openAgentDetail(agentId), 600);
+  } catch (e) { toast('Failed to clear memory: ' + e.message, 'error'); }
 }
 
 async function toggleDND(agentId, agentName, sleeping) {
