@@ -151,7 +151,7 @@ export async function createAgent(body: {
  */
 export async function sendGatewayMessage(
   agentId: string,
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: string; content: string | Array<Record<string, unknown>> }>,
   options?: { model_override?: string; conversation_id?: string },
 ) {
   const res = await sammaApiFetch(`/api/agents/${agentId}/gateway`, {

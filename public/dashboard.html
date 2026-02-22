@@ -3621,20 +3621,61 @@ async function deleteCurrentConversation() {
 
 // File attachment handling
 let chatSelectedFile = null;
+let chatFileData = null; // { base64, media_type, name, isText, textContent }
+
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const TEXT_TYPES = ['text/plain', 'text/csv', 'text/markdown', 'application/json'];
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
 function handleChatFile(input) {
   const file = input.files && input.files[0];
   if (!file) return;
-  // v1: show toast — backend attachment support coming soon
-  toast('File attachments coming soon', 'info');
+  input.value = '';
+
+  if (file.size > MAX_FILE_SIZE) {
+    toast('File too large (max 20 MB)', 'error');
+    return;
+  }
+
   chatSelectedFile = file;
   document.getElementById('chat-file-name').textContent = file.name;
   document.getElementById('chat-file-chip').style.display = 'flex';
-  input.value = '';
+
+  const mimeType = file.type || '';
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  // Text-based files: read as text and include inline
+  if (TEXT_TYPES.includes(mimeType) || ['txt', 'csv', 'json', 'md'].includes(ext)) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      chatFileData = { isText: true, textContent: reader.result, name: file.name };
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  // Images and PDFs: read as base64
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result; // "data:image/png;base64,..."
+    const base64 = dataUrl.split(',')[1];
+    let mediaType = mimeType;
+    if (!mediaType) {
+      if (['jpg', 'jpeg'].includes(ext)) mediaType = 'image/jpeg';
+      else if (ext === 'png') mediaType = 'image/png';
+      else if (ext === 'gif') mediaType = 'image/gif';
+      else if (ext === 'webp') mediaType = 'image/webp';
+      else if (ext === 'pdf') mediaType = 'application/pdf';
+      else mediaType = 'application/octet-stream';
+    }
+    chatFileData = { isText: false, base64, media_type: mediaType, name: file.name };
+  };
+  reader.readAsDataURL(file);
 }
 
 function clearChatFile() {
   chatSelectedFile = null;
+  chatFileData = null;
   document.getElementById('chat-file-chip').style.display = 'none';
   document.getElementById('chat-file-name').textContent = '';
 }
@@ -3832,6 +3873,14 @@ function addChatMsg(role, text, layers, mettaSig, opts = {}) {
   const div = document.createElement('div');
   div.className = 'chat-msg ' + role;
 
+  // Image thumbnail for user attachments
+  if (role === 'user' && opts.imageDataUrl) {
+    const img = document.createElement('img');
+    img.src = opts.imageDataUrl;
+    img.style.cssText = 'max-width:200px;max-height:200px;border-radius:8px;display:block;margin-bottom:6px';
+    div.appendChild(img);
+  }
+
   const textNode = document.createElement('span');
   if (role === 'assistant') {
     textNode.innerHTML = renderMarkdown(text);
@@ -3881,10 +3930,50 @@ function addChatMsg(role, text, layers, mettaSig, opts = {}) {
 async function sendChatMsg() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
-  if (!text || !chatAgentId) return;
+  if (!text && !chatFileData) return;
+  if (!chatAgentId) return;
   input.value = '';
   input.style.height = 'auto';
-  addChatMsg('user', text);
+
+  // Build message content — multimodal array when file attached, plain string otherwise
+  let messageContent;
+  let displayText = text;
+  let imagePreviewUrl = null;
+  const attachedFile = chatFileData;
+  if (attachedFile) {
+    const contentBlocks = [];
+    if (attachedFile.isText) {
+      // Text file: include content as text block with filename header
+      const fileText = `[File: ${attachedFile.name}]\n${attachedFile.textContent}`;
+      contentBlocks.push({ type: 'text', text: fileText });
+      displayText = `[${attachedFile.name}] ${text || ''}`.trim();
+    } else if (IMAGE_TYPES.includes(attachedFile.media_type)) {
+      // Image: Anthropic image content block
+      contentBlocks.push({
+        type: 'image',
+        source: { type: 'base64', media_type: attachedFile.media_type, data: attachedFile.base64 }
+      });
+      displayText = text || 'What do you see in this image?';
+      imagePreviewUrl = `data:${attachedFile.media_type};base64,${attachedFile.base64}`;
+    } else if (attachedFile.media_type === 'application/pdf') {
+      // PDF: Anthropic document content block
+      contentBlocks.push({
+        type: 'document',
+        source: { type: 'base64', media_type: 'application/pdf', data: attachedFile.base64 }
+      });
+      displayText = `[${attachedFile.name}] ${text || 'Summarize this document.'}`.trim();
+    } else {
+      // Unsupported binary — skip, just send text
+      displayText = text;
+    }
+    if (text) contentBlocks.push({ type: 'text', text });
+    messageContent = contentBlocks.length > 0 ? contentBlocks : text;
+    clearChatFile();
+  } else {
+    messageContent = text;
+  }
+
+  addChatMsg('user', displayText || text, null, null, { imageDataUrl: imagePreviewUrl });
 
   const sendBtn = document.getElementById('chat-send');
   sendBtn.disabled = true;
@@ -3907,7 +3996,7 @@ async function sendChatMsg() {
   _lastChatRole = null; // reset so agent response gets its own header
 
   try {
-    const body = { messages: [{ role: 'user', content: text }], stream: true };
+    const body = { messages: [{ role: 'user', content: messageContent }], stream: true };
     if (chatConversationId) body.conversation_id = chatConversationId;
 
     const fetchOpts = {
