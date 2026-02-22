@@ -3456,7 +3456,8 @@ let chatAgentName = '';
 function openChat(agentId, agentName) {
   chatAgentId = agentId;
   chatAgentName = agentName || 'Agent';
-  chatConversationId = null;
+  // Restore persisted conversation from localStorage
+  chatConversationId = localStorage.getItem(`sutra_conv_${agentId}`) || null;
   _lastChatRole = null;
   document.getElementById('chat-agent-name').textContent = chatAgentName;
   // Show provider/model info in chat header
@@ -3483,7 +3484,12 @@ function openChat(agentId, agentName) {
     sidebar.classList.remove('convo-list-view');
   }
   document.getElementById('chat-input').focus();
-  loadConversations(agentId);
+  // Auto-resume last conversation if one is persisted, otherwise load list
+  if (chatConversationId) {
+    loadConversation(chatConversationId);
+  } else {
+    loadConversations(agentId);
+  }
 }
 
 function openChatFromDetail() {
@@ -3503,7 +3509,7 @@ function closeChat() {
 function chatBackToList() {
   const sidebar = document.getElementById('chat-sidebar');
   sidebar.classList.add('convo-list-view');
-  chatConversationId = null;
+  // Keep chatConversationId and localStorage intact — user is just browsing the list
   document.getElementById('chat-messages').innerHTML = '';
   loadConversations(chatAgentId);
 }
@@ -3556,24 +3562,33 @@ async function loadConversations(agentId) {
 
 async function loadConversation(conversationId) {
   chatConversationId = conversationId;
+  // Persist active conversation to localStorage
+  if (chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, conversationId);
   _lastChatRole = null;
   document.getElementById('chat-sidebar').classList.remove('convo-list-view');
   const msgEl = document.getElementById('chat-messages');
   msgEl.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
   try {
-    const data = await api('GET', `/api/agents/${chatAgentId}/conversations/${conversationId}`);
+    const data = await api('GET', `/api/agents/${chatAgentId}/conversations/${conversationId}/messages`);
     msgEl.innerHTML = '';
     _lastChatRole = null;
     const msgs = data.messages || [];
     for (const m of msgs) {
       addChatMsg(m.role, m.content || '', m.layers_enforced, m.metta_signature);
     }
-  } catch (e) { msgEl.innerHTML = ''; }
+  } catch (e) {
+    // Conversation may have been deleted — clear persisted ID and start fresh
+    msgEl.innerHTML = '';
+    chatConversationId = null;
+    if (chatAgentId) localStorage.removeItem(`sutra_conv_${chatAgentId}`);
+  }
   loadConversations(chatAgentId);
 }
 
 function startNewConversation() {
   chatConversationId = null;
+  // Clear persisted conversation so next open starts fresh
+  if (chatAgentId) localStorage.removeItem(`sutra_conv_${chatAgentId}`);
   _lastChatRole = null;
   document.getElementById('chat-sidebar').classList.remove('convo-list-view');
   document.getElementById('chat-messages').innerHTML = '';
@@ -3819,7 +3834,10 @@ async function sendChatMsg() {
               tokens += evt.tokens || 1;
               tokenCount.textContent = tokens + ' tokens';
             }
-            if (evt.conversation_id) chatConversationId = evt.conversation_id;
+            if (evt.conversation_id) {
+              chatConversationId = evt.conversation_id;
+              if (chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, evt.conversation_id);
+            }
             if (evt.layers_enforced) streamLayers = evt.layers_enforced;
             if (evt.metta_signature) streamSig = evt.metta_signature;
           } catch (_) {}
@@ -3856,6 +3874,7 @@ async function sendChatMsg() {
     } else {
       const data = await res.json();
       chatConversationId = data.conversation_id || chatConversationId;
+      if (chatConversationId && chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, chatConversationId);
       let reply = '';
       if (data.content) { for (const block of data.content) { if (block.type === 'text') { reply = block.text; break; } } }
       addChatMsg('assistant', reply || '(empty response)', data.layers_enforced || [], data.metta_signature || null);
