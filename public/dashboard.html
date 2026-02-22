@@ -265,7 +265,7 @@ nav {
 .chat-menu-item.danger { color: #ef4444; }
 .chat-menu-item.danger:hover { background: rgba(239,68,68,0.1); }
 .chat-messages {
-  flex: 1; overflow-y: auto; padding: 16px 16px 120px; display: flex;
+  flex: 1; overflow-y: auto; padding: 16px 16px 16px; display: flex;
   flex-direction: column; -webkit-overflow-scrolling: touch;
 }
 /* Message groups — controlled via data attributes set by JS */
@@ -435,31 +435,55 @@ nav {
 }
 .chat-token-count { font-family: var(--font-mono); font-size: 10px; color: var(--gray-dim); margin-top: 4px; }
 
-/* Input area — sticky, iMessage-style */
-.chat-input-bar {
-  display: flex; gap: 8px; padding: 10px 16px;
-  padding-bottom: env(safe-area-inset-bottom, 14px);
+/* Input area — sticky bottom */
+.chat-input-area {
   background: var(--bg); border-top: 1px solid var(--card-border);
-  align-items: flex-end;
+  padding: 8px 12px; padding-bottom: env(safe-area-inset-bottom, 8px);
+  display: flex; flex-direction: column; gap: 6px;
 }
+.chat-file-chip {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 8px;
+  font-size: 12px; color: var(--gray); max-width: fit-content;
+}
+.chat-file-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+.chat-file-chip button {
+  background: none; border: none; color: var(--gray-dim); cursor: pointer;
+  font-size: 14px; padding: 0 2px; line-height: 1; flex-shrink: 0;
+}
+.chat-file-chip button:hover { color: #ef4444; }
+.chat-input-bar {
+  display: flex; gap: 8px; align-items: flex-end;
+}
+.chat-attach-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--card-border);
+  background: transparent; color: var(--gray); font-size: 20px; font-weight: 300;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s; line-height: 1;
+}
+.chat-attach-btn:hover { background: rgba(255,255,255,0.06); color: var(--white); border-color: var(--purple); }
 .chat-input-bar textarea {
-  flex: 1; padding: 10px 14px; border-radius: 20px;
+  flex: 1; padding: 8px 14px; border-radius: 20px;
   border: 1px solid var(--card-border); background: var(--bg2);
   color: var(--white); font-size: 14px; outline: none;
-  font-family: var(--font-display); min-height: 40px; max-height: 120px;
+  font-family: var(--font-display); min-height: 36px; max-height: 120px;
   resize: none; line-height: 1.4; overflow-y: auto;
 }
 .chat-input-bar textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 2px rgba(124,58,237,0.15); }
-.chat-input-bar button {
-  width: 40px; height: 40px; border-radius: 50%; border: none;
+.chat-input-bar .chat-send-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
   background: var(--purple); color: white; font-weight: 600;
-  cursor: pointer; font-size: 16px; font-family: var(--font-display);
+  cursor: pointer; font-size: 15px; font-family: var(--font-display);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: background 0.2s, transform 0.1s;
 }
-.chat-input-bar button:hover { background: #8B5CF6; transform: scale(1.05); }
-.chat-input-bar button:active { transform: scale(0.95); }
-.chat-input-bar button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.chat-input-bar .chat-send-btn:hover { background: #8B5CF6; transform: scale(1.05); }
+.chat-input-bar .chat-send-btn:active { transform: scale(0.95); }
+.chat-input-bar .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.chat-disclaimer {
+  text-align: center; font-size: 11px; color: var(--gray-dim); opacity: 0.5;
+  line-height: 1.3; padding: 0 8px;
+}
 
 .btn-sm {
   padding: 8px 18px;
@@ -1622,6 +1646,10 @@ html.light .chat-msg.assistant pre { background: #E2E2EA; border-color: #D8D8E8;
 html.light .chat-msg.assistant code { background: rgba(124,58,237,0.08); }
 html.light .chat-typing { background: #EEEEF2; border-color: #D8D8E8; }
 html.light .chat-input-bar textarea { background: #FFFFFF; border-color: #D8D8E8; color: #1A1A2E; }
+html.light .chat-attach-btn { border-color: #D8D8E8; color: #999; }
+html.light .chat-attach-btn:hover { background: rgba(0,0,0,0.04); color: #666; border-color: var(--purple); }
+html.light .chat-file-chip { background: #F5F5FA; border-color: #D8D8E8; color: #666; }
+html.light .chat-input-area { background: #FAFAFC; }
 html.light .chat-msg-action { color: #999; }
 html.light .chat-msg-action:hover { background: rgba(0,0,0,0.04); color: #666; border-color: rgba(0,0,0,0.08); }
 html.light .code-copy-btn { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); color: #666; }
@@ -1660,18 +1688,17 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   .chat-sidebar .chat-header .chat-header-btn { min-width: 44px; min-height: 44px; }
   .chat-messages {
     flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    padding: 12px 12px 130px;
+    padding: 12px 12px 110px;
   }
-  .chat-input-bar {
+  .chat-input-area {
     position: fixed !important; bottom: 0; left: 0; right: 0;
-    padding: 8px 12px;
-    padding-bottom: calc(env(safe-area-inset-bottom, 10px) + 8px);
+    padding: 8px 10px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px);
     margin-bottom: 0;
     background: var(--bg2) !important;
     z-index: 10000;
     border-top: 1px solid var(--card-border);
   }
-  .chat-input-bar button { flex-shrink: 0; }
   .chat-msg.user { max-width: 85%; }
   .chat-msg.assistant { max-width: 90%; }
   /* Content containers — prevent horizontal overflow */
@@ -1704,18 +1731,20 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     width: 100% !important; max-width: 100% !important;
     height: 100% !important; z-index: 9999 !important; border-radius: 0 !important;
   }
-  .chat-input-bar {
+  .chat-input-area {
     position: fixed !important; bottom: 0; left: 0; right: 0;
-    padding: 10px;
-    padding-bottom: calc(env(safe-area-inset-bottom, 10px) + 10px);
+    padding: 6px 8px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px);
     margin-bottom: 0;
     background: var(--bg2) !important;
     z-index: 10000;
     border-top: 1px solid var(--card-border);
   }
-  .chat-input-bar textarea { font-size: 16px; min-height: 38px; padding: 9px 14px; border-radius: 20px; }
-  .chat-input-bar button { width: 38px; height: 38px; font-size: 15px; flex-shrink: 0; }
-  .chat-messages { padding: 10px 10px 120px; }
+  .chat-input-bar textarea { font-size: 16px; min-height: 36px; padding: 8px 14px; border-radius: 20px; }
+  .chat-input-bar .chat-send-btn { width: 36px; height: 36px; font-size: 14px; flex-shrink: 0; }
+  .chat-attach-btn { width: 34px; height: 34px; font-size: 18px; }
+  .chat-messages { padding: 10px 10px 100px; }
+  .chat-disclaimer { font-size: 10px; }
   /* Modal — full-width on small screens */
   .modal-content { max-width: calc(100vw - 20px) !important; padding: 20px !important; margin: 10px; }
   /* Detail rows wrap on narrow screens */
@@ -2075,9 +2104,18 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     </div>
   </div>
   <div class="chat-messages" id="chat-messages"></div>
-  <div class="chat-input-bar">
-    <textarea id="chat-input" rows="1" placeholder="Message..." autocomplete="off"></textarea>
-    <button id="chat-send" onclick="sendChatMsg()" title="Send">&#9654;</button>
+  <div class="chat-input-area">
+    <div class="chat-file-chip" id="chat-file-chip" style="display:none">
+      <span id="chat-file-name"></span>
+      <button onclick="clearChatFile()" title="Remove file">&times;</button>
+    </div>
+    <div class="chat-input-bar">
+      <button class="chat-attach-btn" onclick="document.getElementById('chat-file-input').click()" title="Attach file">+</button>
+      <textarea id="chat-input" rows="1" placeholder="Message..." autocomplete="off"></textarea>
+      <button class="chat-send-btn" id="chat-send" onclick="sendChatMsg()" title="Send">&#9654;</button>
+    </div>
+    <div class="chat-disclaimer">Agents can make mistakes. Please double-check responses.</div>
+    <input type="file" id="chat-file-input" style="display:none" accept=".pdf,.txt,.csv,.json,.png,.jpg,.jpeg,.doc,.docx,.md" onchange="handleChatFile(this)">
   </div>
 </div>
 
@@ -3581,6 +3619,26 @@ async function deleteCurrentConversation() {
   } catch (e) { toast('Failed to delete conversation', 'error'); }
 }
 
+// File attachment handling
+let chatSelectedFile = null;
+
+function handleChatFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  // v1: show toast — backend attachment support coming soon
+  toast('File attachments coming soon', 'info');
+  chatSelectedFile = file;
+  document.getElementById('chat-file-name').textContent = file.name;
+  document.getElementById('chat-file-chip').style.display = 'flex';
+  input.value = '';
+}
+
+function clearChatFile() {
+  chatSelectedFile = null;
+  document.getElementById('chat-file-chip').style.display = 'none';
+  document.getElementById('chat-file-name').textContent = '';
+}
+
 async function loadConversation(conversationId) {
   chatConversationId = conversationId;
   if (chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, conversationId);
@@ -3614,6 +3672,7 @@ function startNewConversation() {
   document.getElementById('chat-messages').innerHTML = '';
   document.getElementById('chat-input').value = '';
   document.getElementById('chat-input').focus();
+  clearChatFile();
   closeChatMenu();
 }
 
