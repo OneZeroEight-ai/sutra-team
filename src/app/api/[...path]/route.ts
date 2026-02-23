@@ -20,7 +20,14 @@ const SAMMA_API_URL =
 const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
 
 async function handleAuthMe() {
-  const user = await currentUser();
+  let user;
+  try {
+    user = await currentUser();
+  } catch (e) {
+    console.error("[auth/me] currentUser() threw:", e);
+    return Response.json({ error: "Auth service error" }, { status: 503 });
+  }
+
   if (!user) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
@@ -31,7 +38,7 @@ async function handleAuthMe() {
 
   // Fetch real customer data from backend (triggers auto-creation on first visit)
   let backendCustomer: Record<string, unknown> | null = null;
-  if (SERVICE_KEY) {
+  if (SERVICE_KEY && SAMMA_API_URL) {
     try {
       const res = await fetch(`${SAMMA_API_URL}/api/billing/status`, {
         headers: {
@@ -80,6 +87,13 @@ async function proxyToBackend(
   if (!SERVICE_KEY) {
     return Response.json(
       { error: "SAMMA_SERVICE_KEY is not configured" },
+      { status: 500 },
+    );
+  }
+
+  if (!SAMMA_API_URL) {
+    return Response.json(
+      { error: "SAMMA_API_URL is not configured" },
       { status: 500 },
     );
   }
@@ -139,50 +153,33 @@ async function proxyToBackend(
     }
   }
 
-  try {
-    const res = await fetch(url.toString(), fetchOptions);
-    const data = await res.text();
+  const res = await fetch(url.toString(), fetchOptions);
+  const data = await res.text();
 
-    return new Response(data, {
-      status: res.status,
-      headers: {
-        "Content-Type": res.headers.get("Content-Type") || "application/json",
-      },
-    });
+  return new Response(data, {
+    status: res.status,
+    headers: {
+      "Content-Type": res.headers.get("Content-Type") || "application/json",
+    },
+  });
+}
+
+async function handle(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> },
+) {
+  try {
+    const { path } = await params;
+    return await proxyToBackend(request, path);
   } catch (error) {
-    console.error("[proxy]", request.method, apiPath, error);
-    return Response.json({ error: "Proxy request failed" }, { status: 502 });
+    console.error("[proxy] Unhandled error:", error);
+    const message = error instanceof Error ? error.message : "Proxy error";
+    return Response.json({ error: message }, { status: 500 });
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
-  const { path } = await params;
-  return proxyToBackend(request, path);
-}
-
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
-  const { path } = await params;
-  return proxyToBackend(request, path);
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
-  const { path } = await params;
-  return proxyToBackend(request, path);
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> },
-) {
-  const { path } = await params;
-  return proxyToBackend(request, path);
-}
+export const GET = handle;
+export const POST = handle;
+export const PUT = handle;
+export const DELETE = handle;
+export const PATCH = handle;

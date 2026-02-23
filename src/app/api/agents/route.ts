@@ -14,8 +14,9 @@ export async function GET() {
     return Response.json(data);
   } catch (error: unknown) {
     console.error("[agents] Error:", error);
+    const message = error instanceof Error ? error.message : "Failed to fetch agents";
     return Response.json(
-      { error: "Failed to fetch agents", agents: [], total: 0 },
+      { error: message, detail: message, agents: [], total: 0 },
       { status: 500 },
     );
   }
