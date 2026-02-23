@@ -2669,7 +2669,7 @@ function renderAgents() {
         <div class="agent-card-actions">
           ${status === 'active' || status === 'sleeping' ? `<button class="btn-chat" onclick="event.stopPropagation();openChat('${a.id}','${esc(a.name)}','${esc(a.avatar_url||'')}')"${status === 'sleeping' ? ' title="Wake agent to chat"' : ''}>Chat</button>` : ''}
           <button class="btn-audit" onclick="event.stopPropagation();scrollToAudit('${a.id}','${esc(a.name)}')">Audit</button>
-          ${isCouncil && status !== 'terminated' ? (status === 'sleeping'
+          ${status !== 'terminated' ? (status === 'sleeping'
             ? `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();wakeAgent('${a.id}','${esc(a.name)}')">Wake</button>`
             : `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();sleepAgent('${a.id}','${esc(a.name)}')">Sleep</button>`)
           : ''}
