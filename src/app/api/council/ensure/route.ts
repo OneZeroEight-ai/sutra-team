@@ -4,7 +4,7 @@ import { getCouncilStatus, setupCouncil } from "@/lib/api";
  * POST /api/council/ensure
  *
  * Checks if the current user has a council set up.
- * If not, seeds a combined council (8 Rights + 6 Experts + Sutra synthesis)
+ * If not, seeds a combined council (8 Rights + 7 Experts + Sutra synthesis)
  * under their customer record. Returns the current council status either way.
  *
  * Auth handled by sammaApiFetch → getCustomerHeaders(). Falls back to
