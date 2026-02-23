@@ -10,7 +10,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 
 const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
-
+const SAMMA_API_FALLBACK_URL = process.env.SAMMA_API_FALLBACK_URL || "";
 const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
 
 export interface SammaApiOptions extends Omit<RequestInit, "headers"> {
@@ -63,15 +63,27 @@ export async function sammaApiFetch(
   }
   const url = `${SAMMA_API_URL}${path}`;
   const customerHeaders = await getCustomerHeaders();
-  return fetch(url, {
+  const fetchOpts: RequestInit = {
     ...options,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${SERVICE_KEY}`,
+      "X-Agency-Id": "sutra.team",
       ...customerHeaders,
       ...options.headers,
     },
-  });
+  };
+  try {
+    const res = await fetch(url, fetchOpts);
+    if (res.ok || !SAMMA_API_FALLBACK_URL) return res;
+    if (res.status >= 500) {
+      return await fetch(`${SAMMA_API_FALLBACK_URL}${path}`, fetchOpts);
+    }
+    return res;
+  } catch {
+    if (!SAMMA_API_FALLBACK_URL) throw new Error("Backend unavailable");
+    return await fetch(`${SAMMA_API_FALLBACK_URL}${path}`, fetchOpts);
+  }
 }
 
 /**
