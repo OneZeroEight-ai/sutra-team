@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { killAgent } from "@/lib/api";
 import { NextRequest } from "next/server";
 
@@ -11,11 +10,6 @@ export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   const { id } = await params;
 
   try {

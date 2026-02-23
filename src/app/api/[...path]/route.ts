@@ -67,11 +67,6 @@ async function proxyToBackend(
   request: NextRequest,
   pathSegments: string[],
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   // Special: /api/auth/me — return Clerk user info
   if (pathSegments.join("/") === "auth/me") {
     return handleAuthMe();
@@ -101,23 +96,30 @@ async function proxyToBackend(
   const headers: Record<string, string> = {
     Authorization: `Bearer ${SERVICE_KEY}`,
     "Content-Type": "application/json",
-    "X-Customer-Id": userId,
   };
 
-  // Get email + name for auto-provisioning (first visit)
+  // Try to resolve user identity for per-user scoping
   try {
-    const user = await currentUser();
-    if (user?.emailAddresses?.[0]?.emailAddress) {
-      headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
-    }
-    const name = user?.firstName
-      ? `${user.firstName} ${user.lastName || ""}`.trim()
-      : "";
-    if (name) {
-      headers["X-Customer-Name"] = name;
+    const { userId } = await auth();
+    if (userId) {
+      headers["X-Customer-Id"] = userId;
+      try {
+        const user = await currentUser();
+        if (user?.emailAddresses?.[0]?.emailAddress) {
+          headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
+        }
+        const name = user?.firstName
+          ? `${user.firstName} ${user.lastName || ""}`.trim()
+          : "";
+        if (name) {
+          headers["X-Customer-Name"] = name;
+        }
+      } catch {
+        // Proceed with just userId
+      }
     }
   } catch {
-    // Proceed with just userId
+    // auth() failed — proceed with service key only
   }
 
   const fetchOptions: RequestInit = {

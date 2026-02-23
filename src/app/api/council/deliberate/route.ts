@@ -1,14 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { runDeliberation } from "@/lib/api";
 
 export async function POST(request: Request) {
-  // 1. Authenticate (Clerk — sutra.team session)
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
-  // 2. Parse request
   const body = await request.json();
 
   try {

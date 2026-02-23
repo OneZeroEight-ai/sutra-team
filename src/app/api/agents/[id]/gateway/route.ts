@@ -16,30 +16,33 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   const { id } = await params;
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${SERVICE_KEY}`,
     "Content-Type": "application/json",
-    "X-Customer-Id": userId,
   };
 
+  // Try to resolve user identity for per-user scoping
   try {
-    const user = await currentUser();
-    if (user?.emailAddresses?.[0]?.emailAddress) {
-      headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
+    const { userId } = await auth();
+    if (userId) {
+      headers["X-Customer-Id"] = userId;
+      try {
+        const user = await currentUser();
+        if (user?.emailAddresses?.[0]?.emailAddress) {
+          headers["X-Customer-Email"] = user.emailAddresses[0].emailAddress;
+        }
+        const name = user?.firstName
+          ? `${user.firstName} ${user.lastName || ""}`.trim()
+          : "";
+        if (name) headers["X-Customer-Name"] = name;
+      } catch {
+        // Proceed with just userId
+      }
     }
-    const name = user?.firstName
-      ? `${user.firstName} ${user.lastName || ""}`.trim()
-      : "";
-    if (name) headers["X-Customer-Name"] = name;
   } catch {
-    // Proceed with just userId
+    // auth() failed — proceed with service key only
   }
 
   try {

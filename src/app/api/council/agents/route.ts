@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { listCouncilAgents } from "@/lib/api";
 import { NextRequest } from "next/server";
 
@@ -8,11 +7,6 @@ import { NextRequest } from "next/server";
  * Proxy to Samma Suit API — list council agents (service key auth).
  */
 export async function GET(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   const councilType = request.nextUrl.searchParams.get("council_type") || undefined;
 
   try {

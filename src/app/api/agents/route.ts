@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { getAgents, createAgent } from "@/lib/api";
 import { NextRequest } from "next/server";
 
@@ -6,13 +5,10 @@ import { NextRequest } from "next/server";
  * GET /api/agents
  *
  * Proxy to Samma Suit API — list all agents (service key auth).
+ * Auth is handled by sammaApiFetch → getCustomerHeaders() which
+ * gracefully falls back to service-key-only when Clerk session is missing.
  */
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   try {
     const data = await getAgents();
     return Response.json(data);
@@ -31,11 +27,6 @@ export async function GET() {
  * Proxy to Samma Suit API — create a new agent (service key auth).
  */
 export async function POST(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   try {
     const body = await request.json();
     const data = await createAgent(body);

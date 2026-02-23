@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { getCouncilStatus, setupCouncil } from "@/lib/api";
 
 /**
@@ -8,15 +7,10 @@ import { getCouncilStatus, setupCouncil } from "@/lib/api";
  * If not, seeds a combined council (8 Rights + 6 Experts + Sutra synthesis)
  * under their customer record. Returns the current council status either way.
  *
- * User isolation: sammaApiFetch sends X-Customer-Id so the backend scopes
- * council agents to the authenticated Clerk user, not __service__.
+ * Auth handled by sammaApiFetch → getCustomerHeaders(). Falls back to
+ * service-key-only when Clerk session is missing.
  */
 export async function POST() {
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Authentication required" }, { status: 401 });
-  }
-
   try {
     // Check current council status (scoped to this user via X-Customer-Id)
     const status = await getCouncilStatus();
