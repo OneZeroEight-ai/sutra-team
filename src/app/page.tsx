@@ -78,7 +78,7 @@ export default function HomePage() {
           </div>
 
           <h1 className="font-[family-name:var(--font-outfit)] text-6xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-sutra-text leading-none">
-            SUTRA
+            SUTRA<span className="font-light text-[#00D4FF]">.team</span>
           </h1>
 
           <p className="mt-6 font-[family-name:var(--font-outfit)] text-xl sm:text-2xl font-light text-sutra-muted tracking-wide">

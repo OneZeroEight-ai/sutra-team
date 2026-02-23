@@ -32,7 +32,7 @@ export function Header() {
               className="rounded-full"
             />
             <span className="text-lg font-bold tracking-wide text-sutra-text">
-              SUTRA
+              SUTRA<span className="font-light text-[#00D4FF]">.team</span>
             </span>
           </Link>
 
