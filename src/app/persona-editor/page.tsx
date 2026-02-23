@@ -16,6 +16,7 @@ interface AgentData {
   monthly_budget_usd: number;
   installed_skills: string[];
   llm_base_url: string | null;
+  avatar_url: string | null;
   persona_name: string | null;
   persona_designation: string | null;
   origin_narrative: string | null;
@@ -219,6 +220,8 @@ function PersonaEditorContent() {
   const [toastType, setToastType] = useState<"success" | "error" | "info">("success");
   const [activeTab, setActiveTab] = useState<TabId>("identity");
   const [showTestModal, setShowTestModal] = useState(false);
+  const originalAvatarUrl = useRef<string | null>(null);
+  const [avatarChanged, setAvatarChanged] = useState(false);
 
   const showToast = useCallback((msg: string, type: "success" | "error" | "info" = "success") => {
     setToastMsg(msg);
@@ -248,6 +251,7 @@ function PersonaEditorContent() {
       .then((data) => {
         setAgent(data.agent);
         setForm(data.agent);
+        originalAvatarUrl.current = data.agent.avatar_url || null;
         setLoading(false);
       })
       .catch((e) => {
@@ -278,6 +282,8 @@ function PersonaEditorContent() {
       const data = await res.json();
       setAgent(data.agent);
       setForm(data.agent);
+      originalAvatarUrl.current = data.agent.avatar_url || null;
+      setAvatarChanged(false);
       setDirty(false);
       showToast("Persona saved successfully");
     } catch (e: unknown) {
@@ -478,7 +484,11 @@ function PersonaEditorContent() {
 
       <div style={S.headerRow}>
         <div style={S.headerLeft}>
-          <div style={S.avatar}>{agentInitial}</div>
+          {form.avatar_url ? (
+            <img src={form.avatar_url} alt="" style={{ width: 48, height: 48, borderRadius: 12, objectFit: "cover" as const, flexShrink: 0 }} />
+          ) : (
+            <div style={S.avatar}>{agentInitial}</div>
+          )}
           <div>
             <h1 style={S.agentName}>{form.persona_name || form.name || "Unnamed Agent"}</h1>
             <p style={S.agentDesignation}>{form.persona_designation || "No designation set"}</p>
@@ -530,7 +540,17 @@ function PersonaEditorContent() {
 
       {/* ── Tab Content ── */}
       <div style={S.panel}>
-        {activeTab === "identity" && <IdentityTab form={form} updateField={updateField} />}
+        {activeTab === "identity" && (
+          <IdentityTab
+            form={form}
+            updateField={updateField}
+            avatarChanged={avatarChanged}
+            onAvatarUpload={(dataUrl) => { updateField("avatar_url", dataUrl); setAvatarChanged(true); }}
+            onAvatarRevert={() => { updateField("avatar_url", originalAvatarUrl.current); setAvatarChanged(false); }}
+            onAvatarRemove={() => { updateField("avatar_url", null); setAvatarChanged(true); }}
+            showToast={showToast}
+          />
+        )}
         {activeTab === "knowledge" && <KnowledgeTab form={form} updateField={updateField} />}
         {activeTab === "memory" && <MemoryTab form={form} updateField={updateField} />}
         {activeTab === "values" && <ValuesTab form={form} updateField={updateField} />}
@@ -574,12 +594,59 @@ interface TabProps {
 // ═══════════════════════════════════════════════════════════
 // TAB 1: IDENTITY
 // ═══════════════════════════════════════════════════════════
-function IdentityTab({ form, updateField }: TabProps) {
+interface IdentityTabProps extends TabProps {
+  avatarChanged: boolean;
+  onAvatarUpload: (dataUrl: string) => void;
+  onAvatarRevert: () => void;
+  onAvatarRemove: () => void;
+  showToast: (msg: string, type?: "success" | "error" | "info") => void;
+}
+
+function IdentityTab({ form, updateField, avatarChanged, onAvatarUpload, onAvatarRevert, onAvatarRemove, showToast }: IdentityTabProps) {
   const adaptations = form.platform_adaptations || {};
   const adaptEntries = Object.entries(adaptations);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const agentInitial = (form.persona_name || form.name || "A").charAt(0).toUpperCase();
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Image must be under 2MB", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      onAvatarUpload(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    // Reset input so re-selecting same file works
+    e.target.value = "";
+  };
 
   return (
     <div>
+      {/* ── Avatar Management ── */}
+      <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 12, marginBottom: 24, paddingBottom: 24, borderBottom: "1px solid #1e1e2e" }}>
+        {form.avatar_url ? (
+          <img src={form.avatar_url} alt="" style={{ width: 120, height: 120, borderRadius: "50%", objectFit: "cover" as const, border: "3px solid #27272a" }} />
+        ) : (
+          <div style={{ width: 120, height: 120, borderRadius: "50%", background: "linear-gradient(135deg, #7c3aed, #a78bfa)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, fontWeight: 800, color: "#fff", border: "3px solid #27272a" }}>
+            {agentInitial}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const, justifyContent: "center" }}>
+          <input ref={fileInputRef} type="file" accept=".png,.jpg,.jpeg,.webp" onChange={handleFileSelect} style={{ display: "none" }} />
+          <button onClick={() => fileInputRef.current?.click()} style={S.btnGhost}>Upload New Avatar</button>
+          {avatarChanged && (
+            <button onClick={onAvatarRevert} style={S.btnGhost}>Revert to Original</button>
+          )}
+          {form.avatar_url && (
+            <button onClick={onAvatarRemove} style={{ ...S.btnGhost, color: "#71717a", borderColor: "#1e1e2e" }}>Remove</button>
+          )}
+        </div>
+      </div>
+
       <SectionHeading text="Core Identity" />
       <div style={S.grid2}>
         <FG label="Persona Name" hint="What should this agent be called?">
