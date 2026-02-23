@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Shield } from "lucide-react";
-import { RIGHTS_AGENTS, EXPERT_AGENTS, AGENT_AVATARS } from "@/lib/constants";
+import { RIGHTS_AGENTS, EXPERT_AGENTS, AGENT_AVATARS, EXPERT_AVATARS } from "@/lib/constants";
 
 const RIGHTS_ROSTER = [
   { key: "wisdom-judge", short: "Wisdom Judge", initials: "WJ", color: "#a78bfa" },
@@ -153,11 +153,15 @@ export default function HomePage() {
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
               {EXPERTS_ROSTER.map((expert) => (
                 <div key={expert.key} className="text-center group">
-                  <div
-                    className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white text-sm sm:text-base font-bold transition-transform duration-200 group-hover:scale-110"
-                    style={{ backgroundColor: `${expert.color}20`, color: expert.color, border: `2px solid ${expert.color}40` }}
-                  >
-                    {expert.initials}
+                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-transform duration-200 group-hover:scale-110"
+                    style={{ borderColor: `${expert.color}50` }}>
+                    <Image
+                      src={EXPERT_AVATARS[expert.key]}
+                      alt={expert.short}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <p className="mt-2 text-[11px] sm:text-xs font-medium text-sutra-text/80">
                     {expert.short}

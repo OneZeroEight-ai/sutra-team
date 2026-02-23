@@ -120,12 +120,12 @@ export const AGENT_AVATARS: Record<string, string> = {
 };
 
 export const EXPERT_AVATARS: Record<string, string> = {
-  "legal-analyst": "/images/agents/sutra.png",
-  "financial-strategist": "/images/agents/sutra.png",
-  "technical-architect": "/images/agents/sutra.png",
-  "market-analyst": "/images/agents/sutra.png",
-  "risk-assessor": "/images/agents/sutra.png",
-  "growth-strategist": "/images/agents/sutra.png",
+  "legal-analyst": "/avatars/LegalAnalyst.png",
+  "financial-strategist": "/avatars/FinancialStrategist.png",
+  "technical-architect": "/avatars/TechnicalArchitect.png",
+  "market-analyst": "/avatars/MarketAnalyst.png",
+  "risk-assessor": "/avatars/RiskAssessor.png",
+  "growth-strategist": "/avatars/GrowthStrategist.png",
 };
 
 export const EXPERT_AGENTS: ExpertAgent[] = [
