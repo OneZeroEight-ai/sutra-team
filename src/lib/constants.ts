@@ -6,6 +6,9 @@ import type {
   DifferentiationMetric,
   EcosystemLink,
   NavLink,
+  SecurityLayer,
+  TemplateCategory,
+  CouncilAgent,
 } from "./types";
 
 export const RIGHTS_AGENTS: RightsAgent[] = [
@@ -385,7 +388,133 @@ export const ECOSYSTEM_LINKS: EcosystemLink[] = [
 
 export const NAV_LINKS: NavLink[] = [
   { label: "Agents", href: "/#agents" },
-  { label: "Channels", href: "/#channels" },
-  { label: "Council", href: "/#council" },
-  { label: "Pricing", href: "/#pricing" },
+  { label: "Security", href: "/#security" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Docs", href: "/docs" },
+  { label: "Book", href: "/book" },
+];
+
+// ── New landing page data ──
+
+export const COUNCIL_OF_RIGHTS: CouncilAgent[] = [
+  { name: "Wisdom Judge", aspect: "Right View", icon: "\u2696\uFE0F", desc: "Strategic analysis & evidence evaluation" },
+  { name: "The Purpose", aspect: "Right Intention", icon: "\uD83C\uDFAF", desc: "Motivation clarity & values alignment" },
+  { name: "Communicator", aspect: "Right Speech", icon: "\uD83D\uDCAC", desc: "Message evaluation & honesty-kindness balance" },
+  { name: "Ethics Judge", aspect: "Right Action", icon: "\u26A1", desc: "Ethical impact analysis & consequence modeling" },
+  { name: "Sustainer", aspect: "Right Livelihood", icon: "\uD83C\uDF31", desc: "Value creation vs. extraction analysis" },
+  { name: "Determined", aspect: "Right Effort", icon: "\uD83D\uDD25", desc: "Priority management & burnout detection" },
+  { name: "The Aware", aspect: "Right Mindfulness", icon: "\uD83D\uDC41\uFE0F", desc: "Pattern surfacing & blind spot detection" },
+  { name: "The Focused", aspect: "Right Concentration", icon: "\uD83D\uDD2C", desc: "Deep analysis & single-problem immersion" },
+];
+
+export const COUNCIL_OF_EXPERTS: CouncilAgent[] = [
+  { name: "Legal Analyst", domain: "Contract Law, IP, Compliance", icon: "\uD83D\uDCDC" },
+  { name: "Financial Strategist", domain: "Valuation, Fundraising, Unit Economics", icon: "\uD83D\uDCCA" },
+  { name: "Tech Architect", domain: "System Design, Architecture, Security", icon: "\uD83C\uDFD7\uFE0F" },
+  { name: "Market Analyst", domain: "Industry Analysis, Competitive Intel", icon: "\uD83D\uDCC8" },
+  { name: "Risk Assessor", domain: "Risk Frameworks, Probability Modeling", icon: "\uD83D\uDEE1\uFE0F" },
+  { name: "Growth Strategist", domain: "GTM, Growth Loops, Scaling", icon: "\uD83D\uDE80" },
+];
+
+export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
+  { category: "Healthcare", templates: ["Medical Researcher", "Patient Advocate", "Clinical Coordinator"] },
+  { category: "Education", templates: ["Curriculum Designer", "Student Mentor", "Research Assistant"] },
+  { category: "Real Estate", templates: ["Property Analyst", "Market Researcher", "Deal Evaluator"] },
+  { category: "Creative", templates: ["Content Strategist", "Brand Voice", "Campaign Manager"] },
+  { category: "Finance", templates: ["Portfolio Analyst", "Tax Strategist", "Compliance Officer"] },
+  { category: "Engineering", templates: ["Code Reviewer", "DevOps Lead", "Security Auditor"] },
+  { category: "Household", templates: ["Meal Planner", "Budget Tracker", "Schedule Coordinator"] },
+  { category: "Nonprofit", templates: ["Grant Writer", "Volunteer Coordinator", "Impact Analyst"] },
+  { category: "Sales", templates: ["Lead Qualifier", "Proposal Writer", "Account Strategist"] },
+  { category: "Legal", templates: ["Contract Reviewer", "IP Researcher", "Compliance Checker"] },
+  { category: "Music", templates: ["A&R Analyst", "Sync Licensing Scout", "Release Strategist"] },
+  { category: "Sports", templates: ["Performance Analyst", "Nutrition Coach", "Scouting Coordinator"] },
+];
+
+export const SECURITY_LAYERS: SecurityLayer[] = [
+  { name: "KARMA", label: "Budget Enforcement", desc: "Per-agent and per-council token budgets. Never overspend.", native: true, plugin: true },
+  { name: "SILA", label: "Audit Trail", desc: "Every agent action logged. Full decision chain transparency.", native: true, plugin: true },
+  { name: "METTA", label: "Cryptographic Identity", desc: "Ed25519 keypairs per agent. Verify who said what.", native: true, plugin: true },
+  { name: "SANGHA", label: "Skill Vetting", desc: "AST scanning + governed network egress. No rogue skills.", native: true, plugin: true },
+  { name: "NIRVANA", label: "Kill Switch", desc: "Council-level emergency halt. Shut down all agents at once.", native: true, plugin: true },
+  { name: "DHARMA", label: "Model Permissions", desc: "Per-agent model routing. Claude, OpenAI, Google, local.", native: true, plugin: true },
+  { name: "BODHI", label: "Process Isolation", desc: "Agents sandboxed during deliberation. No cross-contamination.", native: true, plugin: false },
+  { name: "SUTRA", label: "Value Framework", desc: "Hierarchical ethical principles guiding every response.", native: true, plugin: false },
+];
+
+export const NEW_PRICING_TIERS = [
+  {
+    name: "Explorer",
+    price: "$9",
+    period: "/mo",
+    description: "Start with the full team. Build up to 5 agents.",
+    accent: "green",
+    features: [
+      "15 pre-built PMF specialists",
+      "5 custom agents",
+      "Dashboard chat",
+      "All 32+ skills",
+      "Audit trail",
+      "BYOK supported",
+    ],
+    cta: { label: "Get Started", href: "/dashboard.html" },
+    popular: false,
+  },
+  {
+    name: "Pro",
+    price: "$29",
+    period: "/mo",
+    description: "Unlimited agents. Full power. All channels.",
+    accent: "accent",
+    features: [
+      "Everything in Explorer",
+      "Unlimited agents",
+      "Voice sessions",
+      "All channels (Telegram, Slack, Email)",
+      "Heartbeat scheduling",
+      "Council deliberation skill",
+      "Priority support",
+    ],
+    cta: { label: "Go Pro", href: "/dashboard.html" },
+    popular: true,
+  },
+  {
+    name: "International",
+    price: "$99",
+    period: "/mo",
+    description: "Iceland-hosted. Full power. Global privacy.",
+    accent: "warm",
+    flag: "\uD83C\uDDEE\uD83C\uDDF8",
+    features: [
+      "Everything in Pro",
+      "Iceland server infrastructure",
+      "100% renewable energy hosting",
+      "GDPR-aligned data jurisdiction",
+      "Outside US surveillance scope",
+      "Bitcoin / crypto payments accepted",
+      "Priority international support",
+    ],
+    cta: { label: "Go International", href: "/dashboard.html" },
+    popular: false,
+    paymentMethods: ["\u20BF BTC", "\u039E ETH", "\uD83D\uDCB3 Card", "\uD83C\uDFE6 Wire"],
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    description: "Multiple AI agencies. White-label. SSO. SLA.",
+    accent: "purple",
+    features: [
+      "Everything in International",
+      "Custom councils & value frameworks",
+      "White-labeling",
+      "SSO / SAML",
+      "Dedicated support + SLA",
+      "Custom model routing",
+      "On-prem option",
+    ],
+    cta: { label: "Contact Sales", href: "/about#contact" },
+    popular: false,
+    paymentMethods: ["All payment methods accepted"],
+  },
 ];

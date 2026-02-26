@@ -3,11 +3,22 @@
 :root {
   --sutra-bg: #0a0a0f;
   --sutra-surface: #12121a;
+  --sutra-surface-hover: #1a1a25;
   --sutra-border: #1e1e2e;
-  --sutra-text: #e4e4e7;
-  --sutra-muted: #71717a;
-  --sutra-accent: #a78bfa;
-  --sutra-gold: #f59e0b;
+  --sutra-border-hover: #2a2a3e;
+  --sutra-text: #e4e4ef;
+  --sutra-muted: #8888a0;
+  --sutra-dim: #55556a;
+  --sutra-accent: #4fd1c5;
+  --sutra-accent-dim: #2d9e94;
+  --sutra-accent-glow: rgba(79, 209, 197, 0.15);
+  --sutra-warm: #f6ad55;
+  --sutra-warm-glow: rgba(246, 173, 85, 0.12);
+  --sutra-purple: #b794f4;
+  --sutra-green: #68d391;
+  --sutra-danger: #fc8181;
+  /* Legacy aliases */
+  --sutra-gold: #f6ad55;
   --sutra-lotus: #ec4899;
 }
 
@@ -16,15 +27,25 @@
   --color-foreground: var(--sutra-text);
   --color-sutra-bg: var(--sutra-bg);
   --color-sutra-surface: var(--sutra-surface);
+  --color-sutra-surface-hover: var(--sutra-surface-hover);
   --color-sutra-border: var(--sutra-border);
+  --color-sutra-border-hover: var(--sutra-border-hover);
   --color-sutra-text: var(--sutra-text);
   --color-sutra-muted: var(--sutra-muted);
+  --color-sutra-dim: var(--sutra-dim);
   --color-sutra-accent: var(--sutra-accent);
+  --color-sutra-accent-dim: var(--sutra-accent-dim);
+  --color-sutra-accent-glow: var(--sutra-accent-glow);
+  --color-sutra-warm: var(--sutra-warm);
+  --color-sutra-warm-glow: var(--sutra-warm-glow);
+  --color-sutra-purple: var(--sutra-purple);
+  --color-sutra-green: var(--sutra-green);
+  --color-sutra-danger: var(--sutra-danger);
   --color-sutra-gold: var(--sutra-gold);
   --color-sutra-lotus: var(--sutra-lotus);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-outfit);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-instrument-serif);
 }
 
 body {
@@ -34,11 +55,16 @@ body {
 }
 
 ::selection {
-  background-color: rgba(167, 139, 250, 0.3);
-  color: #e4e4e7;
+  background-color: rgba(79, 209, 197, 0.3);
+  color: #e4e4ef;
 }
 
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--sutra-border) transparent;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }

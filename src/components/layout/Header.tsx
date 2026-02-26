@@ -10,7 +10,6 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
-import { Button } from "@/components/ui/Button";
 import { NAV_LINKS } from "@/lib/constants";
 
 export function Header() {
@@ -31,18 +30,21 @@ export function Header() {
               height={36}
               className="rounded-full"
             />
-            <span className="text-lg font-bold tracking-wide text-sutra-text">
-              SUTRA<span className="font-light text-[#00D4FF]">.team</span>
+            <span
+              className="text-[22px] text-sutra-text"
+              style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+            >
+              SUTRA<span className="text-sutra-accent">.team</span>
             </span>
           </Link>
 
           <SignedOut>
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-7">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-sutra-muted hover:text-sutra-text transition-colors"
+                  className="text-sm text-sutra-muted hover:text-sutra-accent transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -52,15 +54,17 @@ export function Header() {
 
           <div className="hidden md:flex items-center gap-3">
             <SignedOut>
-              <Button variant="secondary" href="/pricing">
-                View Pricing
-              </Button>
               <SignInButton mode="modal">
                 <button className="text-sm text-sutra-muted hover:text-sutra-text transition cursor-pointer">
                   Sign In
                 </button>
               </SignInButton>
-              <Button href="/sign-up">Get Started</Button>
+              <Link
+                href="/dashboard.html"
+                className="bg-sutra-accent text-sutra-bg px-5 py-2 rounded-md text-sm font-semibold no-underline hover:bg-sutra-accent-dim transition-colors"
+              >
+                Launch Dashboard
+              </Link>
             </SignedOut>
             <SignedIn>
               <Link
@@ -119,10 +123,13 @@ export function Header() {
                 </Link>
               ))}
               <div className="pt-3 flex flex-col gap-2">
-                <Button variant="secondary" href="/pricing">
-                  View Pricing
-                </Button>
-                <Button href="/sign-up">Get Started</Button>
+                <Link
+                  href="/dashboard.html"
+                  className="block text-center bg-sutra-accent text-sutra-bg px-5 py-2.5 rounded-md text-sm font-semibold no-underline"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Launch Dashboard
+                </Link>
               </div>
             </SignedOut>
             <SignedIn>

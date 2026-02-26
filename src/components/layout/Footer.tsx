@@ -4,10 +4,10 @@ import { ECOSYSTEM_LINKS } from "@/lib/constants";
 
 const productLinks = [
   { label: "Agents", href: "/#agents" },
-  { label: "Channels", href: "/#channels" },
-  { label: "Council", href: "/council" },
+  { label: "Security", href: "/#security" },
   { label: "Pricing", href: "/pricing" },
   { label: "Docs", href: "/docs" },
+  { label: "Dashboard", href: "/dashboard.html" },
 ];
 
 const companyLinks = [
@@ -81,6 +81,16 @@ export function Footer() {
                   </a>
                 </li>
               ))}
+              <li>
+                <a
+                  href="https://github.com/sutra-team"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-sutra-muted hover:text-sutra-text transition-colors"
+                >
+                  GitHub
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -179,7 +189,7 @@ export function Footer() {
             </div>
           </div>
           <p className="mt-4 text-center text-xs text-sutra-muted/60">
-            Protected by Samm&#x0101; Suit &middot; Open Source &middot; Built in Los Angeles
+            Protected by Samm&#x0101; Suit &middot; Open Source &middot; {"\uD83C\uDDEE\uD83C\uDDF8"} Iceland Powered
           </p>
         </div>
       </div>

@@ -47,6 +47,35 @@ export interface PricingTier {
   connect_modes: ConnectMode[];
   target_user: string;
   highlighted?: boolean;
+  // New fields for redesigned landing page
+  description?: string;
+  accent?: string;
+  features?: string[];
+  cta?: { label: string; href: string };
+  popular?: boolean;
+  flag?: string;
+  paymentMethods?: string[];
+}
+
+export interface SecurityLayer {
+  name: string;
+  label: string;
+  desc: string;
+  native: boolean;
+  plugin: boolean;
+}
+
+export interface TemplateCategory {
+  category: string;
+  templates: string[];
+}
+
+export interface CouncilAgent {
+  name: string;
+  aspect?: string;
+  domain?: string;
+  icon: string;
+  desc?: string;
 }
 
 export interface CouncilSession {

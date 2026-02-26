@@ -1,497 +1,568 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Shield } from "lucide-react";
-import { RIGHTS_AGENTS, EXPERT_AGENTS, AGENT_AVATARS, EXPERT_AVATARS } from "@/lib/constants";
+import {
+  Shield,
+  Heart,
+  Zap,
+  Globe,
+  Code,
+  Key,
+  Check,
+  ArrowRight,
+} from "lucide-react";
+import {
+  SECURITY_LAYERS,
+  NEW_PRICING_TIERS,
+} from "@/lib/constants";
+import { AgentsShowcase } from "@/components/landing/AgentsShowcase";
+import { TemplatesSection } from "@/components/landing/TemplatesSection";
 
-const RIGHTS_ROSTER = [
-  { key: "wisdom-judge", short: "Wisdom Judge", initials: "WJ", color: "#a78bfa" },
-  { key: "purpose", short: "Purpose", initials: "P", color: "#818cf8" },
-  { key: "communicator", short: "Communicator", initials: "C", color: "#6366f1" },
-  { key: "ethics-judge", short: "Ethics Judge", initials: "EJ", color: "#f59e0b" },
-  { key: "sustainer", short: "Sustainer", initials: "S", color: "#10b981" },
-  { key: "determined", short: "Determined", initials: "D", color: "#ef4444" },
-  { key: "aware", short: "Aware", initials: "A", color: "#ec4899" },
-  { key: "focused", short: "Focused", initials: "F", color: "#06b6d4" },
-];
-
-const EXPERTS_ROSTER = [
-  { key: "legal-analyst", short: "Legal Analyst", initials: "LA", color: "#6366f1", designation: "Contract Law, IP, Compliance" },
-  { key: "financial-strategist", short: "Financial Strategist", initials: "FS", color: "#10b981", designation: "Valuation, Fundraising, Unit Economics" },
-  { key: "technical-architect", short: "Tech Architect", initials: "TA", color: "#06b6d4", designation: "System Design, Architecture, Security" },
-  { key: "market-analyst", short: "Market Analyst", initials: "MA", color: "#f59e0b", designation: "Industry Analysis, Competitive Intel" },
-  { key: "risk-assessor", short: "Risk Assessor", initials: "RA", color: "#ef4444", designation: "Risk Frameworks, Probability Modeling" },
-  { key: "growth-strategist", short: "Growth Strategist", initials: "GS", color: "#ec4899", designation: "GTM, Growth Loops, Scaling" },
-];
-
-const CUSTOM_AGENTS = [
-  {
-    name: "Content Writer",
-    desc: "Writes blog posts, confers with Market Analyst for positioning",
-    confers: ["Market Analyst", "Growth Strategist"],
-    skills: ["web-search", "email-sender"],
-  },
-  {
-    name: "Deal Analyst",
-    desc: "Reviews contracts, confers with Legal Analyst and Risk Assessor",
-    confers: ["Legal Analyst", "Risk Assessor"],
-    skills: ["document-reader", "web-search"],
-  },
-  {
-    name: "Ops Bot",
-    desc: "Schedules meetings, sends emails, tracks costs",
-    confers: ["Financial Strategist"],
-    skills: ["email-sender", "zoom-scheduler", "web-search"],
-  },
-  {
-    name: "Security Auditor",
-    desc: "Scans code, monitors threats, reports to the council",
-    confers: ["Tech Architect", "Risk Assessor"],
-    skills: ["code-executor", "web-search"],
-  },
+const SKILLS_TAGS = [
+  "web-search", "email-sender", "calendar", "browser", "code-executor",
+  "slack", "discord", "file-manager", "zoom", "notion", "obsidian", "telegram",
 ];
 
 const MOCK_PERSPECTIVES = [
-  { agent: "Wisdom Judge", color: "#a78bfa", text: "Open-sourcing builds trust and community, but we need to assess what we're giving away versus what we keep proprietary." },
-  { agent: "Legal Analyst", color: "#6366f1", text: "Patent protection covers the framework. SDK is safe to open-source under Apache 2.0 with a CLA." },
-  { agent: "Risk Assessor", color: "#ef4444", text: "Low risk if core IP stays closed. Moderate competitive risk — competitors could fork. Mitigate with strong community and fast iteration." },
-  { agent: "Ethics Judge", color: "#f59e0b", text: "Open-sourcing security tooling aligns with industry responsibility. Keeping it proprietary when it governs AI safety is harder to justify." },
-  { agent: "Growth Strategist", color: "#ec4899", text: "Open-source SDKs drive 3-5x faster adoption. Developer trust is the moat, not the code." },
+  { name: "Wisdom Judge", text: "Open-sourcing builds trust and community, but assess what you're giving away vs. keeping proprietary." },
+  { name: "Legal Analyst", text: "Patent protection covers the framework. SDK is safe to open-source under Apache 2.0 with a CLA." },
+  { name: "Risk Assessor", text: "Low risk if core IP stays closed. Moderate competitive risk \u2014 mitigate with fast iteration." },
+  { name: "Ethics Judge", text: "Open-sourcing security tooling aligns with industry responsibility." },
 ];
 
 export default function HomePage() {
   return (
     <>
-      {/* ═══════════ HERO ═══════════ */}
-      <section className="relative py-28 sm:py-36 lg:py-44 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(124,58,237,0.08),transparent_60%)]" />
-        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mx-auto mb-10 w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full overflow-hidden border-2 border-[#7C3AED]/30 shadow-2xl shadow-[#7C3AED]/20">
-            <Image
-              src="/images/oracle.gif"
-              alt="Sutra"
-              width={192}
-              height={192}
-              className="w-full h-full object-cover"
-              priority
-              unoptimized
-            />
+      {/* ══════════ HERO ══════════ */}
+      <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-28 pb-20 overflow-hidden">
+        {/* Grid background */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: `linear-gradient(#4fd1c5 1px, transparent 1px), linear-gradient(90deg, #4fd1c5 1px, transparent 1px)`,
+            backgroundSize: "60px 60px",
+          }}
+        />
+        {/* Glow */}
+        <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[radial-gradient(circle,rgba(79,209,197,0.15)_0%,transparent_70%)] blur-[60px] pointer-events-none" />
+
+        <div className="relative max-w-[800px]">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-sutra-accent-glow border border-sutra-accent-dim/20 rounded-full px-4 py-1.5 mb-8 text-[13px] text-sutra-accent tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full bg-sutra-accent animate-[pulse-dot_2s_infinite]" />
+            Open Source &middot; OpenClaw Compatible &middot; Samm&#x0101; Suit Protected
           </div>
 
-          <h1 className="font-[family-name:var(--font-outfit)] text-6xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-sutra-text leading-none">
-            SUTRA<span className="font-light text-[#00D4FF]">.team</span>
+          <h1
+            className="text-sutra-text leading-[1.1] mb-6"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(40px, 7vw, 72px)",
+            }}
+          >
+            The first OS for
+            <br />
+            <span className="text-sutra-accent">Autonomous Agents</span>
           </h1>
 
-          <p className="mt-6 font-[family-name:var(--font-outfit)] text-xl sm:text-2xl font-light text-sutra-muted tracking-wide">
-            Where strategy meets principle.
+          <p className="text-sutra-muted max-w-[600px] mx-auto mb-10 leading-relaxed" style={{ fontSize: "clamp(17px, 2.5vw, 21px)" }}>
+            Create your own AI agency in minutes. 15 prebuilt agents. Open source.
+            Easy enough for anyone. Powerful enough for Fortune 500.
           </p>
 
-          <p className="mt-4 text-base sm:text-lg text-sutra-muted/80 max-w-lg mx-auto leading-relaxed">
-            Start with a team of 15 AI specialists.
-            <br />
-            Add your own agents to do what you want.
-          </p>
-
-          <div className="mt-10">
+          <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/dashboard.html"
-              className="inline-flex items-center justify-center rounded-lg px-8 py-3.5 text-base font-semibold bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/25 transition-all duration-200"
+              className="bg-sutra-accent text-sutra-bg px-8 py-3.5 rounded-lg text-base font-semibold no-underline inline-flex items-center gap-2 shadow-[0_0_30px_rgba(79,209,197,0.15)] hover:shadow-[0_0_40px_rgba(79,209,197,0.25)] transition-shadow"
             >
-              Meet Your Team
+              Start Building <ArrowRight size={18} />
             </Link>
+            <a
+              href="https://github.com/sutra-team"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-transparent text-sutra-text px-8 py-3.5 rounded-lg text-base font-medium no-underline inline-flex items-center gap-2 border border-sutra-border hover:border-sutra-border-hover transition-colors"
+            >
+              <Code size={18} /> View Source
+            </a>
+          </div>
+
+          {/* Stats */}
+          <div className="flex gap-12 justify-center mt-14 flex-wrap">
+            {[
+              { val: "15", label: "PMF Agents" },
+              { val: "12+", label: "Field Templates" },
+              { val: "8", label: "Security Layers" },
+              { val: "32+", label: "Skills" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="text-[32px] font-bold text-sutra-accent font-mono">
+                  {s.val}
+                </div>
+                <div className="text-[13px] text-sutra-muted mt-1">
+                  {s.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════ YOUR TEAM ═══════════ */}
-      <section className="py-24 sm:py-32">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-[family-name:var(--font-outfit)] text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sutra-text text-center leading-tight">
+      {/* ══════════ VALUE PROPS ══════════ */}
+      <section className="py-20 px-6 max-w-[1200px] mx-auto">
+        <div className="text-center mb-14">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 42px)",
+            }}
+          >
+            Built for everyone
+          </h2>
+          <p className="text-sutra-muted text-[17px] max-w-[500px] mx-auto">
+            From managing a household to launching an enterprise AI strategy.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[
+            { icon: <Heart size={22} />, color: "var(--sutra-warm)", title: "Easy", desc: "If you can describe what you need, you can build an agent. No code required. Visual dashboard. Templates for every field." },
+            { icon: <Shield size={22} />, color: "var(--sutra-green)", title: "Secure", desc: "8 layers of Samm\u0101 Suit protection on every agent, every action, every message. Budget enforcement, audit trails, kill switches." },
+            { icon: <Zap size={22} />, color: "var(--sutra-accent)", title: "Powerful", desc: "Multi-agent councils that deliberate in parallel. 15 specialists analyzing your question before Sutra synthesizes the answer." },
+            { icon: <Globe size={22} />, color: "var(--sutra-purple)", title: "Affordable", desc: "BYOK (Bring Your Own Key) or use credits. Iceland servers: 100% renewable energy, 72% lower infrastructure costs. Savings passed to you." },
+            { icon: <Code size={22} />, color: "var(--sutra-warm)", title: "Extendable", desc: "OpenClaw Skills Library compatible. Build custom skills. Connect any API. Every agent is a Portable Mind Format JSON \u2014 fork it, modify it, share it." },
+            { icon: <Key size={22} />, color: "var(--sutra-danger)", title: "Your Choice", desc: "BYOK or credits. Claude, OpenAI, Google, DeepSeek, or local models. Your keys, your data, your agents. We never lock you in." },
+          ].map((p) => (
+            <div
+              key={p.title}
+              className="bg-sutra-surface border border-sutra-border rounded-xl p-7 transition-all hover:border-sutra-border-hover hover:-translate-y-0.5"
+            >
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                style={{ backgroundColor: `color-mix(in srgb, ${p.color} 15%, transparent)`, color: p.color }}
+              >
+                {p.icon}
+              </div>
+              <h3 className="text-lg text-sutra-text mb-2.5 font-semibold">
+                {p.title}
+              </h3>
+              <p className="text-sm text-sutra-muted leading-relaxed">
+                {p.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════ AGENTS SHOWCASE ══════════ */}
+      <section id="agents" className="py-20 px-6 max-w-[1200px] mx-auto">
+        <div className="text-center mb-12">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 42px)",
+            }}
+          >
             15 specialists. Day one.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-sutra-muted text-center max-w-2xl mx-auto leading-relaxed">
-            An ethics council, domain experts, and an analyst who synthesizes
-            every perspective before answering.
+          <p className="text-sutra-muted text-[17px] max-w-[560px] mx-auto">
+            An ethics council grounded in the Noble Eightfold Path, domain
+            experts for every business function, and Sutra &mdash; who confers
+            with all of them.
           </p>
-
-          {/* Row 1: Council of Rights */}
-          <div className="mt-16">
-            <p className="text-xs font-mono uppercase tracking-[3px] text-[#7C3AED]/70 mb-6 text-center">
-              Council of Rights
-            </p>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-4 sm:gap-6">
-              {RIGHTS_ROSTER.map((agent) => {
-                const data = RIGHTS_AGENTS.find((r) => r.name === `The ${agent.short}`);
-                return (
-                  <div key={agent.key} className="text-center group">
-                    <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-transform duration-200 group-hover:scale-110"
-                      style={{ borderColor: `${agent.color}50` }}>
-                      <Image
-                        src={AGENT_AVATARS[agent.key]}
-                        alt={agent.short}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <p className="mt-2 text-[11px] sm:text-xs font-medium text-sutra-text/80">
-                      {agent.short}
-                    </p>
-                    <p className="text-[10px] text-sutra-muted/60 leading-tight hidden group-hover:block">
-                      {data?.path_aspect}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Row 2: Domain Experts */}
-          <div className="mt-12">
-            <p className="text-xs font-mono uppercase tracking-[3px] text-[#7C3AED]/70 mb-6 text-center">
-              Domain Experts
-            </p>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
-              {EXPERTS_ROSTER.map((expert) => (
-                <div key={expert.key} className="text-center group">
-                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-transform duration-200 group-hover:scale-110"
-                    style={{ borderColor: `${expert.color}50` }}>
-                    <Image
-                      src={EXPERT_AVATARS[expert.key]}
-                      alt={expert.short}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="mt-2 text-[11px] sm:text-xs font-medium text-sutra-text/80">
-                    {expert.short}
-                  </p>
-                  <p className="text-[10px] text-sutra-muted/60 leading-tight hidden group-hover:block">
-                    {expert.designation}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Row 3: Synthesis — Sutra */}
-          <div className="mt-12 text-center">
-            <p className="text-xs font-mono uppercase tracking-[3px] text-[#f59e0b]/70 mb-6">
-              Synthesis
-            </p>
-            <div className="inline-block group">
-              <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-[#f59e0b]/40 shadow-lg shadow-[#f59e0b]/20 transition-transform duration-200 group-hover:scale-110">
-                <Image
-                  src="/images/agents/sutra.png"
-                  alt="Sutra"
-                  width={96}
-                  height={96}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <p className="mt-3 text-sm font-semibold text-[#f59e0b]">Sutra</p>
-              <p className="text-xs text-sutra-muted/70">
-                Ethics analyst. Confers with all 15 before answering.
-              </p>
-            </div>
-          </div>
         </div>
+        <AgentsShowcase />
       </section>
 
-      {/* ═══════════ BUILD YOUR OWN ═══════════ */}
-      <section className="py-24 sm:py-32 border-t border-sutra-border">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-[family-name:var(--font-outfit)] text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sutra-text text-center leading-tight">
-            Then add your own.
+      {/* ══════════ TEMPLATES ══════════ */}
+      <section className="py-20 px-6 max-w-[1200px] mx-auto">
+        <div className="text-center mb-12">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 42px)",
+            }}
+          >
+            Then build your own
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-sutra-muted text-center max-w-xl mx-auto leading-relaxed">
-            Create agents that take action. Connect skills.
-            Confer with your team. Deploy anywhere.
+          <p className="text-sutra-muted text-[17px] max-w-[560px] mx-auto">
+            Portable Mind Format (PMF) templates for a dozen fields. Open
+            source. Fork, customize, deploy.
           </p>
+        </div>
+        <TemplatesSection />
+      </section>
 
-          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {CUSTOM_AGENTS.map((agent) => (
-              <div
-                key={agent.name}
-                className="rounded-xl border border-sutra-border bg-sutra-surface/50 p-6 hover:border-[#7C3AED]/30 transition-colors"
-              >
-                <h3 className="text-base font-semibold text-sutra-text">
-                  {agent.name}
-                </h3>
-                <p className="mt-1 text-sm text-sutra-muted leading-relaxed">
-                  {agent.desc}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {agent.confers.map((c) => (
-                    <span
-                      key={c}
-                      className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#7C3AED]/10 text-[#a78bfa] border border-[#7C3AED]/20"
-                    >
-                      confers: {c}
-                    </span>
-                  ))}
-                  {agent.skills.map((s) => (
-                    <span
-                      key={s}
-                      className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#06b6d4]/10 text-[#06b6d4] border border-[#06b6d4]/20"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="mt-8 text-xs text-sutra-muted/60 text-center max-w-lg mx-auto leading-relaxed">
-            Every agent is governed by 8 security layers. Budget limits.
-            Audit trails. Kill switches. Cryptographic identity.
-          </p>
-
-          <div className="mt-8 text-center">
-            <Link
-              href="/dashboard.html"
-              className="inline-flex items-center justify-center rounded-lg px-7 py-3 text-sm font-semibold bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/25 transition-all duration-200"
+      {/* ══════════ OPENCLAW COMPATIBILITY ══════════ */}
+      <section className="py-16 px-6 max-w-[1200px] mx-auto">
+        <div className="bg-sutra-surface border border-sutra-border rounded-2xl p-10 flex gap-10 items-center flex-wrap">
+          <div className="flex-1 min-w-[340px]">
+            <div className="text-xs text-sutra-accent tracking-[0.08em] uppercase mb-3 font-semibold">
+              Ecosystem
+            </div>
+            <h3
+              className="text-sutra-text mb-4"
+              style={{
+                fontFamily: "'Instrument Serif', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 26,
+              }}
             >
-              Create Your First Agent
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ DELIBERATION DEMO ═══════════ */}
-      <section className="py-24 sm:py-32 border-t border-sutra-border">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-[family-name:var(--font-outfit)] text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sutra-text text-center leading-tight">
-            Ask once. Hear everything.
-          </h2>
-
-          <div className="mt-14 space-y-3">
-            {/* User question */}
-            <div className="rounded-xl border border-sutra-border bg-sutra-surface p-5">
-              <p className="text-xs font-mono uppercase tracking-wider text-sutra-muted/60 mb-2">
-                You ask
-              </p>
-              <p className="text-base text-sutra-text font-medium">
-                &ldquo;Should we open-source our SDK?&rdquo;
-              </p>
-            </div>
-
-            {/* Perspectives */}
-            <div className="grid grid-cols-1 gap-2">
-              {MOCK_PERSPECTIVES.map((p) => (
-                <div
-                  key={p.agent}
-                  className="rounded-lg border border-sutra-border/60 bg-sutra-bg p-4 flex gap-3"
-                >
-                  <div
-                    className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold"
-                    style={{ backgroundColor: `${p.color}15`, color: p.color, border: `1px solid ${p.color}30` }}
-                  >
-                    {p.agent.split(" ").map((w) => w[0]).join("")}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold" style={{ color: p.color }}>
-                      {p.agent}
-                    </p>
-                    <p className="mt-0.5 text-sm text-sutra-muted leading-relaxed">
-                      {p.text}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Synthesis */}
-            <div className="rounded-xl border-2 border-[#f59e0b]/30 bg-[#f59e0b]/[0.03] p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-full overflow-hidden">
-                  <Image
-                    src="/images/agents/sutra.png"
-                    alt="Sutra"
-                    width={24}
-                    height={24}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <p className="text-xs font-semibold text-[#f59e0b]">
-                  Sutra &mdash; Synthesis
-                </p>
-              </div>
-              <p className="text-sm text-sutra-text leading-relaxed">
-                <strong>Consensus:</strong> Open-source the SDK. Legal confirms patent protection
-                covers the core framework. Ethics and Growth align on trust-building.
-              </p>
-              <p className="mt-2 text-sm text-sutra-text leading-relaxed">
-                <strong>Tension:</strong> Risk Assessor flags competitive forking.
-                Mitigation: fast iteration cadence + strong community ownership.
-              </p>
-              <p className="mt-2 text-sm text-sutra-text leading-relaxed">
-                <strong>Recommendation:</strong> Proceed with Apache 2.0 + CLA.
-                Ship within 30 days to capture developer mindshare.
-              </p>
+              OpenClaw Skills Compatible
+            </h3>
+            <p className="text-[15px] text-sutra-muted leading-relaxed mb-5">
+              Every skill in the ClawHub library works on Sutra.team &mdash;
+              browser control, email, calendar, file management, Slack, Discord,
+              and hundreds more. Plus every skill goes through Samm&#x0101;
+              Suit&apos;s SANGHA scanning before it touches your agents.
+            </p>
+            <div className="font-mono text-[13px] text-sutra-dim bg-sutra-bg p-3 rounded-md">
+              <span className="text-sutra-accent">$</span> sutra skills install
+              weather-lookup
+              <br />
+              <span className="text-sutra-green">
+                &#x2713; Scanned by SANGHA &middot; Approved &middot; Installed
+              </span>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ═══════════ CAPABILITIES ═══════════ */}
-      <section className="py-16 border-t border-sutra-border">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-sutra-muted">
-            {[
-              "Voice Sessions",
-              "Text Chat",
-              "32 Skills",
-              "8 Security Layers",
-              "Audit Trail",
-              "Budget Control",
-            ].map((cap) => (
-              <span key={cap} className="whitespace-nowrap">
-                {cap}
+          <div className="flex-1 min-w-[200px] flex flex-wrap gap-2 justify-center">
+            {SKILLS_TAGS.map((s) => (
+              <span
+                key={s}
+                className="px-3 py-1.5 rounded-md bg-sutra-accent/10 border border-sutra-accent/20 text-xs text-sutra-accent"
+              >
+                {s}
               </span>
             ))}
+            <span className="px-3 py-1.5 text-xs text-sutra-dim">
+              + hundreds more
+            </span>
           </div>
         </div>
       </section>
 
-      {/* ═══════════ TESTIMONIALS ═══════════ */}
-      <section className="py-24 sm:py-32 border-t border-sutra-border">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              "&ldquo;It&rsquo;s like OpenClaw with teeth.&rdquo;",
-              "&ldquo;Asked one question. Got 15 perspectives. Knew exactly what to do.&rdquo;",
-              "&ldquo;Our CISO asked how we govern our AI agents. I showed him the audit trail. Meeting over.&rdquo;",
-            ].map((quote, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-sutra-border bg-sutra-surface/30 p-6"
-              >
-                <p
-                  className="text-sm text-sutra-muted leading-relaxed italic"
-                  dangerouslySetInnerHTML={{ __html: quote }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ PRICING ═══════════ */}
-      <section className="py-24 sm:py-32 border-t border-sutra-border" id="pricing">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-[family-name:var(--font-outfit)] text-3xl sm:text-4xl font-extrabold text-sutra-text">
-            Simple pricing.
+      {/* ══════════ SECURITY ══════════ */}
+      <section id="security" className="py-20 px-6 max-w-[1200px] mx-auto">
+        <div className="text-center mb-12">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 42px)",
+            }}
+          >
+            8 layers of protection
           </h2>
-          <p className="mt-3 text-base text-sutra-muted">
-            Start with the full team. Scale when you need to.
+          <p className="text-sutra-muted text-[17px] max-w-[600px] mx-auto">
+            OpenClaw has 512 known vulnerabilities. Sutra.team has Samm&#x0101;
+            Suit. Native platform gets all 8 layers. OpenClaw plugin gets 6.
           </p>
-
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Explorer */}
-            <div className="rounded-xl border border-sutra-border bg-sutra-surface p-8 text-left">
-              <p className="text-xs font-mono uppercase tracking-wider text-sutra-muted mb-1">
-                Explorer
-              </p>
-              <p className="font-[family-name:var(--font-outfit)] text-4xl font-extrabold text-sutra-text">
-                $9<span className="text-base font-normal text-sutra-muted">/mo</span>
-              </p>
-              <p className="mt-3 text-sm text-sutra-muted leading-relaxed">
-                Start with 15 specialists. Create up to 5 custom agents.
-              </p>
-              <ul className="mt-5 space-y-2">
-                {[
-                  "15 pre-built specialists",
-                  "5 custom agents",
-                  "Dashboard chat",
-                  "All 32 skills",
-                  "Audit trail",
-                ].map((f) => (
-                  <li key={f} className="text-sm text-sutra-muted/80 flex items-start gap-2">
-                    <span className="text-[#7C3AED] mt-0.5 text-xs">&#x2192;</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6">
-                <Link
-                  href="/dashboard.html"
-                  className="block text-center rounded-lg px-5 py-2.5 text-sm font-medium border border-sutra-border text-sutra-text hover:bg-sutra-surface hover:border-sutra-muted transition-all"
-                >
-                  Get Started
-                </Link>
-              </div>
-            </div>
-
-            {/* Pro */}
-            <div className="rounded-xl border-2 border-[#7C3AED]/40 bg-sutra-surface p-8 text-left shadow-lg shadow-[#7C3AED]/10">
-              <p className="text-xs font-mono uppercase tracking-wider text-[#7C3AED] mb-1">
-                Pro
-              </p>
-              <p className="font-[family-name:var(--font-outfit)] text-4xl font-extrabold text-sutra-text">
-                $29<span className="text-base font-normal text-sutra-muted">/mo</span>
-              </p>
-              <p className="mt-3 text-sm text-sutra-muted leading-relaxed">
-                Unlimited agents. Voice sessions. Full skill access.
-              </p>
-              <ul className="mt-5 space-y-2">
-                {[
-                  "Everything in Explorer",
-                  "Unlimited agents",
-                  "Voice sessions",
-                  "All channels (Telegram, Slack, Email)",
-                  "Heartbeat scheduling",
-                  "Priority support",
-                ].map((f) => (
-                  <li key={f} className="text-sm text-sutra-muted/80 flex items-start gap-2">
-                    <span className="text-[#7C3AED] mt-0.5 text-xs">&#x2192;</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6">
-                <Link
-                  href="/dashboard.html"
-                  className="block text-center rounded-lg px-5 py-2.5 text-sm font-semibold bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/25 transition-all"
-                >
-                  Go Pro
-                </Link>
-              </div>
-            </div>
-          </div>
         </div>
-      </section>
 
-      {/* ═══════════ BOTTOM CTA ═══════════ */}
-      <section className="py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-[family-name:var(--font-outfit)] text-3xl sm:text-4xl lg:text-5xl font-extrabold text-sutra-text leading-tight">
-            Your team is waiting.
-          </h2>
-          <p className="mt-4 text-base text-sutra-muted">
-            15 specialists. Ready to deliberate. Ready to act.
-          </p>
-          <div className="mt-8">
-            <Link
-              href="/dashboard.html"
-              className="inline-flex items-center justify-center rounded-lg px-8 py-3.5 text-base font-semibold bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/25 transition-all duration-200"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {SECURITY_LAYERS.map((l) => (
+            <div
+              key={l.name}
+              className="bg-sutra-surface border border-sutra-border rounded-xl p-5 transition-colors hover:border-sutra-border-hover"
             >
-              Meet Your Team
-            </Link>
-          </div>
-          <div className="mt-6 inline-flex items-center gap-2 text-xs text-sutra-muted/60">
-            <Shield className="h-3.5 w-3.5 text-[#7C3AED]/60" />
-            Protected by{" "}
+              <div className="flex justify-between items-start mb-2.5">
+                <div>
+                  <span className="font-mono text-[13px] text-sutra-accent font-semibold">
+                    {l.name}
+                  </span>
+                  <span className="text-[13px] text-sutra-muted ml-2">
+                    {l.label}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-1 mb-2.5">
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded ${
+                    l.native
+                      ? "bg-sutra-green/20 text-sutra-green"
+                      : "bg-sutra-danger/15 text-sutra-danger"
+                  }`}
+                >
+                  {l.native ? "\u2713" : "\u2717"} Native
+                </span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded ${
+                    l.plugin
+                      ? "bg-sutra-green/20 text-sutra-green"
+                      : "bg-sutra-warm/20 text-sutra-warm"
+                  }`}
+                >
+                  {l.plugin ? "\u2713" : "\u2014"} Plugin
+                </span>
+              </div>
+              <p className="text-[13px] text-sutra-muted leading-relaxed">
+                {l.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 p-6 bg-sutra-warm/[0.08] border border-sutra-warm/20 rounded-xl text-center">
+          <p className="text-sm text-sutra-warm">
+            <strong>Already using OpenClaw?</strong> Install the Samm&#x0101;
+            Suit plugin for 6-layer protection.{" "}
             <a
               href="https://sammasuit.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sutra-muted/80 hover:text-sutra-text transition-colors"
+              className="text-sutra-accent ml-2 underline"
             >
-              Samm&#x0101; Suit
+              sammasuit.com
             </a>
+          </p>
+        </div>
+      </section>
+
+      {/* ══════════ ICELAND ══════════ */}
+      <section className="py-20 px-6 max-w-[1200px] mx-auto">
+        <div className="bg-gradient-to-br from-sutra-surface to-[#0d1b2a] border border-sutra-border rounded-2xl p-12 flex gap-10 items-center flex-wrap">
+          <div className="flex-1 min-w-[340px]">
+            <div className="flex items-center gap-2.5 mb-4">
+              <span className="text-3xl">{"\uD83C\uDDEE\uD83C\uDDF8"}</span>
+              <h3
+                className="text-sutra-text"
+                style={{
+                  fontFamily: "'Instrument Serif', Georgia, serif",
+                  fontWeight: 400,
+                  fontSize: 24,
+                }}
+              >
+                Powered by Iceland
+              </h3>
+            </div>
+            <p className="text-[15px] text-sutra-muted leading-relaxed mb-5">
+              Our infrastructure runs on 100% renewable geothermal and
+              hydroelectric energy in Iceland &mdash; outside US surveillance
+              jurisdiction, with the strongest privacy laws in Europe, and
+              natural cooling that cuts costs by 72% compared to traditional US
+              data centers. Those savings go directly to you.
+            </p>
+            <div className="flex gap-6 flex-wrap">
+              {[
+                { val: "100%", label: "Renewable energy" },
+                { val: "72%", label: "Lower costs" },
+                { val: "GDPR", label: "Aligned privacy" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <div className="text-[22px] font-bold text-sutra-accent font-mono">
+                    {s.val}
+                  </div>
+                  <div className="text-xs text-sutra-muted">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
+          <div className="text-[80px] opacity-15 select-none">{"\u2744\uFE0F"}</div>
+        </div>
+      </section>
+
+      {/* ══════════ DELIBERATION DEMO ══════════ */}
+      <section className="py-20 px-6 max-w-[900px] mx-auto">
+        <div className="text-center mb-10">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 36px)",
+            }}
+          >
+            Ask once. Hear everything.
+          </h2>
+          <p className="text-sutra-muted text-base">
+            Council deliberation is a skill your agents can invoke &mdash; or
+            you can run it yourself from the dashboard.
+          </p>
+        </div>
+
+        <div className="bg-sutra-surface border border-sutra-border rounded-xl overflow-hidden">
+          {/* Query */}
+          <div className="px-6 py-5 border-b border-sutra-border bg-sutra-accent/[0.05]">
+            <div className="text-xs text-sutra-dim mb-1.5">YOU ASK</div>
+            <div className="text-base text-sutra-text font-medium">
+              &ldquo;Should we open-source our SDK?&rdquo;
+            </div>
+          </div>
+
+          {/* Perspectives */}
+          <div className="px-6 py-4 border-b border-sutra-border">
+            <div className="text-[11px] text-sutra-dim mb-3 tracking-[0.06em] uppercase">
+              Perspectives
+            </div>
+            {MOCK_PERSPECTIVES.map((p) => (
+              <div key={p.name} className="flex gap-3 mb-3">
+                <div className="w-7 h-7 rounded-full bg-sutra-accent-glow flex items-center justify-center text-[10px] text-sutra-accent font-bold shrink-0">
+                  {p.name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .join("")}
+                </div>
+                <div>
+                  <span className="text-[13px] font-semibold text-sutra-text">
+                    {p.name}
+                  </span>
+                  <p className="text-[13px] text-sutra-muted mt-1 leading-relaxed">
+                    {p.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Synthesis */}
+          <div className="px-6 py-5 bg-sutra-accent/[0.05]">
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="text-lg">{"\uD83E\uDEB7"}</span>
+              <span className="text-sm font-semibold text-sutra-accent">
+                Sutra &mdash; Synthesis
+              </span>
+            </div>
+            <p className="text-sm text-sutra-text leading-relaxed">
+              <strong>Consensus:</strong> Open-source the SDK. Legal confirms
+              patent protection. Ethics and Growth align on trust-building.
+              <br />
+              <strong className="text-sutra-warm">Tension:</strong> Risk
+              Assessor flags competitive forking. Mitigation: fast iteration +
+              community ownership.
+              <br />
+              <strong className="text-sutra-accent">Recommendation:</strong>{" "}
+              Proceed with Apache 2.0 + CLA. Ship within 30 days.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ PRICING ══════════ */}
+      <section id="pricing" className="py-20 px-6 max-w-[1000px] mx-auto">
+        <div className="text-center mb-12">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 42px)",
+            }}
+          >
+            Simple pricing
+          </h2>
+          <p className="text-sutra-muted text-[17px]">
+            BYOK or credits. Start free, scale when ready.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {NEW_PRICING_TIERS.map((tier) => {
+            const accentColor =
+              tier.accent === "accent"
+                ? "var(--sutra-accent)"
+                : tier.accent === "warm"
+                  ? "var(--sutra-warm)"
+                  : tier.accent === "purple"
+                    ? "var(--sutra-purple)"
+                    : "var(--sutra-green)";
+
+            return (
+              <div
+                key={tier.name}
+                className={`bg-sutra-surface rounded-xl p-8 relative ${
+                  tier.popular
+                    ? "border border-sutra-accent-dim"
+                    : "border border-sutra-border"
+                }`}
+              >
+                {tier.popular && (
+                  <div className="absolute -top-2.5 right-4 bg-sutra-accent text-sutra-bg px-3 py-1 rounded text-[11px] font-bold">
+                    POPULAR
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold text-sutra-text">
+                    {tier.name}
+                  </span>
+                  {tier.flag && <span className="text-base">{tier.flag}</span>}
+                </div>
+                <div className="mt-3 mb-1 font-mono">
+                  <span className="text-4xl font-bold text-sutra-text">
+                    {tier.price}
+                  </span>
+                  {tier.period && (
+                    <span className="text-base text-sutra-muted font-normal">
+                      {tier.period}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[13px] text-sutra-muted mb-6">
+                  {tier.description}
+                </p>
+                {tier.features.map((f) => (
+                  <div
+                    key={f}
+                    className="flex items-center gap-2 py-1.5 text-[13px] text-sutra-muted"
+                  >
+                    <Check size={14} style={{ color: accentColor }} /> {f}
+                  </div>
+                ))}
+                <Link
+                  href={tier.cta.href}
+                  className={`block text-center py-3 rounded-lg text-sm font-semibold mt-6 no-underline transition-colors ${
+                    tier.popular
+                      ? "bg-sutra-accent text-sutra-bg hover:bg-sutra-accent-dim"
+                      : "border border-sutra-border text-sutra-text hover:border-sutra-border-hover"
+                  }`}
+                  style={
+                    !tier.popular && tier.accent === "warm"
+                      ? { borderColor: "var(--sutra-warm)", color: "var(--sutra-warm)" }
+                      : undefined
+                  }
+                >
+                  {tier.cta.label}
+                </Link>
+                {tier.paymentMethods && (
+                  <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px] text-sutra-dim">
+                    {tier.paymentMethods.join(" \u00B7 ")}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ══════════ CTA ══════════ */}
+      <section className="py-20 px-6 text-center relative overflow-hidden">
+        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(79,209,197,0.15)_0%,transparent_70%)] blur-[80px] pointer-events-none" />
+        <div className="relative max-w-[600px] mx-auto">
+          <h2
+            className="text-sutra-text mb-4"
+            style={{
+              fontFamily: "'Instrument Serif', Georgia, serif",
+              fontWeight: 400,
+              fontSize: "clamp(28px, 4vw, 40px)",
+            }}
+          >
+            Your agency is waiting
+          </h2>
+          <p className="text-sutra-muted text-[17px] mb-8 leading-relaxed">
+            15 specialists. 32+ skills. 8 security layers. Open source. Start
+            in minutes.
+          </p>
+          <Link
+            href="/dashboard.html"
+            className="bg-sutra-accent text-sutra-bg px-10 py-4 rounded-lg text-[17px] font-semibold no-underline inline-flex items-center gap-2 shadow-[0_0_40px_rgba(79,209,197,0.15)] hover:shadow-[0_0_50px_rgba(79,209,197,0.25)] transition-shadow"
+          >
+            Launch Dashboard <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
     </>
