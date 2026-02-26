@@ -809,6 +809,85 @@ select.login-input { appearance: auto; cursor: pointer; }
   gap: 16px;
   margin-bottom: 40px;
 }
+
+/* ── Agent Organization: Groups, Toolbar, Pins, Card Sizes ── */
+.agent-toolbar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.agent-search {
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 8px;
+  padding: 7px 12px; font-size: 13px; color: var(--white); outline: none;
+  font-family: var(--font-sans); width: 200px; max-width: 100%;
+  transition: border-color 0.2s;
+}
+.agent-search::placeholder { color: var(--gray-dim); }
+.agent-search:focus { border-color: var(--purple); }
+.filter-pills { display: flex; gap: 4px; }
+.filter-pill {
+  background: transparent; border: 1px solid var(--card-border); border-radius: 20px;
+  padding: 4px 12px; font-size: 11px; color: var(--gray); cursor: pointer;
+  font-family: var(--font-sans); transition: all 0.2s; user-select: none;
+}
+.filter-pill:hover { border-color: var(--purple); color: var(--white); }
+.filter-pill.active { background: var(--purple); border-color: var(--purple); color: white; }
+.size-toggles { display: flex; gap: 2px; margin-left: auto; }
+.size-toggle-btn {
+  background: transparent; border: 1px solid var(--card-border); border-radius: 6px;
+  padding: 4px 8px; font-size: 11px; color: var(--gray); cursor: pointer;
+  font-family: var(--font-sans); transition: all 0.2s; user-select: none;
+}
+.size-toggle-btn:hover { border-color: var(--purple); color: var(--white); }
+.size-toggle-btn.active { background: var(--purple); border-color: var(--purple); color: white; }
+
+.agent-group { margin-bottom: 8px; }
+.agent-group-header {
+  display: flex; align-items: center; gap: 8px; padding: 8px 4px;
+  cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; color: var(--gray);
+  transition: color 0.2s;
+}
+.agent-group-header:hover { color: var(--white); }
+.agent-group-header .group-emoji { font-size: 15px; }
+.agent-group-header .group-label { flex: 1; }
+.agent-group-header .group-count {
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 10px;
+  padding: 1px 7px; font-size: 10px; color: var(--gray-dim); font-weight: 500;
+}
+.agent-group-header .group-arrow {
+  font-size: 10px; transition: transform 0.2s; color: var(--gray-dim);
+}
+.agent-group-header.collapsed .group-arrow { transform: rotate(-90deg); }
+.agent-group-body.collapsed { display: none; }
+
+.agent-card { position: relative; }
+.agent-pin {
+  position: absolute; top: 10px; right: 12px; font-size: 14px; cursor: pointer;
+  opacity: 0.2; transition: opacity 0.2s, transform 0.2s; z-index: 2; user-select: none;
+}
+.agent-pin:hover { opacity: 0.7; transform: scale(1.2); }
+.agent-pin.pinned { opacity: 1; color: var(--gold); }
+
+/* Card size: compact */
+.agent-cards.size-compact { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.agent-cards.size-compact .agent-card { padding: 14px; }
+.agent-cards.size-compact .agent-card-meta,
+.agent-cards.size-compact .agent-card-budget,
+.agent-cards.size-compact .agent-card-key,
+.agent-cards.size-compact .agent-card-actions { display: none; }
+
+/* Card size: list */
+.agent-cards.size-list { grid-template-columns: 1fr; gap: 6px; }
+.agent-cards.size-list .agent-card {
+  padding: 10px 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px;
+}
+.agent-cards.size-list .agent-card-header { flex: 1; }
+.agent-cards.size-list .agent-card-meta,
+.agent-cards.size-list .agent-card-budget,
+.agent-cards.size-list .agent-card-key { display: none; }
+.agent-cards.size-list .agent-card-actions {
+  display: flex; gap: 4px; flex-shrink: 0;
+}
+.agent-cards.size-list .agent-pin { position: static; margin-left: auto; flex-shrink: 0; }
+
 .agent-card {
   background: var(--card);
   border: 1px solid var(--card-border);
@@ -1659,6 +1738,9 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 @media (max-width: 900px) {
   .overview-grid { grid-template-columns: repeat(2, 1fr); }
   .agent-cards { grid-template-columns: 1fr; }
+  .agent-cards.size-compact { grid-template-columns: repeat(2, 1fr); }
+  .agent-toolbar { gap: 6px; }
+  .agent-search { width: 140px; }
   .billing-grid { grid-template-columns: 1fr; }
   .credit-packs { grid-template-columns: repeat(2, 1fr); }
   .credit-banner { flex-direction: column; align-items: flex-start; }
@@ -1901,6 +1983,20 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     <div class="section-header">
       <h3>Agents</h3>
       <button class="btn btn-primary btn-sm" id="btn-create-agent">Create Agent <span class="key-badge" style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)">N</span></button>
+    </div>
+    <div class="agent-toolbar">
+      <input type="text" class="agent-search" id="agent-search" placeholder="Search agents..." oninput="renderAgents()">
+      <div class="filter-pills">
+        <button class="filter-pill active" onclick="setAgentFilter('all',this)">All</button>
+        <button class="filter-pill" onclick="setAgentFilter('council',this)">Council</button>
+        <button class="filter-pill" onclick="setAgentFilter('experts',this)">Experts</button>
+        <button class="filter-pill" onclick="setAgentFilter('custom',this)">Custom</button>
+      </div>
+      <div class="size-toggles">
+        <button class="size-toggle-btn active" data-size="grid" onclick="setCardSize('grid')">Grid</button>
+        <button class="size-toggle-btn" data-size="compact" onclick="setCardSize('compact')">Compact</button>
+        <button class="size-toggle-btn" data-size="list" onclick="setCardSize('list')">List</button>
+      </div>
     </div>
     <div id="agents-container">
       <div class="loading-state"><div class="spinner"></div> Loading agents...</div>
@@ -2470,6 +2566,9 @@ async function loadDashboard() {
     loadBillingStatus();
     showPaymentBanner();
 
+    // Prefetch skills data so the Skills tab loads instantly
+    if (!state.skills) loadSkills();
+
     // Batch-fetch heartbeat status for agent cards (non-blocking)
     const agentList = agentsRes?.agents || [];
     if (agentList.length > 0) {
@@ -2503,6 +2602,7 @@ async function loadDashboard() {
 function renderDashboard() {
   renderHeader();
   renderOverview();
+  restoreAgentToolbar();
   renderAgents();
   renderAuditLog();
   animateDashboard();
@@ -2582,6 +2682,139 @@ function renderOverview() {
   document.getElementById('oc-security').textContent = secCount;
 }
 
+// ── Agent Organization State ──
+const agentOrgState = {
+  filter: 'all',
+  cardSize: localStorage.getItem('sutra_card_size') || 'grid',
+  pinnedAgents: JSON.parse(localStorage.getItem('sutra_pinned_agents') || '[]'),
+  collapsedGroups: JSON.parse(localStorage.getItem('sutra_collapsed_groups') || '{}'),
+};
+
+function setAgentFilter(f, el) {
+  agentOrgState.filter = f;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderAgents();
+}
+
+function setCardSize(size) {
+  agentOrgState.cardSize = size;
+  localStorage.setItem('sutra_card_size', size);
+  document.querySelectorAll('.size-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.size === size));
+  renderAgents();
+}
+
+function togglePin(agentId, e) {
+  e.stopPropagation();
+  const idx = agentOrgState.pinnedAgents.indexOf(agentId);
+  if (idx >= 0) agentOrgState.pinnedAgents.splice(idx, 1);
+  else agentOrgState.pinnedAgents.push(agentId);
+  localStorage.setItem('sutra_pinned_agents', JSON.stringify(agentOrgState.pinnedAgents));
+  renderAgents();
+}
+
+function toggleGroup(groupKey) {
+  agentOrgState.collapsedGroups[groupKey] = !agentOrgState.collapsedGroups[groupKey];
+  localStorage.setItem('sutra_collapsed_groups', JSON.stringify(agentOrgState.collapsedGroups));
+  renderAgents();
+}
+
+function classifyAgent(a) {
+  if (a.council_type === 'rights') return 'rights';
+  if (a.council_type === 'experts') return 'experts';
+  return 'custom';
+}
+
+function restoreAgentToolbar() {
+  const size = agentOrgState.cardSize;
+  document.querySelectorAll('.size-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.size === size));
+}
+
+function renderAgentCard(a, i) {
+  const status = (a.status || 'active').toLowerCase();
+  const budgetPct = a.monthly_budget_usd > 0 ? Math.min(((a.total_cost_usd || 0) / a.monthly_budget_usd) * 100, 100) : 0;
+  const budgetClass = budgetPct > 90 ? 'danger' : budgetPct > 70 ? 'warning' : '';
+  const created = a.created_at ? new Date(a.created_at).toLocaleDateString() : '\u2014';
+  const pubKey = a.metta_public_key || a.public_key || '';
+  const truncKey = pubKey ? (pubKey.length > 24 ? pubKey.slice(0, 10) + '\u2026' + pubKey.slice(-6) : pubKey) : 'No key assigned';
+  const agentProv = a.provider || 'anthropic';
+  const provColor = PROVIDER_COLORS[agentProv] || PROVIDER_COLORS.anthropic;
+  const modelName = getModelDisplay(a.model || (PROVIDER_MODELS[agentProv] || [])[0]);
+  const isPinned = agentOrgState.pinnedAgents.includes(a.id);
+
+  const hb = state.heartbeats[a.id];
+  const isReviving = state.revivingAgents.has(a.id);
+  const isCouncil = !!(a.council_type && (a.council_type === 'rights' || a.council_type === 'experts'));
+  let stateIcon, stateLabel, stateLabelClass, stateClickable = false;
+  if (status === 'terminated') {
+    stateIcon = '<span class="agent-state-icon">\uD83D\uDC80</span>';
+    stateLabel = 'Killed';
+    stateLabelClass = 'killed';
+  } else if (status === 'sleeping') {
+    stateIcon = '<span class="agent-state-icon">\uD83C\uDF19</span>';
+    stateLabel = 'Sleeping';
+    stateLabelClass = 'sleeping';
+  } else if (isReviving) {
+    stateIcon = '<span class="agent-state-icon reviving">\u26A1</span>';
+    stateLabel = 'Reviving\u2026';
+    stateLabelClass = 'reviving';
+  } else if (hb && hb.enabled) {
+    const mins = hb.interval_minutes || 60;
+    const interval = mins >= 1440 ? Math.round(mins/1440) + 'd' : mins >= 60 ? Math.round(mins/60) + 'h' : mins + 'm';
+    stateIcon = '<span class="agent-state-icon pulse-heart">\u2764\uFE0F</span>';
+    stateLabel = 'Heartbeat: ' + interval;
+    stateLabelClass = 'heartbeat';
+    stateClickable = true;
+  } else {
+    stateIcon = '<span class="agent-state-icon">\uD83D\uDFE2</span>';
+    stateLabel = 'Active';
+    stateLabelClass = 'active';
+  }
+
+  const stateHtml = stateClickable
+    ? `<div class="agent-state agent-state-clickable" onclick="event.stopPropagation();openAgentDetail('${a.id}');setTimeout(()=>{const el=document.getElementById('heartbeat-section');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},400)" title="Click to configure heartbeat">${stateIcon}<span class="agent-state-label ${stateLabelClass}">${stateLabel}</span></div>`
+    : `<div class="agent-state">${stateIcon}<span class="agent-state-label ${stateLabelClass}">${stateLabel}</span></div>`;
+
+  const avatarHtml = a.avatar_url
+    ? `<img src="${esc(a.avatar_url)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+    : `<div style="width:36px;height:36px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0">${esc((a.name||'A').charAt(0).toUpperCase())}</div>`;
+
+  return `<div class="agent-card glow-${status}" id="agent-card-${a.id}" style="animation-delay:${i * 0.08}s" onclick="selectAgent('${a.id}');openAgentDetail('${a.id}')">
+      <span class="agent-pin ${isPinned ? 'pinned' : ''}" onclick="togglePin('${a.id}',event)" title="${isPinned ? 'Unpin' : 'Pin to top'}">\u2605</span>
+      <div class="agent-card-header" style="display:flex;align-items:center;gap:10px">
+        ${avatarHtml}
+        <div style="flex:1;min-width:0">
+          <div class="agent-card-name">${esc(a.name)}${a.is_platform_agent ? '<span title="Platform Agent" style="margin-left:6px;font-size:11px;vertical-align:middle;opacity:0.7">\uD83D\uDEE1\uFE0F</span>' : ''}</div>
+          ${a.persona_name ? `<div style="font-size:11px;color:var(--purple);opacity:0.8;margin-top:1px">${esc(a.persona_name)}</div>` : ''}
+        </div>
+        ${stateHtml}
+      </div>
+      <div style="font-size:12px;color:var(--gray);margin-bottom:4px;display:flex;align-items:center;gap:6px">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${provColor}"></span>
+        <span>${esc(modelName)}</span>
+      </div>
+      <div class="agent-card-meta">
+        <div class="agent-card-stat"><div class="stat-label">Calls</div><div class="stat-value">${(a.total_calls || 0).toLocaleString()}</div></div>
+        <div class="agent-card-stat"><div class="stat-label">Created</div><div class="stat-value">${created}</div></div>
+      </div>
+      <div class="agent-card-budget">
+        <div class="budget-label"><span>Budget</span><span>$${(a.total_cost_usd||0).toFixed(2)} / $${(a.monthly_budget_usd||0).toFixed(2)}</span></div>
+        <div class="budget-bar" style="width:100%"><span class="budget-bar-fill ${budgetClass}" style="width:${budgetPct}%"></span></div>
+      </div>
+      <div class="agent-card-key" title="${esc(pubKey)}">${esc(truncKey)}</div>
+      <div class="agent-card-actions">
+        ${status === 'active' || status === 'sleeping' ? `<button class="btn-chat" onclick="event.stopPropagation();openChat('${a.id}','${esc(a.name)}','${esc(a.avatar_url||'')}')"${status === 'sleeping' ? ' title="Wake agent to chat"' : ''}>Chat</button>` : ''}
+        <button class="btn-audit" onclick="event.stopPropagation();scrollToAudit('${a.id}','${esc(a.name)}')">Audit</button>
+        ${status !== 'terminated' ? (status === 'sleeping'
+          ? `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();wakeAgent('${a.id}','${esc(a.name)}')">Wake</button>`
+          : `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();sleepAgent('${a.id}','${esc(a.name)}')">Sleep</button>`)
+        : ''}
+        ${!isCouncil && status !== 'terminated' ? `<button class="btn-kill" onclick="event.stopPropagation();confirmKill('${a.id}','${esc(a.name)}')">Kill <span class="key-badge">K</span></button>` : ''}
+        ${status === 'terminated' ? `<button class="btn-revive" onclick="event.stopPropagation();reviveAgent('${a.id}','${esc(a.name)}')">Revive</button>` : ''}
+      </div>
+    </div>`;
+}
+
 function renderAgents() {
   const container = document.getElementById('agents-container');
   const agentList = state.agents?.agents || [];
@@ -2592,92 +2825,62 @@ function renderAgents() {
     return;
   }
 
-  let html = '<div class="agent-cards">';
-  for (let i = 0; i < agentList.length; i++) {
-    const a = agentList[i];
-    const status = (a.status || 'active').toLowerCase();
-    const budgetPct = a.monthly_budget_usd > 0 ? Math.min(((a.total_cost_usd || 0) / a.monthly_budget_usd) * 100, 100) : 0;
-    const budgetClass = budgetPct > 90 ? 'danger' : budgetPct > 70 ? 'warning' : '';
-    const created = a.created_at ? new Date(a.created_at).toLocaleDateString() : '—';
-    const pubKey = a.metta_public_key || a.public_key || '';
-    const truncKey = pubKey ? (pubKey.length > 24 ? pubKey.slice(0, 10) + '\u2026' + pubKey.slice(-6) : pubKey) : 'No key assigned';
-    const agentProv = a.provider || 'anthropic';
-    const provColor = PROVIDER_COLORS[agentProv] || PROVIDER_COLORS.anthropic;
-    const modelName = getModelDisplay(a.model || (PROVIDER_MODELS[agentProv] || [])[0]);
+  const searchQ = (document.getElementById('agent-search')?.value || '').toLowerCase().trim();
+  const sizeClass = agentOrgState.cardSize !== 'grid' ? 'size-' + agentOrgState.cardSize : '';
 
-    // Determine dynamic state icon
-    const hb = state.heartbeats[a.id];
-    const isReviving = state.revivingAgents.has(a.id);
-    const isCouncil = !!(a.council_type && (a.council_type === 'rights' || a.council_type === 'experts'));
-    let stateIcon, stateLabel, stateLabelClass, stateClickable = false;
-    if (status === 'terminated') {
-      stateIcon = '<span class="agent-state-icon">\uD83D\uDC80</span>';
-      stateLabel = 'Killed';
-      stateLabelClass = 'killed';
-    } else if (status === 'sleeping') {
-      stateIcon = '<span class="agent-state-icon">\uD83C\uDF19</span>';
-      stateLabel = 'Sleeping';
-      stateLabelClass = 'sleeping';
-    } else if (isReviving) {
-      stateIcon = '<span class="agent-state-icon reviving">\u26A1</span>';
-      stateLabel = 'Reviving\u2026';
-      stateLabelClass = 'reviving';
-    } else if (hb && hb.enabled) {
-      const mins = hb.interval_minutes || 60;
-      const interval = mins >= 1440 ? Math.round(mins/1440) + 'd' : mins >= 60 ? Math.round(mins/60) + 'h' : mins + 'm';
-      stateIcon = '<span class="agent-state-icon pulse-heart">\u2764\uFE0F</span>';
-      stateLabel = 'Heartbeat: ' + interval;
-      stateLabelClass = 'heartbeat';
-      stateClickable = true;
-    } else {
-      stateIcon = '<span class="agent-state-icon">\uD83D\uDFE2</span>';
-      stateLabel = 'Active';
-      stateLabelClass = 'active';
-    }
+  // Filter by search
+  let filtered = agentList.filter(a => {
+    if (!searchQ) return true;
+    const hay = [a.name, a.persona_name, a.persona_designation].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(searchQ);
+  });
 
-    const stateHtml = stateClickable
-      ? `<div class="agent-state agent-state-clickable" onclick="event.stopPropagation();openAgentDetail('${a.id}');setTimeout(()=>{const el=document.getElementById('heartbeat-section');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},400)" title="Click to configure heartbeat">${stateIcon}<span class="agent-state-label ${stateLabelClass}">${stateLabel}</span></div>`
-      : `<div class="agent-state">${stateIcon}<span class="agent-state-label ${stateLabelClass}">${stateLabel}</span></div>`;
+  // Filter by pill
+  const f = agentOrgState.filter;
+  if (f === 'council') filtered = filtered.filter(a => a.council_type === 'rights');
+  else if (f === 'experts') filtered = filtered.filter(a => a.council_type === 'experts');
+  else if (f === 'custom') filtered = filtered.filter(a => !a.council_type || (a.council_type !== 'rights' && a.council_type !== 'experts'));
 
-    const avatarHtml = a.avatar_url
-      ? `<img src="${esc(a.avatar_url)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">`
-      : `<div style="width:36px;height:36px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0">${esc((a.name||'A').charAt(0).toUpperCase())}</div>`;
-
-    html += `<div class="agent-card glow-${status}" id="agent-card-${a.id}" style="animation-delay:${i * 0.08}s" onclick="selectAgent('${a.id}');openAgentDetail('${a.id}')">
-        <div class="agent-card-header" style="display:flex;align-items:center;gap:10px">
-          ${avatarHtml}
-          <div style="flex:1;min-width:0">
-            <div class="agent-card-name">${esc(a.name)}${a.is_platform_agent ? '<span title="Platform Agent" style="margin-left:6px;font-size:11px;vertical-align:middle;opacity:0.7">\uD83D\uDEE1\uFE0F</span>' : ''}</div>
-            ${a.persona_name ? `<div style="font-size:11px;color:var(--purple);opacity:0.8;margin-top:1px">${esc(a.persona_name)}</div>` : ''}
-          </div>
-          ${stateHtml}
-        </div>
-        <div style="font-size:12px;color:var(--gray);margin-bottom:4px;display:flex;align-items:center;gap:6px">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${provColor}"></span>
-          <span>${esc(modelName)}</span>
-        </div>
-        <div class="agent-card-meta">
-          <div class="agent-card-stat"><div class="stat-label">Calls</div><div class="stat-value">${(a.total_calls || 0).toLocaleString()}</div></div>
-          <div class="agent-card-stat"><div class="stat-label">Created</div><div class="stat-value">${created}</div></div>
-        </div>
-        <div class="agent-card-budget">
-          <div class="budget-label"><span>Budget</span><span>$${(a.total_cost_usd||0).toFixed(2)} / $${(a.monthly_budget_usd||0).toFixed(2)}</span></div>
-          <div class="budget-bar" style="width:100%"><span class="budget-bar-fill ${budgetClass}" style="width:${budgetPct}%"></span></div>
-        </div>
-        <div class="agent-card-key" title="${esc(pubKey)}">${esc(truncKey)}</div>
-        <div class="agent-card-actions">
-          ${status === 'active' || status === 'sleeping' ? `<button class="btn-chat" onclick="event.stopPropagation();openChat('${a.id}','${esc(a.name)}','${esc(a.avatar_url||'')}')"${status === 'sleeping' ? ' title="Wake agent to chat"' : ''}>Chat</button>` : ''}
-          <button class="btn-audit" onclick="event.stopPropagation();scrollToAudit('${a.id}','${esc(a.name)}')">Audit</button>
-          ${status !== 'terminated' ? (status === 'sleeping'
-            ? `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();wakeAgent('${a.id}','${esc(a.name)}')">Wake</button>`
-            : `<button class="btn-audit" style="color:#818cf8;border-color:rgba(99,102,241,0.3)" onclick="event.stopPropagation();sleepAgent('${a.id}','${esc(a.name)}')">Sleep</button>`)
-          : ''}
-          ${!isCouncil && status !== 'terminated' ? `<button class="btn-kill" onclick="event.stopPropagation();confirmKill('${a.id}','${esc(a.name)}')">Kill <span class="key-badge">K</span></button>` : ''}
-          ${status === 'terminated' ? `<button class="btn-revive" onclick="event.stopPropagation();reviveAgent('${a.id}','${esc(a.name)}')">Revive</button>` : ''}
-        </div>
-      </div>`;
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><p>No matching agents.</p></div>`;
+    return;
   }
-  html += '</div>';
+
+  // Classify into groups
+  const groups = { pinned: [], rights: [], experts: [], custom: [] };
+  const pinnedSet = new Set(agentOrgState.pinnedAgents);
+  filtered.forEach(a => {
+    if (pinnedSet.has(a.id)) groups.pinned.push(a);
+    const cls = classifyAgent(a);
+    groups[cls].push(a);
+  });
+
+  const groupMeta = {
+    pinned:  { emoji: '\u2B50', label: 'Pinned' },
+    rights:  { emoji: '\uD83D\uDEE1\uFE0F', label: 'Rights Council' },
+    experts: { emoji: '\uD83E\udDE0', label: 'Domain Experts' },
+    custom:  { emoji: '\u2699\uFE0F', label: 'Custom Agents' },
+  };
+
+  let html = '';
+  for (const key of ['pinned', 'rights', 'experts', 'custom']) {
+    const agents = groups[key];
+    if (agents.length === 0) continue;
+    const meta = groupMeta[key];
+    const collapsed = agentOrgState.collapsedGroups[key];
+    html += `<div class="agent-group">
+      <div class="agent-group-header ${collapsed ? 'collapsed' : ''}" onclick="toggleGroup('${key}')">
+        <span class="group-emoji">${meta.emoji}</span>
+        <span class="group-label">${meta.label}</span>
+        <span class="group-count">${agents.length}</span>
+        <span class="group-arrow">\u25BC</span>
+      </div>
+      <div class="agent-group-body ${collapsed ? 'collapsed' : ''}">
+        <div class="agent-cards ${sizeClass}">`;
+    agents.forEach((a, i) => { html += renderAgentCard(a, i); });
+    html += `</div></div></div>`;
+  }
+
   container.innerHTML = html;
   if (!state.selectedAgentId && agentList.length > 0) state.selectedAgentId = agentList[0].id;
 }
