@@ -480,7 +480,7 @@ export const NEW_PRICING_TIERS = [
   },
   {
     name: "International",
-    price: "$99",
+    price: "$49",
     period: "/mo",
     description: "Iceland-hosted. Full power. Global privacy.",
     accent: "warm",

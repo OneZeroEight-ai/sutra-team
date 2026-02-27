@@ -77,7 +77,7 @@ export default function HomePage() {
               Start Building <ArrowRight size={18} />
             </Link>
             <a
-              href="https://github.com/sutra-team"
+              href="https://github.com/OneZeroEight-ai/sutra-team"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-transparent text-sutra-text px-8 py-3.5 rounded-lg text-base font-medium no-underline inline-flex items-center gap-2 border border-sutra-border hover:border-sutra-border-hover transition-colors"

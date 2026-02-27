@@ -340,6 +340,48 @@ nav {
 .chat-msg.assistant table { border-collapse: collapse; margin: 6px 0; font-size: 12px; }
 .chat-msg.assistant th, .chat-msg.assistant td { border: 1px solid var(--card-border); padding: 4px 8px; }
 
+/* ── Synthesis result formatting ── */
+.synthesis-result { display: flex; flex-direction: column; gap: 12px; }
+.synthesis-section { }
+.synthesis-recommendation {
+  background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 10px; padding: 12px 14px;
+}
+.synthesis-recommendation .synthesis-text p:first-child { margin-top: 0; }
+.synthesis-recommendation .synthesis-text p:last-child { margin-bottom: 0; }
+.synthesis-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.synthesis-text { font-size: 13px; line-height: 1.6; color: var(--white); }
+.synthesis-confidence {
+  display: flex; align-items: center; gap: 8px;
+}
+.synthesis-conf-bar {
+  flex: 1; height: 5px; background: #1e1e3a; border-radius: 3px; overflow: hidden;
+}
+.synthesis-conf-fill {
+  height: 100%; background: #a78bfa; border-radius: 3px; transition: width 0.3s ease;
+}
+.synthesis-conf-label { font-size: 11px; color: #71717a; white-space: nowrap; }
+.synthesis-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px;
+}
+.synthesis-card {
+  background: rgba(15,15,30,0.6); border: 1px solid rgba(30,30,58,0.6);
+  border-radius: 8px; padding: 10px 12px;
+}
+.synthesis-card ul {
+  list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;
+}
+.synthesis-card li {
+  font-size: 12px; color: #a1a1aa; line-height: 1.45;
+  padding-left: 10px; position: relative;
+}
+.synthesis-card li::before {
+  content: '\2022'; position: absolute; left: 0; color: inherit; opacity: 0.5;
+}
+
 /* Text selection — ensure chat messages are selectable */
 .chat-messages, .chat-msg, .chat-msg * {
   user-select: text; -webkit-user-select: text;
@@ -4024,10 +4066,87 @@ function renderSecurityBar(layers) {
 }
 
 function renderMarkdown(text) {
+  // Check for synthesis JSON — {agreements, tensions, gaps, recommendation, confidence}
+  const synthesisHtml = tryRenderSynthesis(text);
+  if (synthesisHtml) return synthesisHtml;
+
   if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
     return DOMPurify.sanitize(marked.parse(text));
   }
   return esc(text);
+}
+
+function tryRenderSynthesis(text) {
+  if (!text || typeof text !== 'string') return null;
+  const trimmed = text.trim();
+  // Try direct JSON parse first
+  let data = null;
+  if (trimmed.startsWith('{')) {
+    try { data = JSON.parse(trimmed); } catch {}
+  }
+  // Fallback: extract JSON from within text (e.g. "Here are results: {...}")
+  if (!data) {
+    const match = trimmed.match(/\{[\s\S]*"recommendation"[\s\S]*\}/);
+    if (match) { try { data = JSON.parse(match[0]); } catch {} }
+  }
+  if (!data) return null;
+  // Must have at least recommendation or agreements to be a synthesis
+  if (!data.recommendation && !data.agreements) return null;
+  if (typeof data.recommendation !== 'string' && !Array.isArray(data.agreements)) return null;
+
+  const parts = [];
+
+  // Recommendation
+  if (data.recommendation) {
+    const recHtml = (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined')
+      ? DOMPurify.sanitize(marked.parse(data.recommendation))
+      : esc(data.recommendation);
+    parts.push(
+      '<div class="synthesis-section synthesis-recommendation">'
+      + '<div class="synthesis-label" style="color:#a78bfa">Recommendation</div>'
+      + '<div class="synthesis-text">' + recHtml + '</div>'
+      + '</div>'
+    );
+  }
+
+  // Confidence bar
+  if (typeof data.confidence === 'number' && data.confidence > 0) {
+    const pct = Math.round(data.confidence * 100);
+    parts.push(
+      '<div class="synthesis-confidence">'
+      + '<div class="synthesis-conf-bar"><div class="synthesis-conf-fill" style="width:' + pct + '%"></div></div>'
+      + '<span class="synthesis-conf-label">' + pct + '% confidence</span>'
+      + '</div>'
+    );
+  }
+
+  // Agreements / Tensions / Gaps grid
+  const sections = [];
+  if (Array.isArray(data.agreements) && data.agreements.length) {
+    sections.push(renderSynthesisList('Agreements', data.agreements, '#6ee7b7'));
+  }
+  if (Array.isArray(data.tensions) && data.tensions.length) {
+    sections.push(renderSynthesisList('Tensions', data.tensions, '#fbbf24'));
+  }
+  if (Array.isArray(data.gaps) && data.gaps.length) {
+    sections.push(renderSynthesisList('Gaps', data.gaps, '#fca5a5'));
+  }
+  if (sections.length) {
+    parts.push('<div class="synthesis-grid">' + sections.join('') + '</div>');
+  }
+
+  return parts.length ? '<div class="synthesis-result">' + parts.join('') + '</div>' : null;
+}
+
+function renderSynthesisList(title, items, color) {
+  const lis = items.map(item => {
+    const txt = typeof item === 'string' ? esc(item) : esc(item.description || JSON.stringify(item));
+    return '<li>' + txt + '</li>';
+  }).join('');
+  return '<div class="synthesis-card">'
+    + '<div class="synthesis-label" style="color:' + color + '">' + esc(title) + '</div>'
+    + '<ul>' + lis + '</ul>'
+    + '</div>';
 }
 
 let _lastChatRole = null; // track sender for grouping
