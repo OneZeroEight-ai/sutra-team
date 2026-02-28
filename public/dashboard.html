@@ -1406,6 +1406,78 @@ select.audit-filter {
 .template-card-desc { font-size: 11px; color: var(--gray); line-height: 1.4; }
 .template-divider { border: none; border-top: 1px solid var(--card-border); margin: 0 0 16px; }
 
+/* Create mode toggle (Template vs Import PMF) */
+.create-mode-toggle {
+  display: flex; gap: 4px; margin-bottom: 16px;
+}
+.create-mode-btn {
+  flex: 1; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: var(--bg2); color: var(--gray); border: 1px solid var(--card-border);
+  cursor: pointer; transition: all 0.15s; font-family: var(--font-display); text-align: center;
+}
+.create-mode-btn:hover { color: var(--white); border-color: var(--gray-dim); }
+.create-mode-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+/* PMF drop zone */
+.pmf-drop-zone {
+  border: 2px dashed var(--card-border); border-radius: 12px; padding: 40px 24px;
+  text-align: center; cursor: pointer; transition: all 0.2s;
+  margin-bottom: 16px;
+}
+.pmf-drop-zone:hover, .pmf-drop-zone.drag-over {
+  border-color: var(--purple); background: rgba(124,58,237,0.05);
+}
+.pmf-drop-zone .drop-icon { font-size: 32px; margin-bottom: 8px; }
+.pmf-drop-zone .drop-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.pmf-drop-zone .drop-hint { font-size: 12px; color: var(--gray); }
+
+/* PMF paste divider */
+.pmf-divider { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.pmf-divider::before, .pmf-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--card-border);
+}
+.pmf-divider span { font-size: 11px; color: var(--gray-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+/* PMF validation results */
+.pmf-errors {
+  background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 12px;
+}
+.pmf-errors .err-title { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+.pmf-errors ul { list-style: disc; padding-left: 18px; }
+.pmf-errors li { font-size: 12px; color: var(--red); line-height: 1.6; }
+
+.pmf-warnings {
+  background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 12px;
+}
+.pmf-warnings .warn-title { font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+.pmf-warnings ul { list-style: disc; padding-left: 18px; }
+.pmf-warnings li { font-size: 12px; color: var(--gold); line-height: 1.6; }
+
+/* PMF preview card */
+.pmf-preview {
+  border: 1px solid var(--card-border); border-radius: 12px;
+  padding: 20px; margin-bottom: 16px; background: var(--bg2);
+}
+.pmf-preview .preview-name { font-size: 18px; font-weight: 800; color: var(--white); margin-bottom: 2px; }
+.pmf-preview .preview-designation { font-size: 13px; color: var(--gray); margin-bottom: 12px; }
+.pmf-preview .preview-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
+}
+.pmf-preview .stat-box {
+  background: var(--card); border-radius: 8px; padding: 10px 8px; text-align: center;
+  border: 1px solid var(--card-border);
+}
+.pmf-preview .stat-val { font-size: 20px; font-weight: 800; color: var(--white); }
+.pmf-preview .stat-label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.pmf-preview .preview-tone { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
+.pmf-preview .tone-tag {
+  display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px;
+  background: rgba(124,58,237,0.12); color: var(--purple); margin: 0 4px 4px 0;
+}
+.pmf-preview .preview-badges { font-size: 11px; color: var(--gray-dim); }
+
 .modal-content h3 {
   font-size: 22px;
   font-weight: 800;
@@ -2143,52 +2215,117 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 <div class="modal-overlay" id="modal-create">
   <div class="modal-content">
     <h3>Create Agent</h3>
-    <p>Start from a template or build from scratch.</p>
+    <p>Start from a template, import a PMF file, or build from scratch.</p>
 
-    <!-- Template Selector -->
-    <div id="template-selector">
-      <div class="template-tabs" id="template-tabs"></div>
-      <div class="template-grid" id="template-grid"></div>
-      <hr class="template-divider">
+    <!-- Mode Toggle -->
+    <div class="create-mode-toggle">
+      <button class="create-mode-btn active" id="mode-template-btn" onclick="setCreateMode('template')">Start from Template</button>
+      <button class="create-mode-btn" id="mode-import-btn" onclick="setCreateMode('import')">Import PMF File</button>
     </div>
 
-    <form id="create-agent-form">
-      <input type="text" class="login-input" id="agent-name" placeholder="Agent name" required>
-      <textarea class="login-input" id="agent-system-prompt" placeholder="Tell this agent how to behave, what tone to use, and what rules to follow." rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:13px;line-height:1.5"></textarea>
-      <div style="display:flex;gap:8px">
-        <select class="login-input" id="agent-provider" style="flex:1" onchange="onCreateProviderChange()">
-          <optgroup label="Cloud Providers">
-            <option value="anthropic">Anthropic (Claude)</option>
-            <option value="openai">OpenAI (GPT)</option>
-            <option value="google">Google (Gemini)</option>
-          </optgroup>
-          <optgroup label="Local / Self-Hosted">
-            <option value="ollama">Ollama</option>
-            <option value="lmstudio">LM Studio</option>
-            <option value="vllm">vLLM</option>
-            <option value="custom">Custom Endpoint</option>
-          </optgroup>
-        </select>
-        <select class="login-input" id="agent-model" style="flex:1"></select>
+    <!-- ═══ TEMPLATE MODE (existing) ═══ -->
+    <div id="create-template-mode">
+      <!-- Template Selector -->
+      <div id="template-selector">
+        <div class="template-tabs" id="template-tabs"></div>
+        <div class="template-grid" id="template-grid"></div>
+        <hr class="template-divider">
       </div>
-      <div id="local-endpoint-fields" style="display:none;margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Endpoint URL</label>
-        <input type="url" class="login-input" id="agent-base-url" placeholder="http://localhost:11434" style="margin-bottom:4px">
-        <span style="font-size:11px;color:var(--gray-dim)">OpenAI-compatible chat/completions endpoint</span>
-      </div>
-      <div id="credit-hint" style="font-size:11px;color:var(--gray-dim);margin:-4px 0 8px;padding:0 2px"></div>
-      <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Monthly Budget (USD)</label>
-      <input type="number" class="login-input" id="agent-budget" placeholder="5.00" value="5" step="0.01" min="0">
-      <input type="password" class="login-input" id="agent-llm-key" placeholder="sk-ant-api03-... (optional — BYOK)" autocomplete="off">
-      <span id="agent-key-error" style="font-size:11px;color:var(--red);display:none"></span>
-      <div class="modal-actions" style="justify-content:space-between">
-        <a href="/persona-editor" id="btn-advanced-editor" style="font-size:12px;color:var(--purple);text-decoration:none;align-self:center" target="_blank">Advanced Editor (PMF)</a>
-        <div style="display:flex;gap:12px">
+
+      <form id="create-agent-form">
+        <input type="text" class="login-input" id="agent-name" placeholder="Agent name" required>
+        <textarea class="login-input" id="agent-system-prompt" placeholder="Tell this agent how to behave, what tone to use, and what rules to follow." rows="3" style="resize:vertical;font-family:var(--font-mono);font-size:13px;line-height:1.5"></textarea>
+        <div style="display:flex;gap:8px">
+          <select class="login-input" id="agent-provider" style="flex:1" onchange="onCreateProviderChange()">
+            <optgroup label="Cloud Providers">
+              <option value="anthropic">Anthropic (Claude)</option>
+              <option value="openai">OpenAI (GPT)</option>
+              <option value="google">Google (Gemini)</option>
+            </optgroup>
+            <optgroup label="Local / Self-Hosted">
+              <option value="ollama">Ollama</option>
+              <option value="lmstudio">LM Studio</option>
+              <option value="vllm">vLLM</option>
+              <option value="custom">Custom Endpoint</option>
+            </optgroup>
+          </select>
+          <select class="login-input" id="agent-model" style="flex:1"></select>
+        </div>
+        <div id="local-endpoint-fields" style="display:none;margin-bottom:12px">
+          <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Endpoint URL</label>
+          <input type="url" class="login-input" id="agent-base-url" placeholder="http://localhost:11434" style="margin-bottom:4px">
+          <span style="font-size:11px;color:var(--gray-dim)">OpenAI-compatible chat/completions endpoint</span>
+        </div>
+        <div id="credit-hint" style="font-size:11px;color:var(--gray-dim);margin:-4px 0 8px;padding:0 2px"></div>
+        <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Monthly Budget (USD)</label>
+        <input type="number" class="login-input" id="agent-budget" placeholder="5.00" value="5" step="0.01" min="0">
+        <input type="password" class="login-input" id="agent-llm-key" placeholder="sk-ant-api03-... (optional — BYOK)" autocomplete="off">
+        <span id="agent-key-error" style="font-size:11px;color:var(--red);display:none"></span>
+        <div class="modal-actions" style="justify-content:space-between">
+          <a href="/persona-editor" id="btn-advanced-editor" style="font-size:12px;color:var(--purple);text-decoration:none;align-self:center" target="_blank">Advanced Editor (PMF)</a>
+          <div style="display:flex;gap:12px">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('modal-create')">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm">Create Agent</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══ PMF IMPORT MODE (new) ═══ -->
+    <div id="create-import-mode" style="display:none">
+      <!-- Step: Upload -->
+      <div id="pmf-step-upload">
+        <div class="pmf-drop-zone" id="pmf-drop-zone">
+          <div class="drop-icon">&#128196;</div>
+          <div class="drop-title">Drop a .pmf or .json file here</div>
+          <div class="drop-hint">or click to browse</div>
+          <input type="file" id="pmf-file-input" accept=".pmf,.json" style="display:none">
+        </div>
+
+        <div class="pmf-divider"><span>or paste JSON</span></div>
+
+        <textarea class="login-input" id="pmf-paste-area" placeholder='{"format":"portable-mind-format","version":"1.0","agent_name":"...","layers":{...}}' rows="6" style="resize:vertical;font-family:var(--font-mono);font-size:12px;line-height:1.5"></textarea>
+
+        <div class="modal-actions" style="justify-content:flex-end">
           <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('modal-create')">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">Create Agent</button>
+          <button type="button" class="btn btn-primary btn-sm" id="pmf-validate-btn" onclick="validateAndPreviewPMF()">Validate &amp; Preview</button>
         </div>
       </div>
-    </form>
+
+      <!-- Step: Preview -->
+      <div id="pmf-step-preview" style="display:none">
+        <div id="pmf-errors-container"></div>
+        <div id="pmf-warnings-container"></div>
+        <div id="pmf-preview-card"></div>
+
+        <div class="modal-actions" style="justify-content:space-between">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="pmfBackToUpload()">Back</button>
+          <div style="display:flex;gap:12px">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('modal-create')">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="pmf-create-btn" onclick="createAgentFromPMF()">Create Agent</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step: Creating -->
+      <div id="pmf-step-creating" style="display:none;text-align:center;padding:40px 0">
+        <div class="spinner" style="margin:0 auto 16px"></div>
+        <div style="font-size:14px;font-weight:600;color:var(--white)">Creating agent...</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:4px">Validating configuration and provisioning security layers.</div>
+      </div>
+
+      <!-- Step: Done -->
+      <div id="pmf-step-done" style="display:none;text-align:center;padding:40px 0">
+        <div style="font-size:32px;margin-bottom:12px">&#9989;</div>
+        <div style="font-size:16px;font-weight:700;color:var(--white)" id="pmf-done-name">Agent Created</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:4px">Your agent is ready on the dashboard.</div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
+          <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('modal-create'); loadDashboard();">Go to Dashboard</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="pmfReset()">Import Another</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2826,7 +2963,7 @@ function renderAgentCard(a, i) {
       <div class="agent-card-header" style="display:flex;align-items:center;gap:10px">
         ${avatarHtml}
         <div style="flex:1;min-width:0">
-          <div class="agent-card-name">${esc(a.name)}${a.is_platform_agent ? '<span title="Platform Agent" style="margin-left:6px;font-size:11px;vertical-align:middle;opacity:0.7">\uD83D\uDEE1\uFE0F</span>' : ''}</div>
+          <div class="agent-card-name">${esc(a.name)}${a.is_platform_agent ? '<span title="Platform Agent" style="margin-left:6px;font-size:11px;vertical-align:middle;opacity:0.7">\uD83D\uDEE1\uFE0F</span>' : ''}${a.is_canonical ? '<span title="Canonical Agent v' + esc(a.canonical_version || '1.0.0') + ' \u2014 Fork to customize" style="margin-left:4px;font-size:11px;cursor:help;opacity:0.7">\uD83D\uDD12</span>' : ''}${a.forked_from ? '<span title="Forked agent" style="margin-left:4px;font-size:11px;opacity:0.7">\uD83D\uDD00</span>' : ''}</div>
           ${a.persona_name ? `<div style="font-size:11px;color:var(--purple);opacity:0.8;margin-top:1px">${esc(a.persona_name)}</div>` : ''}
         </div>
         ${stateHtml}
@@ -2853,6 +2990,7 @@ function renderAgentCard(a, i) {
         : ''}
         ${!isCouncil && status !== 'terminated' ? `<button class="btn-kill" onclick="event.stopPropagation();confirmKill('${a.id}','${esc(a.name)}')">Kill <span class="key-badge">K</span></button>` : ''}
         ${status === 'terminated' ? `<button class="btn-revive" onclick="event.stopPropagation();reviveAgent('${a.id}','${esc(a.name)}')">Revive</button>` : ''}
+        ${a.is_canonical ? `<button class="btn-audit" style="color:#a78bfa;border-color:rgba(167,139,250,0.3)" onclick="event.stopPropagation();forkAgent('${a.id}','${esc(a.persona_name || a.name)}')">Fork</button>` : ''}
       </div>
     </div>`;
 }
@@ -3438,6 +3576,39 @@ async function openAgentDetail(agentId) {
         </a>
         <span style="color:var(--gray-dim);font-size:11px;margin-left:8px">Full 6-layer persona editor</span>
       </div>`;
+
+    // ── Context Layers section ──
+    const ctxLayers = a.context_layers || [];
+    html += `<div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="detail-label" style="margin:0">Context Layers</span>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="addContextLayer('${a.id}')">+ Add</button>
+      </div>`;
+    if (ctxLayers.length === 0) {
+      html += `<div style="font-size:12px;color:var(--gray-dim);padding:4px 0">No context layers. Add one to customize this agent's perspective.</div>`;
+    } else {
+      for (let ci = 0; ci < ctxLayers.length; ci++) {
+        html += `<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:12px;color:var(--gray)">
+          <span style="flex:1">${esc(ctxLayers[ci])}</span>
+          <button class="btn btn-ghost" style="font-size:10px;padding:2px 6px;color:var(--red)" onclick="removeContextLayer('${a.id}',${ci})">\u00D7</button>
+        </div>`;
+      }
+    }
+    html += '</div>';
+
+    // ── Canonical agent info + RFC button ──
+    if (a.is_canonical) {
+      html += `<div style="padding:12px 0;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:var(--gray-dim)">\uD83D\uDD12 Canonical v${esc(a.canonical_version || '1.0.0')}</span>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="submitRFC('${a.id}')">Suggest Improvement</button>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px;color:#a78bfa" onclick="forkAgent('${a.id}','${esc(a.persona_name || a.name)}')">Fork</button>
+      </div>`;
+    }
+    if (a.forked_from) {
+      html += `<div style="padding:8px 0;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray-dim)">
+        \uD83D\uDD00 Forked from <strong>${esc(a.forked_from)}</strong>${a.canonical_version ? ' \u00B7 v' + esc(a.canonical_version) : ''}
+      </div>`;
+    }
 
     // ── Heartbeat section ──
     const hb = hbRes.heartbeat;
@@ -4065,6 +4236,17 @@ function renderSecurityBar(layers) {
   return bar;
 }
 
+function renderIdentityBadge(ident) {
+  const badge = document.createElement('div');
+  badge.style.cssText = 'font-size:10px;color:#71717a;margin-top:4px;font-family:var(--mono);display:flex;align-items:center;gap:4px';
+  if (ident.agent_type === 'canonical') {
+    badge.innerHTML = '<span style="opacity:0.7">&#x1f512;</span> Canonical v' + esc(ident.version || '?') + (ident.framework ? ' &middot; ' + esc(ident.framework) : '');
+  } else if (ident.agent_type === 'fork') {
+    badge.innerHTML = '<span style="opacity:0.7">&#x1f500;</span> Fork of ' + esc(ident.forked_from_name || 'unknown') + (ident.canonical_version ? ' &middot; v' + esc(ident.canonical_version) : '');
+  }
+  return badge;
+}
+
 function renderMarkdown(text) {
   // Check for synthesis JSON — {agreements, tensions, gaps, recommendation, confidence}
   const synthesisHtml = tryRenderSynthesis(text);
@@ -4313,6 +4495,7 @@ function addChatMsg(role, text, layers, mettaSig, opts = {}) {
       sigDiv.innerHTML = `<span class="metta-short">METTA sig:${esc(mettaSig.slice(0, 16))}\u2026</span><span class="metta-full">${esc(mettaSig)}</span>`;
       div.appendChild(sigDiv);
     }
+    if (opts.agentIdentity) div.appendChild(renderIdentityBadge(opts.agentIdentity));
     checkExecApproval(text);
   }
 
@@ -4458,6 +4641,7 @@ async function sendChatMsg() {
       let tokens = 0;
       let streamLayers = [];
       let streamSig = null;
+      let streamIdentity = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -4481,6 +4665,7 @@ async function sendChatMsg() {
             }
             if (evt.layers_enforced) streamLayers = evt.layers_enforced;
             if (evt.metta_signature) streamSig = evt.metta_signature;
+            if (evt.agent_identity) streamIdentity = evt.agent_identity;
           } catch (_) {}
         }
         el.scrollTop = el.scrollHeight;
@@ -4497,6 +4682,7 @@ async function sendChatMsg() {
         sigDiv.innerHTML = `<span class="metta-short">METTA sig:${esc(streamSig.slice(0, 16))}\u2026</span><span class="metta-full">${esc(streamSig)}</span>`;
         msgDiv.appendChild(sigDiv);
       }
+      if (streamIdentity) msgDiv.appendChild(renderIdentityBadge(streamIdentity));
       // Add actions bar (thumbs up/down + copy)
       wrap.appendChild(buildMsgActions('assistant', () => textSpan.textContent, streamMsgIdx));
       // Add timestamp
@@ -4511,7 +4697,7 @@ async function sendChatMsg() {
       if (chatConversationId && chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, chatConversationId);
       let reply = '';
       if (data.content) { for (const block of data.content) { if (block.type === 'text') { reply = block.text; break; } } }
-      addChatMsg('assistant', reply || '(empty response)', data.layers_enforced || [], data.metta_signature || null);
+      addChatMsg('assistant', reply || '(empty response)', data.layers_enforced || [], data.metta_signature || null, { agentIdentity: data.agent_identity || null });
     }
   } catch (e) {
     typingWrap.remove();
@@ -4817,6 +5003,270 @@ document.getElementById('create-agent-form').addEventListener('submit', async (e
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════
+// ── PMF IMPORT FLOW ──
+// ═══════════════════════════════════════════════════════════════════
+
+let pmfRawJson = '';
+let pmfParsed = null;
+let pmfFileName = null;
+
+// Mode toggle between Template and Import
+function setCreateMode(mode) {
+  const templateMode = document.getElementById('create-template-mode');
+  const importMode = document.getElementById('create-import-mode');
+  const templateBtn = document.getElementById('mode-template-btn');
+  const importBtn = document.getElementById('mode-import-btn');
+  if (mode === 'template') {
+    templateMode.style.display = '';
+    importMode.style.display = 'none';
+    templateBtn.classList.add('active');
+    importBtn.classList.remove('active');
+  } else {
+    templateMode.style.display = 'none';
+    importMode.style.display = '';
+    templateBtn.classList.remove('active');
+    importBtn.classList.add('active');
+    pmfReset();
+  }
+}
+
+// Reset PMF import to upload step
+function pmfReset() {
+  pmfRawJson = '';
+  pmfParsed = null;
+  pmfFileName = null;
+  document.getElementById('pmf-paste-area').value = '';
+  document.getElementById('pmf-step-upload').style.display = '';
+  document.getElementById('pmf-step-preview').style.display = 'none';
+  document.getElementById('pmf-step-creating').style.display = 'none';
+  document.getElementById('pmf-step-done').style.display = 'none';
+  document.getElementById('pmf-errors-container').innerHTML = '';
+  document.getElementById('pmf-warnings-container').innerHTML = '';
+  document.getElementById('pmf-preview-card').innerHTML = '';
+  const createBtn = document.getElementById('pmf-create-btn');
+  if (createBtn) createBtn.disabled = false;
+}
+
+function pmfBackToUpload() {
+  document.getElementById('pmf-step-preview').style.display = 'none';
+  document.getElementById('pmf-step-upload').style.display = '';
+}
+
+// Drag & drop
+const dropZone = document.getElementById('pmf-drop-zone');
+const fileInput = document.getElementById('pmf-file-input');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handlePMFFile(file);
+});
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) handlePMFFile(file);
+  fileInput.value = '';
+});
+
+function handlePMFFile(file) {
+  if (!file.name.endsWith('.pmf') && !file.name.endsWith('.json')) {
+    toast('File must be .pmf or .json', 'error');
+    return;
+  }
+  pmfFileName = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    pmfRawJson = e.target.result;
+    document.getElementById('pmf-paste-area').value = pmfRawJson;
+    validateAndPreviewPMF();
+  };
+  reader.onerror = () => toast('Failed to read file', 'error');
+  reader.readAsText(file);
+}
+
+// Client-side PMF validation (mirrors server-side logic)
+function validatePMFClient(raw) {
+  const errors = [];
+  const warnings = [];
+  let parsed;
+
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    return { valid: false, errors: ['Invalid JSON: ' + e.message], warnings: [], parsed: null };
+  }
+
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return { valid: false, errors: ['PMF must be a JSON object.'], warnings: [], parsed: null };
+  }
+
+  if (parsed.format !== 'portable-mind-format') {
+    warnings.push('Missing format: "portable-mind-format". File will be treated as raw agent JSON.');
+  }
+
+  const layers = parsed.layers;
+  if (parsed.format === 'portable-mind-format' && !layers) {
+    errors.push('PMF files must have a "layers" object.');
+  }
+
+  if (layers && typeof layers === 'object') {
+    if (!layers.identity) errors.push('Missing required layer: "identity"');
+    if (!layers.values) warnings.push('No values layer defined. Agent will use default value framework.');
+    if (!parsed.agent_name && !layers.identity?.persona_name) {
+      errors.push('Missing agent name. Set "agent_name" or "layers.identity.persona_name".');
+    }
+    if (!layers.knowledge) warnings.push('No knowledge layer. Agent will rely on base model knowledge only.');
+    if (!layers.capabilities) warnings.push('No capabilities layer. Default model and budget will be used.');
+    if (!layers.differentiation) warnings.push('No differentiation layer. Without this, the agent may behave like a generic chatbot.');
+    if (!layers.memory) warnings.push('No memory layer. Agent memory will be disabled.');
+    if (layers.capabilities?.installed_skills && !Array.isArray(layers.capabilities.installed_skills)) {
+      errors.push('capabilities.installed_skills must be an array of strings.');
+    }
+  } else if (!layers) {
+    if (!parsed.name && !parsed.agent_name && !parsed.persona_name) {
+      errors.push('Missing agent name. Provide a name, agent_name, or persona_name field.');
+    }
+  }
+
+  const byteSize = new TextEncoder().encode(raw).length;
+  if (byteSize > 500000) {
+    errors.push('PMF file is ' + Math.round(byteSize / 1000) + 'KB. Maximum is 500KB.');
+  } else if (byteSize > 100000) {
+    warnings.push('PMF file is ' + Math.round(byteSize / 1000) + 'KB. Consider trimming knowledge_base.');
+  }
+
+  return { valid: errors.length === 0, errors, warnings, parsed: errors.length === 0 ? parsed : null };
+}
+
+function validateAndPreviewPMF() {
+  const text = document.getElementById('pmf-paste-area').value.trim();
+  if (!text) { toast('Paste PMF JSON or upload a file first', 'error'); return; }
+
+  pmfRawJson = text;
+  const result = validatePMFClient(text);
+  pmfParsed = result.parsed;
+
+  // Show preview step
+  document.getElementById('pmf-step-upload').style.display = 'none';
+  document.getElementById('pmf-step-preview').style.display = '';
+
+  // Render errors
+  const errC = document.getElementById('pmf-errors-container');
+  if (result.errors.length > 0) {
+    errC.innerHTML = '<div class="pmf-errors"><div class="err-title">' + result.errors.length + ' error' + (result.errors.length > 1 ? 's' : '') + ' found:</div><ul>' +
+      result.errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul></div>';
+  } else {
+    errC.innerHTML = '';
+  }
+
+  // Render warnings
+  const warnC = document.getElementById('pmf-warnings-container');
+  if (result.warnings.length > 0) {
+    warnC.innerHTML = '<div class="pmf-warnings"><div class="warn-title">' + result.warnings.length + ' warning' + (result.warnings.length > 1 ? 's' : '') + ':</div><ul>' +
+      result.warnings.map(w => '<li>' + escapeHtml(w) + '</li>').join('') + '</ul></div>';
+  } else {
+    warnC.innerHTML = '';
+  }
+
+  // Render preview card
+  const previewC = document.getElementById('pmf-preview-card');
+  const createBtn = document.getElementById('pmf-create-btn');
+  if (!result.valid) {
+    previewC.innerHTML = '';
+    createBtn.disabled = true;
+    createBtn.style.opacity = '0.5';
+    return;
+  }
+
+  createBtn.disabled = false;
+  createBtn.style.opacity = '1';
+
+  const p = result.parsed;
+  const l = p.layers || {};
+  const name = p.agent_name || l.identity?.persona_name || 'Unnamed Agent';
+  const designation = l.identity?.persona_designation || '';
+  const skillCount = l.capabilities?.installed_skills?.length || 0;
+  const hasMemory = l.memory?.memory_enabled ? 1 : 0;
+  const principleCount = l.values?.value_principles?.length || 0;
+  const model = l.capabilities?.model || 'default';
+  const tone = l.identity?.voice_tone || '';
+
+  let toneHtml = '';
+  if (tone) {
+    const tones = tone.split(',').map(t => t.trim()).filter(Boolean);
+    toneHtml = '<div class="preview-tone">Voice: ' + tones.map(t => '<span class="tone-tag">' + escapeHtml(t) + '</span>').join('') + '</div>';
+  }
+
+  let badges = [];
+  if (l.differentiation?.differentiation_statement) badges.push('&#128171; Has differentiation');
+  if (l.memory?.memory_enabled) badges.push('&#129504; Memory enabled');
+  if (l.capabilities?.conference_group?.length) badges.push('&#128101; Council member');
+
+  previewC.innerHTML = '<div class="pmf-preview">' +
+    '<div class="preview-name">' + escapeHtml(name) + '</div>' +
+    (designation ? '<div class="preview-designation">' + escapeHtml(designation) + '</div>' : '') +
+    (pmfFileName ? '<div style="font-size:11px;color:var(--gray-dim);margin-bottom:12px">File: ' + escapeHtml(pmfFileName) + '</div>' : '') +
+    '<div class="preview-stats">' +
+      '<div class="stat-box"><div class="stat-val">' + skillCount + '</div><div class="stat-label">Skills</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + principleCount + '</div><div class="stat-label">Principles</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + hasMemory + '</div><div class="stat-label">Memory</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + escapeHtml(model.split('/').pop().split('-')[0]) + '</div><div class="stat-label">Model</div></div>' +
+    '</div>' +
+    toneHtml +
+    (badges.length ? '<div class="preview-badges">' + badges.join(' &middot; ') + '</div>' : '') +
+  '</div>';
+}
+
+// Helper — escape HTML entities
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = String(text);
+  return d.innerHTML;
+}
+
+async function createAgentFromPMF() {
+  if (!pmfRawJson || !pmfParsed) return;
+
+  const createBtn = document.getElementById('pmf-create-btn');
+  createBtn.disabled = true;
+  document.getElementById('pmf-step-preview').style.display = 'none';
+  document.getElementById('pmf-step-creating').style.display = '';
+
+  try {
+    await api('POST', '/api/agents', {
+      source: 'pmf_import',
+      pmf_raw: pmfRawJson,
+    });
+
+    const name = pmfParsed.agent_name || pmfParsed.layers?.identity?.persona_name || 'Agent';
+    document.getElementById('pmf-step-creating').style.display = 'none';
+    document.getElementById('pmf-step-done').style.display = '';
+    document.getElementById('pmf-done-name').textContent = name + ' Created';
+    toast(name + ' created successfully', 'success');
+    loadDashboard();
+  } catch (e) {
+    document.getElementById('pmf-step-creating').style.display = 'none';
+    document.getElementById('pmf-step-preview').style.display = '';
+    createBtn.disabled = false;
+    toast('Failed to create agent: ' + e.message, 'error');
+  }
+}
+
+// Reset PMF import state when modal closes
+const origCloseModal = window.closeModal;
+window.closeModal = function(id) {
+  if (id === 'modal-create') {
+    setCreateMode('template');
+  }
+  origCloseModal(id);
+};
+
+// ═══════════════════════════════════════════════════════════════════
+
 // ── KILL CEREMONY ──
 let killTargetId = null;
 let killTargetName = '';
@@ -4890,6 +5340,50 @@ async function reviveAgent(agentId, agentName) {
     }, 2500);
   } catch (e) {
     toast('Failed to revive agent: ' + e.message, 'error');
+  }
+}
+
+// ── Canonical Agent Actions ──
+
+async function forkAgent(agentId, agentName) {
+  if (!confirm(`Fork "${agentName}" into your own customizable version?`)) return;
+  try {
+    const res = await api('POST', `/api/agents/${agentId}/fork`);
+    toast(`Forked! "${res.agent.name}" created.`, 'success');
+    loadAgents();
+  } catch (e) {
+    toast('Failed to fork agent: ' + e.message, 'error');
+  }
+}
+
+async function addContextLayer(agentId) {
+  const text = prompt('Enter context (e.g. "You\'re advising a medical startup"):');
+  if (!text || !text.trim()) return;
+  try {
+    await api('POST', `/api/agents/${agentId}/context`, { text: text.trim() });
+    openAgentDetail(agentId);
+  } catch (e) {
+    toast('Failed to add context: ' + e.message, 'error');
+  }
+}
+
+async function removeContextLayer(agentId, index) {
+  try {
+    await api('DELETE', `/api/agents/${agentId}/context/${index}`);
+    openAgentDetail(agentId);
+  } catch (e) {
+    toast('Failed to remove context: ' + e.message, 'error');
+  }
+}
+
+async function submitRFC(agentId) {
+  const text = prompt('Describe your improvement suggestion for this canonical agent:');
+  if (!text || !text.trim()) return;
+  try {
+    await api('POST', `/api/agents/${agentId}/rfc`, { suggestion_text: text.trim() });
+    toast('Suggestion submitted. Thank you!', 'success');
+  } catch (e) {
+    toast('Failed to submit suggestion: ' + e.message, 'error');
   }
 }
 

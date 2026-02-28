@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, SignInButton } from "@clerk/nextjs";
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -442,7 +442,29 @@ function PersonaEditorContent() {
   if (!isSignedIn) {
     return (
       <div style={S.page}>
-        <div style={S.emptyState}>Please sign in to access the Persona Editor.</div>
+        <div style={S.emptyState}>
+          <p style={{ marginBottom: "16px" }}>Please sign in to access the Persona Editor.</p>
+          <SignInButton
+            mode="modal"
+            forceRedirectUrl={typeof window !== "undefined" ? window.location.href : "/persona-editor"}
+          >
+            <button
+              style={{
+                background: "#7C3AED",
+                color: "#F0EFF4",
+                border: "none",
+                padding: "12px 32px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Sign In
+            </button>
+          </SignInButton>
+        </div>
       </div>
     );
   }

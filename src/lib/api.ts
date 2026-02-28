@@ -178,12 +178,14 @@ export async function getAgents() {
 
 /**
  * POST /api/agents — create a new agent.
+ * Accepts both simple form data and full PMF-flattened payloads.
  */
 export async function createAgent(body: {
   name: string;
-  system_prompt: string;
+  system_prompt?: string;
   model?: string;
   monthly_budget_usd?: number;
+  [key: string]: unknown;
 }) {
   const res = await sammaApiFetch("/api/agents", {
     method: "POST",
