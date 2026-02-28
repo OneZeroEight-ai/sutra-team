@@ -5089,6 +5089,13 @@ function handlePMFFile(file) {
 }
 
 // Client-side PMF validation (mirrors server-side logic)
+function detectPMFFormat(obj) {
+  if (obj.format === 'portable-mind-format' && obj.layers) return 'layered';
+  if (obj.schema_version || (obj.name && obj.voice_parameters)) return 'flat';
+  if (obj.layers) return 'layered';
+  return 'unknown';
+}
+
 function validatePMFClient(raw) {
   const errors = [];
   const warnings = [];
@@ -5097,39 +5104,53 @@ function validatePMFClient(raw) {
   try {
     parsed = JSON.parse(raw);
   } catch (e) {
-    return { valid: false, errors: ['Invalid JSON: ' + e.message], warnings: [], parsed: null };
+    return { valid: false, errors: ['Invalid JSON: ' + e.message], warnings: [], parsed: null, format: 'unknown' };
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    return { valid: false, errors: ['PMF must be a JSON object.'], warnings: [], parsed: null };
+    return { valid: false, errors: ['PMF must be a JSON object.'], warnings: [], parsed: null, format: 'unknown' };
   }
 
-  if (parsed.format !== 'portable-mind-format') {
-    warnings.push('Missing format: "portable-mind-format". File will be treated as raw agent JSON.');
-  }
+  const fmt = detectPMFFormat(parsed);
 
-  const layers = parsed.layers;
-  if (parsed.format === 'portable-mind-format' && !layers) {
-    errors.push('PMF files must have a "layers" object.');
-  }
-
-  if (layers && typeof layers === 'object') {
-    if (!layers.identity) errors.push('Missing required layer: "identity"');
-    if (!layers.values) warnings.push('No values layer defined. Agent will use default value framework.');
+  if (fmt === 'flat') {
+    // ── Flat PMF spec format ──
+    if (!parsed.name || typeof parsed.name !== 'string') {
+      errors.push('Missing required field: "name" (string).');
+    }
+    if (!parsed.designation) warnings.push('No designation provided.');
+    if (!parsed.voice_parameters || typeof parsed.voice_parameters !== 'object') {
+      warnings.push('No voice_parameters defined. Agent will use default voice.');
+    } else if (!Array.isArray(parsed.voice_parameters.tone_descriptors) || parsed.voice_parameters.tone_descriptors.length === 0) {
+      warnings.push('voice_parameters.tone_descriptors is empty.');
+    }
+    if (!parsed.value_framework) warnings.push('No value_framework defined.');
+    if (!parsed.skills || !Array.isArray(parsed.skills) || parsed.skills.length === 0) {
+      warnings.push('No skills defined. Agent will only be able to chat.');
+    }
+    if (!parsed.channels || !Array.isArray(parsed.channels) || parsed.channels.length === 0) {
+      warnings.push('No channels defined. Agent will only be available on the dashboard.');
+    }
+    if (!parsed.behavioral_constraints) warnings.push('No behavioral constraints defined.');
+    if (!parsed.differentiation) warnings.push('No differentiation block.');
+  } else if (fmt === 'layered') {
+    // ── Layered persona-editor export format ──
+    const layers = parsed.layers;
+    if (!layers.identity) errors.push('Missing required layer: "identity".');
     if (!parsed.agent_name && !layers.identity?.persona_name) {
-      errors.push('Missing agent name. Set "agent_name" or "layers.identity.persona_name".');
+      errors.push('Missing agent name.');
     }
-    if (!layers.knowledge) warnings.push('No knowledge layer. Agent will rely on base model knowledge only.');
-    if (!layers.capabilities) warnings.push('No capabilities layer. Default model and budget will be used.');
-    if (!layers.differentiation) warnings.push('No differentiation layer. Without this, the agent may behave like a generic chatbot.');
-    if (!layers.memory) warnings.push('No memory layer. Agent memory will be disabled.');
-    if (layers.capabilities?.installed_skills && !Array.isArray(layers.capabilities.installed_skills)) {
-      errors.push('capabilities.installed_skills must be an array of strings.');
-    }
-  } else if (!layers) {
+    if (!layers.values) warnings.push('No values layer defined.');
+    if (!layers.knowledge) warnings.push('No knowledge layer.');
+    if (!layers.capabilities) warnings.push('No capabilities layer.');
+    if (!layers.differentiation) warnings.push('No differentiation layer.');
+    if (!layers.memory) warnings.push('No memory layer.');
+  } else {
+    // Unknown — need at least a name
     if (!parsed.name && !parsed.agent_name && !parsed.persona_name) {
-      errors.push('Missing agent name. Provide a name, agent_name, or persona_name field.');
+      errors.push('Missing agent name.');
     }
+    warnings.push('Unrecognized PMF format. File will be imported as raw agent JSON.');
   }
 
   const byteSize = new TextEncoder().encode(raw).length;
@@ -5139,7 +5160,7 @@ function validatePMFClient(raw) {
     warnings.push('PMF file is ' + Math.round(byteSize / 1000) + 'KB. Consider trimming knowledge_base.');
   }
 
-  return { valid: errors.length === 0, errors, warnings, parsed: errors.length === 0 ? parsed : null };
+  return { valid: errors.length === 0, errors, warnings, parsed: errors.length === 0 ? parsed : null, format: fmt };
 }
 
 function validateAndPreviewPMF() {
@@ -5186,38 +5207,79 @@ function validateAndPreviewPMF() {
   createBtn.style.opacity = '1';
 
   const p = result.parsed;
-  const l = p.layers || {};
-  const name = p.agent_name || l.identity?.persona_name || 'Unnamed Agent';
-  const designation = l.identity?.persona_designation || '';
-  const skillCount = l.capabilities?.installed_skills?.length || 0;
-  const hasMemory = l.memory?.memory_enabled ? 1 : 0;
-  const principleCount = l.values?.value_principles?.length || 0;
-  const model = l.capabilities?.model || 'default';
-  const tone = l.identity?.voice_tone || '';
+  const fmt = result.format;
+  let name, designation, tagline, skillCount, principleCount, heartbeatCount, channelCount, model, toneDescriptors, hardConstraints, softConstraints, badges;
 
-  let toneHtml = '';
-  if (tone) {
-    const tones = tone.split(',').map(t => t.trim()).filter(Boolean);
-    toneHtml = '<div class="preview-tone">Voice: ' + tones.map(t => '<span class="tone-tag">' + escapeHtml(t) + '</span>').join('') + '</div>';
+  if (fmt === 'flat') {
+    // ── Flat PMF spec format ──
+    name = p.name || 'Unnamed Agent';
+    designation = p.designation || '';
+    tagline = p.tagline || '';
+    skillCount = Array.isArray(p.skills) ? p.skills.length : 0;
+    principleCount = p.value_framework?.principles?.length || 0;
+    heartbeatCount = p.heartbeat?.schedules?.length || 0;
+    channelCount = Array.isArray(p.channels) ? p.channels.length : 0;
+    model = p.security?.model_routing?.default || 'default';
+    toneDescriptors = Array.isArray(p.voice_parameters?.tone_descriptors) ? p.voice_parameters.tone_descriptors : [];
+    hardConstraints = Array.isArray(p.behavioral_constraints?.hardcoded) ? p.behavioral_constraints.hardcoded.length : 0;
+    softConstraints = Array.isArray(p.behavioral_constraints?.softcoded) ? p.behavioral_constraints.softcoded.length : 0;
+    badges = [];
+    if (p.differentiation?.differentiation_statement) badges.push('&#128171; Differentiation');
+    if (p.council_context) badges.push('&#128101; Council member');
+    if (p.security?.samma_suit_layers?.length) badges.push('&#128737; ' + p.security.samma_suit_layers.length + ' security layers');
+  } else {
+    // ── Layered persona-editor export format ──
+    const l = p.layers || {};
+    name = p.agent_name || l.identity?.persona_name || 'Unnamed Agent';
+    designation = l.identity?.persona_designation || '';
+    tagline = '';
+    skillCount = l.capabilities?.installed_skills?.length || 0;
+    principleCount = l.values?.value_principles?.length || 0;
+    heartbeatCount = 0;
+    channelCount = 0;
+    model = l.capabilities?.model || 'default';
+    toneDescriptors = l.identity?.voice_tone ? l.identity.voice_tone.split(',').map(t => t.trim()).filter(Boolean) : [];
+    hardConstraints = l.differentiation?.hardcoded_limits?.length || 0;
+    softConstraints = l.differentiation?.softcoded_defaults?.length || 0;
+    badges = [];
+    if (l.differentiation?.differentiation_statement) badges.push('&#128171; Differentiation');
+    if (l.memory?.memory_enabled) badges.push('&#129504; Memory enabled');
+    if (l.capabilities?.conference_group?.length) badges.push('&#128101; Council member');
   }
 
-  let badges = [];
-  if (l.differentiation?.differentiation_statement) badges.push('&#128171; Has differentiation');
-  if (l.memory?.memory_enabled) badges.push('&#129504; Memory enabled');
-  if (l.capabilities?.conference_group?.length) badges.push('&#128101; Council member');
+  // Build tone tags
+  let toneHtml = '';
+  if (toneDescriptors.length > 0) {
+    toneHtml = '<div class="preview-tone">Voice: ' + toneDescriptors.map(t => '<span class="tone-tag">' + escapeHtml(t) + '</span>').join('') + '</div>';
+  }
+
+  // Build constraints line
+  let constraintHtml = '';
+  if (hardConstraints > 0 || softConstraints > 0) {
+    const parts = [];
+    if (hardConstraints > 0) parts.push(hardConstraints + ' hardcoded');
+    if (softConstraints > 0) parts.push(softConstraints + ' softcoded');
+    constraintHtml = '<div style="font-size:11px;color:var(--gray);margin-top:4px">Constraints: ' + parts.join(', ') + '</div>';
+  }
+
+  // Friendly model name
+  const modelDisplay = model.split('/').pop().replace(/-\d{8}$/, '').replace(/-/g, ' ');
 
   previewC.innerHTML = '<div class="pmf-preview">' +
     '<div class="preview-name">' + escapeHtml(name) + '</div>' +
     (designation ? '<div class="preview-designation">' + escapeHtml(designation) + '</div>' : '') +
+    (tagline ? '<div style="font-size:12px;font-style:italic;color:var(--gray);margin-bottom:8px">"' + escapeHtml(tagline) + '"</div>' : '') +
     (pmfFileName ? '<div style="font-size:11px;color:var(--gray-dim);margin-bottom:12px">File: ' + escapeHtml(pmfFileName) + '</div>' : '') +
     '<div class="preview-stats">' +
       '<div class="stat-box"><div class="stat-val">' + skillCount + '</div><div class="stat-label">Skills</div></div>' +
       '<div class="stat-box"><div class="stat-val">' + principleCount + '</div><div class="stat-label">Principles</div></div>' +
-      '<div class="stat-box"><div class="stat-val">' + hasMemory + '</div><div class="stat-label">Memory</div></div>' +
-      '<div class="stat-box"><div class="stat-val">' + escapeHtml(model.split('/').pop().split('-')[0]) + '</div><div class="stat-label">Model</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + heartbeatCount + '</div><div class="stat-label">Heartbeats</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + channelCount + '</div><div class="stat-label">Channels</div></div>' +
     '</div>' +
+    '<div style="font-size:11px;color:var(--gray);margin-bottom:8px">Model: <span style="color:var(--cyan)">' + escapeHtml(modelDisplay) + '</span></div>' +
     toneHtml +
-    (badges.length ? '<div class="preview-badges">' + badges.join(' &middot; ') + '</div>' : '') +
+    constraintHtml +
+    (badges.length ? '<div class="preview-badges" style="margin-top:8px">' + badges.join(' &middot; ') + '</div>' : '') +
   '</div>';
 }
 
@@ -5242,7 +5304,7 @@ async function createAgentFromPMF() {
       pmf_raw: pmfRawJson,
     });
 
-    const name = pmfParsed.agent_name || pmfParsed.layers?.identity?.persona_name || 'Agent';
+    const name = pmfParsed.name || pmfParsed.agent_name || pmfParsed.layers?.identity?.persona_name || 'Agent';
     document.getElementById('pmf-step-creating').style.display = 'none';
     document.getElementById('pmf-step-done').style.display = '';
     document.getElementById('pmf-done-name').textContent = name + ' Created';
