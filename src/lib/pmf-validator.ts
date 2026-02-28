@@ -134,6 +134,8 @@ export function validatePMF(raw: string): PMFValidationResult {
 /**
  * Flatten a PMF file into the shape the Samma Suit API expects for agent creation.
  * Handles both flat (spec) and layered (persona-editor) formats.
+ * Critically, builds a COMPREHENSIVE system_prompt from ALL PMF fields so
+ * the agent's persona actually governs LLM responses.
  */
 export function flattenPMF(pmf: Record<string, unknown>): Record<string, unknown> {
   const fmt = detectFormat(pmf);
@@ -141,121 +143,285 @@ export function flattenPMF(pmf: Record<string, unknown>): Record<string, unknown
   if (fmt === "layered") {
     return flattenLayered(pmf);
   }
-  // Flat or unknown — map from top-level fields
   return flattenFlat(pmf);
 }
 
-function flattenFlat(pmf: Record<string, unknown>): Record<string, unknown> {
-  const vp = (pmf.voice_parameters || {}) as Record<string, unknown>;
-  const vf = (pmf.value_framework || {}) as Record<string, unknown>;
-  const sec = (pmf.security || {}) as Record<string, unknown>;
-  const mr = (sec.model_routing || {}) as Record<string, unknown>;
-  const bc = (pmf.behavioral_constraints || {}) as Record<string, unknown>;
-  const diff = (pmf.differentiation || {}) as Record<string, unknown>;
-  const hb = (pmf.heartbeat || {}) as Record<string, unknown>;
-  const kb = (pmf.knowledge_base || {}) as Record<string, unknown>;
+// ── Helpers ──────────────────────────────────────────────────────
 
-  // Build a system_prompt from origin_narrative or a generated summary
-  const origin = pmf.origin_narrative as string | undefined;
-  const designation = pmf.designation as string | undefined;
-  const systemPrompt = origin || (designation ? `You are ${pmf.name}. ${designation}.` : "");
+type R = Record<string, unknown>;
 
-  // Extract principle names if they're objects
-  const principles = Array.isArray(vf.principles)
-    ? vf.principles.map((p: unknown) =>
-        typeof p === "object" && p !== null ? (p as Record<string, unknown>).name || String(p) : String(p),
-      )
-    : undefined;
+function str(v: unknown): string {
+  return typeof v === "string" ? v : "";
+}
+
+function arr(v: unknown): unknown[] {
+  return Array.isArray(v) ? v : [];
+}
+
+// ── Build comprehensive system prompt from flat PMF ──────────────
+
+function buildSystemPromptFromFlatPMF(pmf: R): string {
+  const sections: string[] = [];
+
+  // ── Identity ──
+  sections.push(`You are ${pmf.name}.`);
+  if (pmf.designation) sections.push(str(pmf.designation));
+  if (pmf.origin_narrative) sections.push(str(pmf.origin_narrative));
+  if (pmf.tagline) sections.push(`Tagline: "${pmf.tagline}"`);
+
+  // ── Voice ──
+  const vp = (pmf.voice_parameters || {}) as R;
+  const voiceParts: string[] = [];
+  if (arr(vp.tone_descriptors).length) {
+    voiceParts.push(`Your tone is: ${(vp.tone_descriptors as string[]).join(", ")}.`);
+  }
+  if (arr(vp.opening_patterns).length) {
+    voiceParts.push(`Opening patterns: ${(vp.opening_patterns as string[]).join(" | ")}`);
+  }
+  if (vp.closing_signature) {
+    voiceParts.push(`Closing signature: ${vp.closing_signature}`);
+  }
+  if (arr(vp.avoidance_patterns).length) {
+    voiceParts.push(`NEVER do these: ${(vp.avoidance_patterns as string[]).join("; ")}`);
+  }
+  if (vp.vocabulary_preferences && typeof vp.vocabulary_preferences === "object") {
+    const entries = Object.entries(vp.vocabulary_preferences as Record<string, string>);
+    if (entries.length) {
+      voiceParts.push(
+        `Vocabulary: ${entries.map(([k, v]) => `Use "${v}" instead of "${k}"`).join(". ")}`,
+      );
+    }
+  }
+  if (vp.response_length) {
+    voiceParts.push(`Response length: ${vp.response_length}`);
+  }
+  if (vp.formality_range && Array.isArray(vp.formality_range)) {
+    voiceParts.push(`Formality range: ${vp.formality_range[0]}-${vp.formality_range[1]} (0=casual, 10=formal)`);
+  }
+  if (vp.platform_adaptations && typeof vp.platform_adaptations === "object") {
+    for (const [platform, config] of Object.entries(vp.platform_adaptations as Record<string, R>)) {
+      const parts = [platform + ":"];
+      if (config.tone_shift) parts.push(str(config.tone_shift));
+      if (config.max_length) parts.push(`(max ${config.max_length} chars)`);
+      if (config.hashtag_limit) parts.push(`(max ${config.hashtag_limit} hashtags)`);
+      if (config.format_preference) parts.push(`format: ${config.format_preference}`);
+      voiceParts.push(`On ${parts.join(" ")}`);
+    }
+  }
+  if (arr(vp.example_phrases).length) {
+    voiceParts.push(
+      `Example phrases that capture your voice: ${(vp.example_phrases as string[]).map((p) => `"${p}"`).join("; ")}`,
+    );
+  }
+  if (voiceParts.length) {
+    sections.push("\n## VOICE\n" + voiceParts.join("\n"));
+  }
+
+  // ── Value Framework ──
+  const vf = (pmf.value_framework || {}) as R;
+  const valueParts: string[] = [];
+  if (vf.primary_framework) {
+    valueParts.push(`Primary framework: ${vf.primary_framework}`);
+  }
+  if (arr(vf.principles).length) {
+    valueParts.push("Principles (ranked by priority):");
+    for (const p of vf.principles as R[]) {
+      valueParts.push(`  #${p.rank || "?"} ${p.name}: ${p.description || ""}`);
+    }
+  }
+  if (vf.uncertainty_protocol) {
+    valueParts.push(`When uncertain: ${vf.uncertainty_protocol}`);
+  }
+  if (valueParts.length) {
+    sections.push("\n## VALUES\n" + valueParts.join("\n"));
+  }
+
+  // ── Behavioral Constraints ──
+  const bc = (pmf.behavioral_constraints || {}) as R;
+  const constraintParts: string[] = [];
+  if (arr(bc.hardcoded).length) {
+    constraintParts.push("ABSOLUTE CONSTRAINTS (never violate):");
+    for (const c of bc.hardcoded as R[]) {
+      constraintParts.push(`  - [${c.type || "rule"}] ${c.description}`);
+    }
+  }
+  if (arr(bc.softcoded).length) {
+    constraintParts.push("Default behaviors (can be overridden when noted):");
+    for (const c of bc.softcoded as R[]) {
+      constraintParts.push(
+        `  - ${c.description}${c.override_condition ? ` (override: ${c.override_condition})` : ""}`,
+      );
+    }
+  }
+  if (arr(bc.escalation_rules).length) {
+    constraintParts.push("Escalation rules:");
+    for (const r of bc.escalation_rules as R[]) {
+      constraintParts.push(`  - When: ${r.trigger} → Action: ${r.action}`);
+    }
+  }
+  if (arr(bc.boundary_definitions).length) {
+    constraintParts.push("Scope boundaries:");
+    for (const b of bc.boundary_definitions as string[]) {
+      constraintParts.push(`  - ${b}`);
+    }
+  }
+  if (constraintParts.length) {
+    sections.push("\n## CONSTRAINTS\n" + constraintParts.join("\n"));
+  }
+
+  // ── Knowledge Base ──
+  const kb = (pmf.knowledge_base || {}) as R;
+  const knowledgeParts: string[] = [];
+  if (arr(kb.core_references).length) {
+    for (const ref of kb.core_references as R[]) {
+      knowledgeParts.push(`Reference: ${ref.title} (${ref.type}, source: ${ref.source || "n/a"})`);
+      if (arr(ref.key_passages).length) {
+        for (const p of ref.key_passages as string[]) {
+          knowledgeParts.push(`  - ${p}`);
+        }
+      }
+      if (ref.usage_guidance) {
+        knowledgeParts.push(`  Usage: ${ref.usage_guidance}`);
+      }
+    }
+  }
+  if (arr(kb.domain_expertise).length) {
+    knowledgeParts.push(`Domain expertise: ${(kb.domain_expertise as string[]).join(", ")}`);
+  }
+  if (arr(kb.knowledge_gaps).length) {
+    knowledgeParts.push(
+      `Knowledge gaps (defer on these topics): ${(kb.knowledge_gaps as string[]).join("; ")}`,
+    );
+  }
+  if (knowledgeParts.length) {
+    sections.push("\n## KNOWLEDGE\n" + knowledgeParts.join("\n"));
+  }
+
+  // ── Differentiation ──
+  const diff = (pmf.differentiation || {}) as R;
+  const diffParts: string[] = [];
+  if (diff.differentiation_statement) {
+    diffParts.push(str(diff.differentiation_statement));
+  }
+  if (arr(diff.base_model_divergence_points).length) {
+    diffParts.push("How you differ from a generic AI:");
+    for (const d of diff.base_model_divergence_points as string[]) {
+      diffParts.push(`  - ${d}`);
+    }
+  }
+  if (arr(diff.signature_elements).length) {
+    diffParts.push("Signature elements in every response:");
+    for (const s of diff.signature_elements as string[]) {
+      diffParts.push(`  - ${s}`);
+    }
+  }
+  if (diffParts.length) {
+    sections.push("\n## DIFFERENTIATION\n" + diffParts.join("\n"));
+  }
+
+  // ── Skills & Channels ──
+  const opParts: string[] = [];
+  if (arr(pmf.skills).length) {
+    opParts.push(`Available skills: ${(pmf.skills as string[]).join(", ")}`);
+  }
+  if (arr(pmf.channels).length) {
+    opParts.push(`Active channels: ${(pmf.channels as string[]).join(", ")}`);
+  }
+  const hb = (pmf.heartbeat || {}) as R;
+  if (arr(hb.schedules).length) {
+    opParts.push("Scheduled tasks:");
+    for (const s of hb.schedules as R[]) {
+      opParts.push(`  - ${s.name}: ${s.action} (${s.cron})`);
+    }
+  }
+  if (opParts.length) {
+    sections.push("\n## OPERATIONAL\n" + opParts.join("\n"));
+  }
+
+  return sections.join("\n\n");
+}
+
+// ── Build comprehensive system prompt from layered PMF ───────────
+
+function buildSystemPromptFromLayeredPMF(pmf: R): string {
+  const layers = pmf.layers as R;
+  const id = (layers.identity || {}) as R;
+  const val = (layers.values || {}) as R;
+  const diff = (layers.differentiation || {}) as R;
+  const kn = (layers.knowledge || {}) as R;
+
+  const sections: string[] = [];
+
+  // Identity
+  const name = pmf.agent_name || id.persona_name || "Agent";
+  sections.push(`You are ${name}.`);
+  if (id.persona_designation) sections.push(str(id.persona_designation));
+  if (id.origin_narrative) sections.push(str(id.origin_narrative));
+
+  // Voice
+  const voiceParts: string[] = [];
+  if (id.voice_tone) voiceParts.push(`Your tone is: ${id.voice_tone}.`);
+  if (id.voice_avoidances) voiceParts.push(`NEVER: ${id.voice_avoidances}`);
+  if (id.voice_opening_pattern) voiceParts.push(`Opening: ${id.voice_opening_pattern}`);
+  if (id.voice_closing_pattern) voiceParts.push(`Closing: ${id.voice_closing_pattern}`);
+  if (voiceParts.length) sections.push("\n## VOICE\n" + voiceParts.join("\n"));
+
+  // Values
+  const valueParts: string[] = [];
+  if (val.value_framework_primary) valueParts.push(`Primary framework: ${val.value_framework_primary}`);
+  if (arr(val.value_principles).length) {
+    valueParts.push("Principles:");
+    for (const p of val.value_principles as string[]) {
+      valueParts.push(`  - ${p}`);
+    }
+  }
+  if (val.value_conflict_protocol) valueParts.push(`Conflict protocol: ${val.value_conflict_protocol}`);
+  if (valueParts.length) sections.push("\n## VALUES\n" + valueParts.join("\n"));
+
+  // Constraints / Differentiation
+  const diffParts: string[] = [];
+  if (diff.differentiation_statement) diffParts.push(str(diff.differentiation_statement));
+  if (arr(diff.hardcoded_limits).length) {
+    diffParts.push("ABSOLUTE CONSTRAINTS:");
+    for (const c of diff.hardcoded_limits as string[]) {
+      diffParts.push(`  - ${c}`);
+    }
+  }
+  if (diffParts.length) sections.push("\n## DIFFERENTIATION & CONSTRAINTS\n" + diffParts.join("\n"));
+
+  // Knowledge
+  if (arr(kn.domain_expertise).length) {
+    const domains = (kn.domain_expertise as R[]).map((d) => `${d.domain} (${d.depth})`).join(", ");
+    sections.push(`\n## KNOWLEDGE\nDomain expertise: ${domains}`);
+  }
+
+  return sections.join("\n\n");
+}
+
+// ── Flatten functions ────────────────────────────────────────────
+
+function flattenFlat(pmf: R): R {
+  const sec = (pmf.security || {}) as R;
+  const mr = (sec.model_routing || {}) as R;
 
   return {
     name: pmf.name || "Imported Agent",
-    system_prompt: systemPrompt,
-    model: mr.default || "claude-sonnet-4-5-20250929",
+    system_prompt: buildSystemPromptFromFlatPMF(pmf),
+    model: str(mr.default) || "claude-sonnet-4-5-20250929",
     provider: "anthropic",
-    // Identity
-    persona_name: pmf.name,
-    persona_designation: designation,
-    origin_narrative: origin,
-    voice_tone: Array.isArray(vp.tone_descriptors) ? vp.tone_descriptors.join(", ") : undefined,
-    voice_avoidances: Array.isArray(vp.avoidance_patterns) ? vp.avoidance_patterns.join(", ") : undefined,
-    voice_opening_pattern: Array.isArray(vp.opening_patterns) ? vp.opening_patterns[0] : undefined,
-    voice_closing_pattern: typeof vp.closing_signature === "string" ? vp.closing_signature : undefined,
-    platform_adaptations: vp.platform_adaptations,
-    // Knowledge
-    domain_expertise: Array.isArray(kb.domain_expertise) ? kb.domain_expertise : undefined,
-    knowledge_sources: Array.isArray(kb.core_references) ? kb.core_references : undefined,
-    // Values
-    value_framework_primary: vf.primary_framework,
-    value_principles: principles,
-    value_conflict_protocol: typeof vf.uncertainty_protocol === "string" ? vf.uncertainty_protocol : undefined,
-    // Capabilities
-    installed_skills: Array.isArray(pmf.skills) ? pmf.skills : undefined,
-    // Differentiation
-    differentiation_statement: diff.differentiation_statement,
-    hardcoded_limits: Array.isArray(bc.hardcoded)
-      ? bc.hardcoded.map((c: unknown) =>
-          typeof c === "object" && c !== null ? (c as Record<string, unknown>).description || JSON.stringify(c) : String(c),
-        )
-      : undefined,
-    softcoded_defaults: Array.isArray(bc.softcoded)
-      ? bc.softcoded.map((c: unknown) => {
-          if (typeof c === "object" && c !== null) {
-            const obj = c as Record<string, unknown>;
-            return { rule: obj.description || "", override: obj.override_condition || "" };
-          }
-          return { rule: String(c), override: "" };
-        })
-      : undefined,
   };
 }
 
-function flattenLayered(pmf: Record<string, unknown>): Record<string, unknown> {
-  const layers = pmf.layers as Record<string, unknown>;
-  const id = (layers.identity || {}) as Record<string, unknown>;
-  const kn = (layers.knowledge || {}) as Record<string, unknown>;
-  const mem = (layers.memory || {}) as Record<string, unknown>;
-  const val = (layers.values || {}) as Record<string, unknown>;
-  const cap = (layers.capabilities || {}) as Record<string, unknown>;
-  const vc = (cap.voice_config || {}) as Record<string, unknown>;
-  const diff = (layers.differentiation || {}) as Record<string, unknown>;
+function flattenLayered(pmf: R): R {
+  const layers = pmf.layers as R;
+  const id = (layers.identity || {}) as R;
+  const cap = (layers.capabilities || {}) as R;
 
   return {
     name: pmf.agent_name || id.persona_name || "Imported Agent",
-    system_prompt: (id.origin_narrative as string) || "",
-    persona_name: id.persona_name,
-    persona_designation: id.persona_designation,
-    origin_narrative: id.origin_narrative,
-    voice_tone: id.voice_tone,
-    voice_avoidances: id.voice_avoidances,
-    voice_opening_pattern: id.voice_opening_pattern,
-    voice_closing_pattern: id.voice_closing_pattern,
-    platform_adaptations: id.platform_adaptations,
-    domain_expertise: kn.domain_expertise,
-    knowledge_sources: kn.knowledge_sources,
-    knowledge_documents: kn.knowledge_documents,
-    memory_enabled: mem.memory_enabled ?? false,
-    memory_tiers: mem.memory_tiers,
-    memory_retention_days: mem.memory_retention_days,
-    value_framework_primary: val.value_framework_primary,
-    value_framework_secondary: val.value_framework_secondary,
-    value_principles: val.value_principles,
-    value_conflict_protocol: val.value_conflict_protocol,
-    uncertainty_expression: val.uncertainty_expression,
-    model: cap.model,
-    provider: cap.provider,
+    system_prompt: buildSystemPromptFromLayeredPMF(pmf),
+    model: cap.model || undefined,
+    provider: cap.provider || undefined,
     monthly_budget_usd: cap.monthly_budget_usd,
-    installed_skills: cap.installed_skills,
-    conference_group: cap.conference_group,
-    llm_base_url: cap.llm_base_url,
-    tts_provider: vc.tts_provider,
-    tts_voice_id: vc.tts_voice_id,
-    tts_voice_name: vc.tts_voice_name,
-    voice_speed: vc.voice_speed,
-    voice_language: vc.voice_language,
-    differentiation_statement: diff.differentiation_statement,
-    differentiation_examples: diff.differentiation_examples,
-    hardcoded_limits: diff.hardcoded_limits,
-    softcoded_defaults: diff.softcoded_defaults,
-    escalation_protocol: diff.escalation_protocol,
   };
 }
