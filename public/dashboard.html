@@ -1381,6 +1381,35 @@ select.audit-filter {
 .btn-kill-hold.holding { color: white; }
 .btn-kill-hold .kill-label { position: relative; z-index: 1; }
 
+/* Delete (purge) modal */
+.modal-content.delete-modal {
+  border-color: rgba(239,68,68,0.5);
+  box-shadow: 0 0 80px rgba(239,68,68,0.15);
+}
+.modal-overlay.delete-overlay { background: rgba(239,68,68,0.08); }
+.delete-agent-name { font-size: 24px; font-weight: 800; color: #ef4444; margin: 12px 0 8px; }
+.delete-warning { color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+.delete-warning strong { color: #ef4444; }
+.btn-delete-hold {
+  position: relative; background: rgba(239,68,68,0.08); border: 2px solid #ef4444;
+  color: #ef4444; padding: 14px 32px; border-radius: 8px; font-weight: 700;
+  font-size: 15px; cursor: pointer; overflow: hidden; user-select: none;
+  -webkit-user-select: none; font-family: var(--font-display); transition: color 0.3s;
+}
+.btn-delete-hold .delete-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  background: rgba(239,68,68,0.25); transition: width 0.15s ease;
+}
+.btn-delete-hold.holding .delete-fill { width: 100%; transition: width 1.5s linear; }
+.btn-delete-hold.holding { color: white; }
+.btn-delete-hold .delete-label { position: relative; z-index: 1; }
+.btn-delete {
+  padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 6px;
+  border: 1px solid rgba(239,68,68,0.3); background: transparent; color: #ef4444;
+  cursor: pointer; font-family: var(--font-mono); transition: all 0.15s;
+}
+.btn-delete:hover { background: rgba(239,68,68,0.1); border-color: #ef4444; }
+
 /* Template selector */
 .template-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
 .template-tab {
@@ -2345,6 +2374,22 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   </div>
 </div>
 
+<!-- DELETE (PURGE) CONFIRM MODAL -->
+<div class="modal-overlay delete-overlay" id="modal-delete">
+  <div class="modal-content delete-modal">
+    <h3 style="color:#ef4444;font-size:14px;text-transform:uppercase;letter-spacing:2px;font-family:var(--font-mono)">PERMANENT DELETE</h3>
+    <div class="delete-agent-name" id="delete-agent-name">—</div>
+    <p class="delete-warning">This will <strong>permanently delete</strong> this agent and all its data — conversations, audit logs, snapshots, and memory. This cannot be undone or revived.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-delete')">Cancel</button>
+      <button class="btn-delete-hold" id="btn-confirm-delete">
+        <span class="delete-fill"></span>
+        <span class="delete-label">Hold to Delete</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- AGENT DETAIL MODAL -->
 <div class="modal-overlay" id="modal-detail">
   <div class="modal-content" style="max-width:640px">
@@ -2990,6 +3035,7 @@ function renderAgentCard(a, i) {
         : ''}
         ${!isCouncil && status !== 'terminated' ? `<button class="btn-kill" onclick="event.stopPropagation();confirmKill('${a.id}','${esc(a.name)}')">Kill <span class="key-badge">K</span></button>` : ''}
         ${status === 'terminated' ? `<button class="btn-revive" onclick="event.stopPropagation();reviveAgent('${a.id}','${esc(a.name)}')">Revive</button>` : ''}
+        ${!isCouncil && !a.is_canonical && !a.is_platform_agent && status === 'terminated' ? `<button class="btn-delete" onclick="event.stopPropagation();confirmDelete('${a.id}','${esc(a.name)}')">Delete <span class="key-badge">D</span></button>` : ''}
         ${a.is_canonical ? `<button class="btn-audit" style="color:#a78bfa;border-color:rgba(167,139,250,0.3)" onclick="event.stopPropagation();forkAgent('${a.id}','${esc(a.persona_name || a.name)}')">Fork</button>` : ''}
       </div>
     </div>`;
@@ -5405,6 +5451,52 @@ async function reviveAgent(agentId, agentName) {
   }
 }
 
+// ── DELETE (PURGE) AGENT ──
+let deleteTargetId = null;
+let deleteTargetName = '';
+let deleteHoldTimer = null;
+
+function confirmDelete(agentId, agentName) {
+  deleteTargetId = agentId;
+  deleteTargetName = agentName;
+  document.getElementById('delete-agent-name').textContent = agentName;
+  openModal('modal-delete');
+}
+
+const deleteBtn = document.getElementById('btn-confirm-delete');
+function startDeleteHold(e) {
+  e.preventDefault();
+  deleteBtn.classList.add('holding');
+  deleteHoldTimer = setTimeout(executeDelete, 1500);
+}
+function cancelDeleteHold() {
+  deleteBtn.classList.remove('holding');
+  if (deleteHoldTimer) { clearTimeout(deleteHoldTimer); deleteHoldTimer = null; }
+}
+async function executeDelete() {
+  deleteBtn.classList.remove('holding');
+  if (!deleteTargetId) return;
+  try {
+    await api('DELETE', `/api/agents/${deleteTargetId}?purge=true`);
+    closeModal('modal-delete');
+    toast(`Agent "${deleteTargetName}" permanently deleted`, 'success');
+    const card = document.getElementById('agent-card-' + deleteTargetId);
+    if (card) {
+      card.style.transition = 'opacity 0.4s, transform 0.4s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.9)';
+      setTimeout(() => { loadDashboard(); }, 500);
+    } else { loadDashboard(); }
+    deleteTargetId = null;
+  } catch (e) { toast('Failed to delete agent: ' + e.message, 'error'); }
+}
+deleteBtn.addEventListener('mousedown', startDeleteHold);
+deleteBtn.addEventListener('touchstart', startDeleteHold, { passive: false });
+deleteBtn.addEventListener('mouseup', cancelDeleteHold);
+deleteBtn.addEventListener('mouseleave', cancelDeleteHold);
+deleteBtn.addEventListener('touchend', cancelDeleteHold);
+deleteBtn.addEventListener('touchcancel', cancelDeleteHold);
+
 // ── Canonical Agent Actions ──
 
 async function forkAgent(agentId, agentName) {
@@ -6155,6 +6247,7 @@ document.addEventListener('keydown', (e) => {
     if (key === 'c') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status === 'active') openChat(a.id, a.name); return; }
     if (key === 'k') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status !== 'terminated' && !(a.council_type === 'rights' || a.council_type === 'experts')) confirmKill(a.id, a.name); return; }
     if (key === 'r') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status === 'terminated') reviveAgent(a.id, a.name); return; }
+    if (key === 'd') { const a = (state.agents?.agents || []).find(x => x.id === state.selectedAgentId); if (a && a.status === 'terminated' && !a.is_canonical && !a.is_platform_agent && !(a.council_type === 'rights' || a.council_type === 'experts')) confirmDelete(a.id, a.name); return; }
   }
 });
 
