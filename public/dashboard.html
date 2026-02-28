@@ -5477,7 +5477,7 @@ async function executeDelete() {
   deleteBtn.classList.remove('holding');
   if (!deleteTargetId) return;
   try {
-    await api('DELETE', `/api/agents/${deleteTargetId}?purge=true`);
+    await api('POST', `/api/agents/${deleteTargetId}/delete`);
     closeModal('modal-delete');
     toast(`Agent "${deleteTargetName}" permanently deleted`, 'success');
     const card = document.getElementById('agent-card-' + deleteTargetId);

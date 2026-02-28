@@ -228,6 +228,32 @@ export async function killAgent(agentId: string) {
 }
 
 /**
+ * DELETE /api/agents/{id}?purge=true — permanently delete an agent.
+ * Uses the Railway fallback URL directly since the primary VPS may not
+ * have the purge endpoint yet.
+ */
+export async function purgeAgent(agentId: string) {
+  const path = `/api/agents/${agentId}?purge=true`;
+  const customerHeaders = await getCustomerHeaders();
+  const fetchOpts: RequestInit = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      "X-Agency-Id": "sutra.team",
+      ...customerHeaders,
+    },
+  };
+  // Prefer Railway fallback (has purge endpoint), fall back to primary
+  const baseUrl = SAMMA_API_FALLBACK_URL || SAMMA_API_URL;
+  const res = await fetch(`${baseUrl}${path}`, fetchOpts);
+  if (!res.ok) {
+    throw new Error(`Delete agent failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+/**
  * POST /api/agents/{id}/revive — revive a terminated agent.
  */
 export async function reviveAgent(agentId: string) {
