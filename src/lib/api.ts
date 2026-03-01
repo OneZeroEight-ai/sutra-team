@@ -163,6 +163,35 @@ export async function listCouncilAgents(councilType?: string) {
 // ─── Agent API (all agents, not just council) ───
 
 /**
+ * GET /api/agents/{id} — get a single agent by ID.
+ */
+export async function getAgent(agentId: string) {
+  const res = await sammaApiFetch(`/api/agents/${agentId}`);
+  if (!res.ok) {
+    throw new Error(`Agent fetch failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+/**
+ * PUT /api/agents/{id} — update an agent.
+ */
+export async function updateAgent(
+  agentId: string,
+  body: Record<string, unknown>,
+) {
+  const res = await sammaApiFetch(`/api/agents/${agentId}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Update agent failed (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
+/**
  * GET /api/agents — list all agents for the current user.
  */
 export async function getAgents() {

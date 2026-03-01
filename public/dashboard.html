@@ -3045,6 +3045,11 @@ function renderAgents() {
   const container = document.getElementById('agents-container');
   const agentList = state.agents?.agents || [];
 
+  // Debug: log agent group breakdown and collapsed state
+  const _dbgGroups = { rights: 0, experts: 0, custom: 0 };
+  agentList.forEach(a => { const c = classifyAgent(a); _dbgGroups[c] = (_dbgGroups[c] || 0) + 1; });
+  console.log('[renderAgents] total=' + agentList.length, 'groups:', JSON.stringify(_dbgGroups), 'collapsed:', JSON.stringify(agentOrgState.collapsedGroups), 'filter=' + agentOrgState.filter);
+
   if (agentList.length === 0) {
     container.innerHTML = `<div class="empty-state"><p>No agents yet. Create your first agent to get started.</p>
       <button class="btn btn-primary btn-sm" onclick="openModal('modal-create')">Create Agent</button></div>`;
@@ -3564,7 +3569,7 @@ async function openAgentDetail(agentId) {
       <div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <span style="color:var(--gray);font-size:14px">Agent Instructions</span>
-          <button class="btn btn-ghost" style="padding:4px 12px;font-size:11px" id="btn-edit-prompt" onclick="togglePromptEdit('${a.id}')">Edit</button>
+          ${!a.is_canonical ? `<button class="btn btn-ghost" style="padding:4px 12px;font-size:11px" id="btn-edit-prompt" onclick="togglePromptEdit('${a.id}')">Edit</button>` : '<span style="font-size:11px;color:var(--gray-dim)">Canonical — fork to edit</span>'}
         </div>
         <div id="detail-system-prompt" data-value="${esc(a.system_prompt || '').replace(/"/g, '&quot;')}" style="width:100%;max-width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--card-border);border-radius:8px;color:var(--white);font-family:var(--font-mono);font-size:13px;line-height:1.5;min-height:60px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden">${esc(a.system_prompt || '') || '<span style="color:var(--gray-dim)">No instructions set</span>'}</div>
         <button class="btn btn-primary" style="padding:6px 16px;font-size:12px;margin-top:8px;display:none" id="btn-save-prompt" onclick="savePrompt('${a.id}')">Save</button>
@@ -3616,12 +3621,12 @@ async function openAgentDetail(agentId) {
         <span class="detail-label">Created</span>
         <span class="detail-value">${a.created_at ? new Date(a.created_at).toLocaleString() : '—'}</span>
       </div>
-      <div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
+      ${!a.is_canonical ? `<div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
         <a href="/persona-editor?agentId=${a.id}" style="display:inline-flex;align-items:center;gap:6px;color:var(--purple);text-decoration:none;font-size:13px;font-weight:600" target="_blank">
           <span style="font-size:16px">&#9881;</span> Edit Persona &amp; Layers
         </a>
         <span style="color:var(--gray-dim);font-size:11px;margin-left:8px">Full 6-layer persona editor</span>
-      </div>`;
+      </div>` : ''}`;
 
     // ── Context Layers section ──
     const ctxLayers = a.context_layers || [];
@@ -5505,7 +5510,7 @@ async function forkAgent(agentId, agentName) {
   try {
     const res = await api('POST', `/api/agents/${agentId}/fork`);
     toast(`Forked! "${res.agent.name}" created.`, 'success');
-    loadSutraDashboard();
+    loadDashboard();
   } catch (e) {
     toast('Failed to fork agent: ' + e.message, 'error');
   }
