@@ -2911,7 +2911,7 @@ const agentOrgState = {
   filter: 'all',
   cardSize: localStorage.getItem('sutra_card_size') || 'grid',
   pinnedAgents: JSON.parse(localStorage.getItem('sutra_pinned_agents') || '[]'),
-  collapsedGroups: JSON.parse(localStorage.getItem('sutra_collapsed_groups') || '{}'),
+  collapsedGroups: JSON.parse(localStorage.getItem('sutra_collapsed_groups') || '{"rights":true,"experts":true}'),
 };
 
 function setAgentFilter(f, el) {
@@ -3508,7 +3508,7 @@ async function openAgentDetail(agentId) {
   try {
     const [agentRes, auditRes, hbRes, tgLinksRes, slackLinksRes, memoryRes] = await Promise.all([
       api('GET', `/api/agents/${agentId}`),
-      api('GET', `/api/agents/${agentId}/audit?limit=10`),
+      api('GET', `/api/agents/${agentId}/audit?limit=10`).catch(e => { console.warn('[detail] audit fetch failed:', e.message); return { audit: [] }; }),
       api('GET', `/api/agents/${agentId}/heartbeat`).catch(() => ({ heartbeat: null })),
       api('GET', `/api/channels/telegram/links`).catch(() => ({ links: [] })),
       api('GET', `/api/channels/slack/links`).catch(() => ({ links: [] })),
@@ -3838,7 +3838,8 @@ async function openAgentDetail(agentId) {
     document.getElementById('detail-body').innerHTML = html;
     loadSnapshots(a.id);
   } catch (e) {
-    document.getElementById('detail-body').innerHTML = `<p style="color:var(--red)">Failed to load: ${esc(e.message)}</p>`;
+    console.error('[openAgentDetail] Failed for agentId=' + agentId, e);
+    document.getElementById('detail-body').innerHTML = `<p style="color:var(--red)">Failed to load agent: ${esc(e.message)}</p><p style="font-size:11px;color:var(--gray);margin-top:8px">Agent ID: ${esc(agentId)}</p>`;
   }
 }
 
@@ -5504,7 +5505,7 @@ async function forkAgent(agentId, agentName) {
   try {
     const res = await api('POST', `/api/agents/${agentId}/fork`);
     toast(`Forked! "${res.agent.name}" created.`, 'success');
-    loadAgents();
+    loadSutraDashboard();
   } catch (e) {
     toast('Failed to fork agent: ' + e.message, 'error');
   }
