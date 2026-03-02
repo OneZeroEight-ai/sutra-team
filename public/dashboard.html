@@ -2793,20 +2793,34 @@ async function loadDashboard() {
     // Prefetch skills data so the Skills tab loads instantly
     if (!state.skills) loadSkills();
 
-    // Batch-fetch heartbeat status for agent cards (non-blocking)
+    // Fetch heartbeat status — use batch endpoint if available, else stagger individual calls
     const agentList = agentsRes?.agents || [];
     if (agentList.length > 0) {
-      Promise.all(agentList.map(a =>
-        api('GET', `/api/agents/${a.id}/heartbeat`).catch(() => ({ heartbeat: null }))
-      )).then(results => {
-        agentList.forEach((a, i) => {
-          state.heartbeats[a.id] = results[i]?.heartbeat || null;
-        });
-        renderAgents(); // re-render with heartbeat data
-      });
+      try {
+        // Try batch endpoint first (single request for all agents)
+        const batchRes = await api('GET', '/api/agents/heartbeats/batch');
+        if (batchRes?.heartbeats) {
+          Object.entries(batchRes.heartbeats).forEach(([id, hb]) => {
+            state.heartbeats[id] = hb;
+          });
+          renderAgents();
+        }
+      } catch (_batchErr) {
+        // Fallback: stagger individual calls (200ms apart to avoid thundering herd)
+        (async () => {
+          for (let i = 0; i < agentList.length; i++) {
+            try {
+              const res = await api('GET', `/api/agents/${agentList[i].id}/heartbeat`);
+              state.heartbeats[agentList[i].id] = res?.heartbeat || null;
+            } catch (_) { state.heartbeats[agentList[i].id] = null; }
+            if (i < agentList.length - 1) await new Promise(r => setTimeout(r, 200));
+          }
+          renderAgents();
+        })();
+      }
     }
 
-    // Auto-refresh overview every 30s
+    // Auto-refresh overview every 60s (was 30s — reduced to prevent worker exhaustion)
     if (refreshInterval) clearInterval(refreshInterval);
     refreshInterval = setInterval(async () => {
       try {
@@ -2814,7 +2828,7 @@ async function loadDashboard() {
         state.overview = ov;
         renderOverview();
       } catch (e) { /* silent */ }
-    }, 30000);
+    }, 60000);
   } catch (e) {
     if (e.message !== 'Unauthorized') {
       toast('Failed to load dashboard: ' + e.message, 'error');
@@ -6041,7 +6055,7 @@ function startLiveFeed() {
   feed.innerHTML = '';
   lastLiveTs = new Date().toISOString();
   if (liveInterval) clearInterval(liveInterval);
-  liveInterval = setInterval(pollLiveFeed, 5000);
+  liveInterval = setInterval(pollLiveFeed, 30000); // was 5s — reduced to prevent worker exhaustion
   pollLiveFeed();
   // Pause on hover
   feed.addEventListener('mouseenter', () => { livePaused = true; document.getElementById('live-paused').style.display = 'block'; });
