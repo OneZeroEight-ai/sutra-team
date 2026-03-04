@@ -15,6 +15,7 @@ import {
 } from "@/lib/constants";
 import { AgentsShowcase } from "@/components/landing/AgentsShowcase";
 import { TemplatesSection } from "@/components/landing/TemplatesSection";
+import ScreenshotGallery from "@/components/landing/ScreenshotGallery";
 
 const SKILLS_TAGS = [
   "web-search", "email-sender", "calendar", "browser", "code-executor",
@@ -245,6 +246,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ══════════ SCREENSHOT GALLERY ══════════ */}
+      <ScreenshotGallery />
 
       {/* ══════════ SECURITY ══════════ */}
       <section id="security" className="py-20 px-6 max-w-[1200px] mx-auto">

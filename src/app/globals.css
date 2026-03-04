@@ -68,3 +68,6 @@ body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+.screenshot-scroll::-webkit-scrollbar { display: none; }
+.screenshot-scroll { scrollbar-width: none; -ms-overflow-style: none; }
