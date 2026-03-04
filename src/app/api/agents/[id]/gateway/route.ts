@@ -10,7 +10,6 @@ import { NextRequest } from "next/server";
 
 const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
-const SAMMA_API_FALLBACK_URL = process.env.SAMMA_API_FALLBACK_URL || "";
 const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
 
 export async function POST(
@@ -58,22 +57,7 @@ export async function POST(
       signal: AbortSignal.timeout(120_000),
     };
 
-    let res: Response;
-    try {
-      res = await fetch(gatewayUrl, fetchOpts);
-      if (res.status >= 500 && SAMMA_API_FALLBACK_URL) {
-        res = await fetch(
-          `${SAMMA_API_FALLBACK_URL}/api/agents/${id}/gateway`,
-          fetchOpts,
-        );
-      }
-    } catch {
-      if (!SAMMA_API_FALLBACK_URL) throw new Error("Backend unavailable");
-      res = await fetch(
-        `${SAMMA_API_FALLBACK_URL}/api/agents/${id}/gateway`,
-        fetchOpts,
-      );
-    }
+    const res = await fetch(gatewayUrl, fetchOpts);
 
     // Pass through the response (including SSE streams) transparently
     return new Response(res.body, {

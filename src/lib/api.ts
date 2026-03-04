@@ -10,7 +10,6 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 
 const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
-const SAMMA_API_FALLBACK_URL = process.env.SAMMA_API_FALLBACK_URL || "";
 const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
 
 export interface SammaApiOptions extends Omit<RequestInit, "headers"> {
@@ -73,17 +72,7 @@ export async function sammaApiFetch(
       ...options.headers,
     },
   };
-  try {
-    const res = await fetch(url, fetchOpts);
-    if (res.ok || !SAMMA_API_FALLBACK_URL) return res;
-    if (res.status >= 500) {
-      return await fetch(`${SAMMA_API_FALLBACK_URL}${path}`, fetchOpts);
-    }
-    return res;
-  } catch {
-    if (!SAMMA_API_FALLBACK_URL) throw new Error("Backend unavailable");
-    return await fetch(`${SAMMA_API_FALLBACK_URL}${path}`, fetchOpts);
-  }
+  return await fetch(url, fetchOpts);
 }
 
 /**
@@ -258,24 +247,11 @@ export async function killAgent(agentId: string) {
 
 /**
  * DELETE /api/agents/{id}?purge=true — permanently delete an agent.
- * Uses the Railway fallback URL directly since the primary VPS may not
- * have the purge endpoint yet.
  */
 export async function purgeAgent(agentId: string) {
-  const path = `/api/agents/${agentId}?purge=true`;
-  const customerHeaders = await getCustomerHeaders();
-  const fetchOpts: RequestInit = {
+  const res = await sammaApiFetch(`/api/agents/${agentId}?purge=true`, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${SERVICE_KEY}`,
-      "X-Agency-Id": "sutra.team",
-      ...customerHeaders,
-    },
-  };
-  // Prefer Railway fallback (has purge endpoint), fall back to primary
-  const baseUrl = SAMMA_API_FALLBACK_URL || SAMMA_API_URL;
-  const res = await fetch(`${baseUrl}${path}`, fetchOpts);
+  });
   if (!res.ok) {
     throw new Error(`Delete agent failed: ${res.status}`);
   }

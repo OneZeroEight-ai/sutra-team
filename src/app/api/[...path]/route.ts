@@ -17,29 +17,7 @@ import { NextRequest } from "next/server";
 
 const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
-const SAMMA_API_FALLBACK_URL = process.env.SAMMA_API_FALLBACK_URL || "";
 const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
-
-/** Fetch with automatic fallback to direct Railway domain if primary fails */
-async function fetchWithFallback(
-  url: string,
-  init: RequestInit,
-): Promise<Response> {
-  try {
-    const res = await fetch(url, init);
-    if (res.ok || !SAMMA_API_FALLBACK_URL) return res;
-    // 5xx from primary → try fallback
-    if (res.status >= 500) {
-      const fallbackUrl = url.replace(SAMMA_API_URL, SAMMA_API_FALLBACK_URL);
-      return await fetch(fallbackUrl, init);
-    }
-    return res;
-  } catch {
-    if (!SAMMA_API_FALLBACK_URL) throw new Error("Backend unavailable");
-    const fallbackUrl = url.replace(SAMMA_API_URL, SAMMA_API_FALLBACK_URL);
-    return await fetch(fallbackUrl, init);
-  }
-}
 
 async function handleAuthMe() {
   let user;
@@ -62,7 +40,7 @@ async function handleAuthMe() {
   let backendCustomer: Record<string, unknown> | null = null;
   if (SERVICE_KEY && SAMMA_API_URL) {
     try {
-      const res = await fetchWithFallback(
+      const res = await fetch(
         `${SAMMA_API_URL}/api/billing/status`,
         {
           headers: {
@@ -179,7 +157,7 @@ async function proxyToBackend(
     }
   }
 
-  const res = await fetchWithFallback(url.toString(), fetchOptions);
+  const res = await fetch(url.toString(), fetchOptions);
   const data = await res.text();
 
   return new Response(data, {

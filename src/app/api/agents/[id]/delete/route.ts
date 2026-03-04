@@ -5,7 +5,6 @@ import { NextRequest } from "next/server";
  * POST /api/agents/[id]/delete
  *
  * Permanently delete an agent and all its data.
- * Uses the Railway backend's purge endpoint.
  */
 export async function POST(
   _request: NextRequest,
