@@ -1735,6 +1735,16 @@ select.audit-filter {
 .skill-tier.tier-3 { background: rgba(239,68,68,0.1); color: #f87171; }
 .skill-tier.tier-4 { background: rgba(255,215,0,0.1); color: var(--gold); }
 .skill-tier.tier-5 { background: rgba(5,150,105,0.1); color: var(--green); }
+.sentinel-badge {
+  font-family: var(--font-mono); font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  letter-spacing: 0.5px; display: inline-block; font-weight: 600;
+}
+.sentinel-badge.cert-certified { background: rgba(5,150,105,0.15); color: var(--green); }
+.sentinel-badge.cert-approved { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.sentinel-badge.cert-caution { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.sentinel-badge.cert-review { background: rgba(156,163,175,0.15); color: var(--gray); }
+.sentinel-badge.cert-blocked { background: rgba(239,68,68,0.15); color: #f87171; }
+.sentinel-score { font-family: var(--font-mono); font-size: 11px; color: var(--gray-dim); }
 .skill-detail-section { margin-bottom: 16px; }
 .skill-detail-section h4 {
   font-family: var(--font-mono); font-size: 11px; color: var(--gray);
@@ -5906,6 +5916,15 @@ const SKILL_ICONS = {
   'retry-engine': '\uD83D\uDD04', 'response-cache': '\uD83D\uDCBE', 'data-transformer': '\uD83D\uDD00',
   'structured-logger': '\uD83D\uDCCA', 'eval-harness': '\uD83E\uDDEA', 'usage-tracker': '\uD83D\uDCC8', 'health-monitor': '\uD83D\uDC93',
 };
+// Sentinel certification registry (Phase 1)
+const SENTINEL_REGISTRY = {"text-summarizer":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"sentiment-analyzer":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"json-formatter":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"prompt-template-engine":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"response-validator":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"content-classifier":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"markdown-stripper":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"token-counter":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"web-fetcher":{"c":"APPROVED","s":83,"a":true,"o":true,"g":true},"code-executor":{"c":"BLOCKED","s":68,"a":true,"o":true,"g":true},"file-reader":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"memory-store":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"secret-scanner":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"pii-redactor":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"cost-estimator":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"audit-report":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"conversation-compressor":{"c":"CERTIFIED","s":100,"a":true,"o":true,"g":true},"output-schema-enforcer":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"intent-router":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"skill-chain":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"prompt-guard":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"retry-engine":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"response-cache":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"data-transformer":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"structured-logger":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"eval-harness":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"usage-tracker":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"health-monitor":{"c":"CERTIFIED","s":92,"a":true,"o":true,"g":false},"moltbook":{"c":"APPROVED","s":77,"a":true,"o":true,"g":true},"email-sender":{"c":"APPROVED","s":83,"a":true,"o":true,"g":true},"zoom-scheduler":{"c":"APPROVED","s":77,"a":true,"o":true,"g":true},"council-deliberation":{"c":"CERTIFIED","s":96,"a":true,"o":true,"g":true},"council-synthesis":{"c":"CERTIFIED","s":96,"a":true,"o":true,"g":true},"web-search":{"c":"APPROVED","s":77,"a":true,"o":true,"g":true},"browser":{"c":"CERTIFIED","s":96,"a":true,"o":true,"g":true}};
+function getSentinelCert(slug) { return SENTINEL_REGISTRY[slug] || null; }
+function sentinelBadgeHTML(slug) {
+  const cert = getSentinelCert(slug);
+  if (!cert) return '';
+  const cls = cert.c.toLowerCase();
+  return `<span class="sentinel-badge cert-${cls}">${cert.s}/100 ${cert.c}</span>`;
+}
 
 async function loadSkills() {
   const container = document.getElementById('skills-container');
@@ -5945,6 +5964,7 @@ function renderSkills(skills) {
       <div class="skill-desc">${esc(desc)}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
         <span style="font-size:12px;color:var(--gray-dim)">${shield} ${status === 'approved' ? 'SANGHA approved' : status}</span>
+        ${sentinelBadgeHTML(slug)}
         <button class="btn-view-details" onclick="event.stopPropagation();openSkillDetail('${s.id}','${esc(s.name)}')">View Details</button>
       </div>
     </div>`;
@@ -5985,6 +6005,7 @@ async function openSkillDetail(skillId, skillName) {
       <span class="skill-tier tier-${tier}">${tierLabel}</span>
       <span class="skill-source built-in">Built-in</span>
       <span style="font-size:12px;color:var(--gray-dim)">v${esc(s.version || '1.0.0')}</span>
+      ${sentinelBadgeHTML(slug)}
     `;
 
     let body = '';
@@ -6037,6 +6058,24 @@ async function openSkillDetail(skillId, skillName) {
       </div>
       ${scanInfo || '<span style="font-size:12px;color:var(--gray-dim)">First-party skill \u2014 trusted by default</span>'}
     </div>`;
+
+    // Sentinel certification section
+    const cert = getSentinelCert(slug);
+    if (cert) {
+      const cls = cert.c.toLowerCase();
+      const compat = [
+        cert.a ? '<span style="color:var(--green)">Anthropic</span>' : '<span style="color:var(--gray-dim)">Anthropic</span>',
+        cert.o ? '<span style="color:var(--green)">OpenAI</span>' : '<span style="color:var(--gray-dim)">OpenAI</span>',
+        cert.g ? '<span style="color:var(--green)">Google</span>' : '<span style="color:var(--gray-dim)">Google</span>',
+      ].join(' &middot; ');
+      body += `<div class="skill-detail-section"><h4>Sentinel Certification</h4>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <span class="sentinel-badge cert-${cls}" style="font-size:12px;padding:4px 12px">${cert.c}</span>
+          <span class="sentinel-score">Score: ${cert.s}/100</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray)">Provider compatibility: ${compat}</div>
+      </div>`;
+    }
 
     document.getElementById('skill-detail-body').innerHTML = body;
   } catch (e) {
