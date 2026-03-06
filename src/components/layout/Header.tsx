@@ -73,18 +73,6 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/council/deliberate"
-                className="text-sm text-sutra-muted hover:text-sutra-text transition"
-              >
-                Deliberate
-              </Link>
-              <Link
-                href="/connect"
-                className="text-sm text-sutra-muted hover:text-sutra-text transition"
-              >
-                Voice
-              </Link>
               <UserButton
                 afterSignOutUrl="/"
                 appearance={{
@@ -140,20 +128,8 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/council/deliberate"
-                className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
-                onClick={() => setMobileOpen(false)}
-              >
-                Deliberate
-              </Link>
-              <Link
-                href="/connect"
-                className="block text-sm text-sutra-muted hover:text-sutra-text transition-colors py-2"
-                onClick={() => setMobileOpen(false)}
-              >
-                Voice
-              </Link>
+
+
             </SignedIn>
           </div>
         </div>

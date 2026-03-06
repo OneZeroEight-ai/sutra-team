@@ -895,6 +895,64 @@ export default function SentinelPage() {
         </div>
       </section>
 
+      {/* ━━━ CERTIFICATION LEGEND ━━━ */}
+      <section
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: "32px 24px 0",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 12,
+            justifyContent: "center",
+            marginBottom: 8,
+          }}
+        >
+          {[
+            { label: "CERTIFIED", icon: "\u2713", color: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", desc: "Passed all checks" },
+            { label: "APPROVED", icon: "\u2713", color: "#3b82f6", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", desc: "Minor findings" },
+            { label: "CAUTION", icon: "\u26A0", color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.2)", desc: "Review recommended" },
+            { label: "REVIEW", icon: "\u26A0", color: "#f97316", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", desc: "Under investigation" },
+            { label: "BLOCKED", icon: "\u2715", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", desc: "Do not install" },
+          ].map((lvl) => (
+            <div
+              key={lvl.label}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 14px",
+                background: lvl.bg,
+                border: `1px solid ${lvl.border}`,
+                borderRadius: 8,
+                fontSize: 12,
+                fontFamily: "var(--font-jetbrains-mono), monospace",
+              }}
+            >
+              <span style={{ color: lvl.color, fontWeight: 700, fontSize: 14 }}>{lvl.icon}</span>
+              <span style={{ color: lvl.color, fontWeight: 600 }}>{lvl.label}</span>
+              <span style={{ color: "#64748b" }}>{lvl.desc}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 12, marginBottom: 8 }}>
+          <span
+            style={{
+              fontSize: 11,
+              color: "#475569",
+              fontFamily: "var(--font-jetbrains-mono), monospace",
+              letterSpacing: "0.5px",
+            }}
+          >
+            &#x1F551; Registry updated hourly
+          </span>
+        </div>
+      </section>
+
       {/* ━━━ REGISTRY TABLE ━━━ */}
       <section
         style={{
@@ -931,7 +989,7 @@ export default function SentinelPage() {
               fontFamily: "var(--font-jetbrains-mono), monospace",
             }}
           >
-            Last updated: {lastScanDate} &mdash; updates twice daily
+            Last updated: {lastScanDate}
           </span>
         </div>
 
