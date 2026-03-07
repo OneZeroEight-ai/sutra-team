@@ -2194,7 +2194,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <button class="btn btn-primary btn-sm" id="btn-create-agent">Create Agent <span class="key-badge" style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)">N</span></button>
     </div>
     <div class="agent-toolbar">
-      <input type="text" class="agent-search" id="agent-search" placeholder="Search agents..." value="" autocomplete="off" oninput="renderAgents()">
+      <input type="search" class="agent-search" id="agent-search" placeholder="Search agents..." value="" autocomplete="new-password" name="agent-search-nofill" oninput="renderAgents()">
       <div class="filter-pills">
         <button class="filter-pill active" onclick="setAgentFilter('all',this)">All</button>
         <button class="filter-pill" onclick="setAgentFilter('council',this)">Council</button>
@@ -5683,6 +5683,10 @@ const origCloseModal = window.closeModal;
 window.closeModal = function(id) {
   if (id === 'modal-create') {
     setCreateMode('template');
+  }
+  if (id === 'modal-detail') {
+    const s = document.getElementById('agent-search');
+    if (s) s.value = '';
   }
   origCloseModal(id);
 };
