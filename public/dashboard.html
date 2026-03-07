@@ -3626,13 +3626,14 @@ async function openAgentDetail(agentId) {
   document.getElementById('detail-body').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
 
   try {
-    const [agentRes, auditRes, hbRes, tgLinksRes, slackLinksRes, memoryRes] = await Promise.all([
+    const [agentRes, auditRes, hbRes, tgLinksRes, slackLinksRes, memoryRes, gmailStatusRes] = await Promise.all([
       api('GET', `/api/agents/${agentId}`),
       api('GET', `/api/agents/${agentId}/audit?limit=10`).catch(e => { console.warn('[detail] audit fetch failed:', e.message); return { audit: [] }; }),
       api('GET', `/api/agents/${agentId}/heartbeat`).catch(() => ({ heartbeat: null })),
       api('GET', `/api/channels/telegram/links`).catch(() => ({ links: [] })),
       api('GET', `/api/channels/slack/links`).catch(() => ({ links: [] })),
       api('GET', `/api/agents/${agentId}/memory`).catch(() => ({ memories: [], stats: null })),
+      api('GET', `/api/email/gmail/status`).catch(() => ({ connected: false })),
     ]);
 
     const a = agentRes.agent;
@@ -3899,6 +3900,26 @@ async function openAgentDetail(agentId) {
     }
     html += '</div>';
 
+    // ── Gmail section (only for Assistant agent) ──
+    const ASSISTANT_AGENT_ID = '21402000-a196-4e1e-8f61-d2227cf14824';
+    if (a.id === ASSISTANT_AGENT_ID) {
+      html += '<div style="margin-bottom:16px">';
+      html += '<span class="detail-label" style="font-weight:600">Gmail</span>';
+      if (gmailStatusRes.connected) {
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-top:6px">';
+        html += '<span style="color:var(--green);font-size:11px">&#9679;</span>';
+        html += '<span style="font-size:13px">'+esc(gmailStatusRes.email_address || 'Connected')+'</span>';
+        html += '<button class="btn btn-ghost" style="padding:2px 8px;font-size:11px;color:var(--red)" onclick="disconnectGmail(\''+a.id+'\')">Disconnect</button>';
+        html += '</div>';
+      } else {
+        html += '<div style="margin-top:6px">';
+        html += '<button class="btn btn-primary" style="padding:4px 12px;font-size:12px" onclick="connectGmail(\''+a.id+'\')">Connect Gmail</button>';
+        html += '<div style="margin-top:4px;font-size:11px;color:var(--gray)">Allows the Assistant to read and triage your inbox.</div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
     html += '</div>';
 
     // ── Agent Memory section ──
@@ -4155,6 +4176,26 @@ async function unlinkSlack(linkId, agentId) {
   try {
     await api('DELETE', '/api/channels/slack/link/' + linkId);
     toast('Slack workspace disconnected', 'success');
+    openAgentDetail(agentId);
+  } catch (e) { toast('Failed: ' + e.message, 'error'); }
+}
+
+async function connectGmail(agentId) {
+  try {
+    const res = await api('GET', `/api/email/gmail/auth?agent_id=${agentId}`);
+    if (res.auth_url) {
+      window.location.href = res.auth_url;
+    } else {
+      toast('Failed to get Gmail auth URL', 'error');
+    }
+  } catch (e) { toast('Gmail connect failed: ' + e.message, 'error'); }
+}
+
+async function disconnectGmail(agentId) {
+  if (!confirm('Disconnect Gmail?')) return;
+  try {
+    await api('DELETE', '/api/email/gmail/disconnect');
+    toast('Gmail disconnected', 'success');
     openAgentDetail(agentId);
   } catch (e) { toast('Failed: ' + e.message, 'error'); }
 }
@@ -5912,6 +5953,12 @@ async function checkToken() {
     window.history.replaceState({}, '', window.location.pathname);
     showView('dashboard');
     return;
+  }
+
+  // Handle Gmail OAuth redirect
+  if (params.get('gmail') === 'connected') {
+    window.history.replaceState({}, '', window.location.pathname);
+    setTimeout(() => toast('Gmail connected successfully', 'success'), 500);
   }
 
   // Handle Stripe payment redirect
