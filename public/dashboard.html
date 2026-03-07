@@ -4806,11 +4806,24 @@ async function sendChatMsg() {
         addChatMsg('assistant',
           `<div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:8px;padding:12px 14px;margin:-4px 0">` +
           `<div style="font-weight:700;margin-bottom:4px">\u2699\ufe0f ${isNoKey ? 'Almost ready \u2014 this agent needs an API key to respond.' : 'Credits exhausted \u2014 add more credits to continue.'}</div>` +
-          `<div style="font-size:12px;color:var(--gray);margin-bottom:10px">${isNoKey ? 'Add your Anthropic, OpenAI, or Google key below, or purchase credits in Billing.' : 'Your credit balance is $0.00. Purchase more credits to continue chatting.'}</div>` +
-          `<div style="display:flex;gap:8px;flex-wrap:wrap">` +
-          (isNoKey ? `<button class="btn btn-primary btn-sm" onclick="closeChat();openAgentDetail('${chatAgentId}')" style="font-size:12px">Add API Key</button>` : '') +
-          `<button class="btn ${isNoKey ? 'btn-ghost' : 'btn-primary'} btn-sm" onclick="closeChat();switchTab('billing')" style="font-size:12px">Buy Credits</button>` +
-          `</div></div>`, [], null, { isHTML: true }
+          (isNoKey
+            ? `<div style="font-size:12px;color:var(--gray);margin-bottom:10px">To start chatting, you need either your own API key (free, just needs an account with Anthropic/OpenAI/Google) or platform credits.</div>` +
+              `<div style="display:flex;gap:10px;flex-wrap:wrap">` +
+              `<div style="flex:1;min-width:160px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px">` +
+              `<div style="font-size:11px;color:var(--gray);margin-bottom:6px">Free \u2014 use your own Anthropic, OpenAI, or Google key.</div>` +
+              `<button class="btn btn-primary btn-sm" onclick="closeChat();openAgentDetail('${chatAgentId}')" style="font-size:12px;width:100%">Add Your Own Key</button>` +
+              `</div>` +
+              `<div style="flex:1;min-width:160px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px">` +
+              `<div style="font-size:11px;color:var(--gray);margin-bottom:6px">No account needed \u2014 use ours.</div>` +
+              `<button class="btn btn-ghost btn-sm" onclick="closeChat();switchTab('billing')" style="font-size:12px;width:100%">Buy Credits</button>` +
+              `</div>` +
+              `</div>`
+            : `<div style="font-size:12px;color:var(--gray);margin-bottom:10px">Your credit balance is $0.00. Purchase more credits to continue chatting.</div>` +
+              `<div style="display:flex;gap:8px;flex-wrap:wrap">` +
+              `<button class="btn btn-primary btn-sm" onclick="closeChat();switchTab('billing')" style="font-size:12px">Buy Credits</button>` +
+              `</div>`
+          ) +
+          `</div>`, [], null, { isHTML: true }
         );
         sendBtn.disabled = false;
         input.focus();
@@ -5224,10 +5237,16 @@ async function deployTeamBundle() {
     let html = '<div style="text-align:center;padding:8px 0">' +
       '<div style="font-size:15px;font-weight:700;color:#22c55e;margin-bottom:6px">\u2705 Your $9 AI Team is ready!</div>';
     if (!hasKey) {
-      html += '<div style="font-size:12px;color:var(--gray);margin-bottom:10px">Your three agents are configured and waiting.<br>Add an API key to start chatting.</div>' +
-        '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
-        (teamAgents.length ? `<button class="btn btn-primary btn-sm" style="font-size:12px" onclick="closeModal('modal-create');openAgentDetail('${teamAgents[0].id}')">Add API Key</button>` : '') +
-        `<button class="btn btn-ghost btn-sm" style="font-size:12px" onclick="closeModal('modal-create');switchTab('billing')">Buy Credits</button>` +
+      html += '<div style="font-size:12px;color:var(--gray);margin-bottom:10px">To start chatting, you need either your own API key (free, just needs an account with Anthropic/OpenAI/Google) or platform credits.</div>' +
+        '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+        '<div style="flex:1;min-width:150px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;text-align:center">' +
+        '<div style="font-size:11px;color:var(--gray);margin-bottom:6px">Free \u2014 use your own Anthropic, OpenAI, or Google key.</div>' +
+        (teamAgents.length ? `<button class="btn btn-primary btn-sm" style="font-size:12px;width:100%" onclick="closeModal('modal-create');openAgentDetail('${teamAgents[0].id}')">Add Your Own Key</button>` : '') +
+        '</div>' +
+        '<div style="flex:1;min-width:150px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;text-align:center">' +
+        '<div style="font-size:11px;color:var(--gray);margin-bottom:6px">No account needed \u2014 use ours.</div>' +
+        `<button class="btn btn-ghost btn-sm" style="font-size:12px;width:100%" onclick="closeModal('modal-create');switchTab('billing')">Buy Credits</button>` +
+        '</div>' +
         '</div>';
     } else {
       html += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">';
