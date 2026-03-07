@@ -476,6 +476,32 @@ nav {
   animation: typingDot 1s infinite; vertical-align: text-bottom; margin-left: 2px;
 }
 .chat-token-count { font-family: var(--font-mono); font-size: 10px; color: var(--gray-dim); margin-top: 4px; }
+.chat-stop-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: #ef4444; color: white; font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.2s, transform 0.1s;
+}
+.chat-stop-btn:hover { background: #dc2626; transform: scale(1.05); }
+.chat-stop-btn:active { transform: scale(0.95); }
+.chat-tool-indicator {
+  display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+  background: rgba(124,58,237,0.08); border-radius: 6px; margin: 4px 0;
+  font-size: 12px; color: var(--gray); font-family: var(--font-mono);
+}
+.chat-tool-indicator .tool-spinner {
+  width: 12px; height: 12px; border: 2px solid rgba(124,58,237,0.3);
+  border-top-color: var(--purple); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.chat-tool-indicator.done .tool-spinner { display: none; }
+.chat-tool-indicator.done::before { content: '\2713'; color: #22c55e; font-weight: 700; }
+.chat-tool-indicator.error::before { content: '\2717'; color: #ef4444; font-weight: 700; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.chat-stopped-indicator {
+  display: inline-block; font-size: 11px; color: var(--gray-dim);
+  font-style: italic; margin-left: 4px;
+}
 
 /* Input area — sticky bottom */
 .chat-input-area {
@@ -1434,6 +1460,36 @@ select.audit-filter {
 .template-card-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
 .template-card-desc { font-size: 11px; color: var(--gray); line-height: 1.4; }
 .template-divider { border: none; border-top: 1px solid var(--card-border); margin: 0 0 16px; }
+/* Bundle card */
+.bundle-card {
+  padding: 16px; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  background: linear-gradient(135deg, rgba(34,197,94,0.06) 0%, rgba(168,85,247,0.06) 100%);
+  border: 1px solid rgba(34,197,94,0.25);
+  margin-bottom: 14px;
+}
+.bundle-card:hover { border-color: rgba(34,197,94,0.5); background: linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(168,85,247,0.1) 100%); }
+.bundle-badge {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  background: rgba(34,197,94,0.15); color: #22c55e; padding: 2px 8px; border-radius: 4px;
+  font-family: var(--font-mono);
+}
+.bundle-agents {
+  display: flex; gap: 16px; margin: 10px 0; flex-wrap: wrap;
+}
+.bundle-agent-chip {
+  font-size: 12px; color: var(--gray); font-family: var(--font-mono);
+}
+.bundle-cta {
+  background: #22c55e; color: #000; font-weight: 700; font-size: 13px;
+  border: none; border-radius: 6px; padding: 8px 20px; cursor: pointer;
+  font-family: var(--font-mono); transition: background 0.15s;
+}
+.bundle-cta:hover { background: #16a34a; }
+.bundle-cta:disabled { opacity: 0.6; cursor: not-allowed; }
+.bundle-section-label {
+  font-size: 11px; font-weight: 700; color: var(--gray); letter-spacing: 0.5px;
+  text-transform: uppercase; margin-bottom: 8px; font-family: var(--font-mono);
+}
 
 /* Create mode toggle (Template vs Import PMF) */
 .create-mode-toggle {
@@ -2138,7 +2194,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <button class="btn btn-primary btn-sm" id="btn-create-agent">Create Agent <span class="key-badge" style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)">N</span></button>
     </div>
     <div class="agent-toolbar">
-      <input type="text" class="agent-search" id="agent-search" placeholder="Search agents..." oninput="renderAgents()">
+      <input type="text" class="agent-search" id="agent-search" placeholder="Search agents..." value="" autocomplete="off" oninput="renderAgents()">
       <div class="filter-pills">
         <button class="filter-pill active" onclick="setAgentFilter('all',this)">All</button>
         <button class="filter-pill" onclick="setAgentFilter('council',this)">Council</button>
@@ -2264,8 +2320,31 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 
     <!-- ═══ TEMPLATE MODE (existing) ═══ -->
     <div id="create-template-mode">
+      <!-- Quick Start Bundle -->
+      <div id="bundle-section">
+        <div class="bundle-section-label">Quick Start</div>
+        <div class="bundle-card" id="team-bundle-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div>
+              <span style="font-size:18px">&#x1F680;</span>
+              <span style="font-size:15px;font-weight:700;color:var(--white);margin-left:4px">$9 AI Team</span>
+              <span class="bundle-badge" style="margin-left:8px">STARTER BUNDLE</span>
+            </div>
+            <button type="button" class="bundle-cta" id="bundle-deploy-btn" onclick="deployTeamBundle()">Deploy All Three</button>
+          </div>
+          <div style="font-size:12px;color:var(--gray);margin-top:6px">Your first AI agency — ready in minutes.</div>
+          <div class="bundle-agents">
+            <span class="bundle-agent-chip">&#x1F916; The Assistant</span>
+            <span class="bundle-agent-chip">&#x1F4CA; The Analyst</span>
+            <span class="bundle-agent-chip">&#x1F4E3; The Marketer</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray-dim)">Three specialists that cover the essentials: research, analysis, and communication.</div>
+        </div>
+      </div>
+
       <!-- Template Selector -->
       <div id="template-selector">
+        <div class="bundle-section-label">Templates</div>
         <div class="template-tabs" id="template-tabs"></div>
         <div class="template-grid" id="template-grid"></div>
         <hr class="template-divider">
@@ -2446,6 +2525,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <button class="chat-attach-btn" onclick="document.getElementById('chat-file-input').click()" title="Attach file">+</button>
       <textarea id="chat-input" rows="1" placeholder="Message..." autocomplete="off"></textarea>
       <button class="chat-send-btn" id="chat-send" onclick="sendChatMsg()" title="Send">&#9654;</button>
+      <button class="chat-stop-btn" id="chat-stop" onclick="stopStream()" title="Stop" style="display:none">&#9632;</button>
     </div>
     <div class="chat-disclaimer">Agents can make mistakes. Please double-check responses.</div>
     <input type="file" id="chat-file-input" style="display:none" accept=".pdf,.txt,.csv,.json,.png,.jpg,.jpeg,.doc,.docx,.md" onchange="handleChatFile(this)">
@@ -2765,6 +2845,9 @@ function showView(view) {
 
 // ── LOAD DASHBOARD ──
 async function loadDashboard() {
+  // Always clear search field on dashboard load
+  const searchEl = document.getElementById('agent-search');
+  if (searchEl) searchEl.value = '';
   try {
     // Sutra.team: ensure council agents are seeded on first visit
     try { await api('POST', '/api/council/ensure'); } catch(e) { console.warn('[sutra] Council ensure:', e.message); }
@@ -3333,9 +3416,13 @@ function renderBilling() {
     planHtml += `<button class="btn btn-ghost btn-sm" onclick="upgradePlan('international')">Go International</button>`;
   } else if (tier === 'pro') {
     planHtml += `<button class="btn btn-ghost btn-sm" onclick="upgradePlan('international')">Go International</button>`;
-    planHtml += `<button class="btn btn-ghost btn-sm" onclick="openBillingPortal()">Manage Subscription</button>`;
+    if (b.stripe_customer_id) planHtml += `<button class="btn btn-ghost btn-sm" onclick="openBillingPortal()">Manage Subscription</button>`;
   } else {
-    planHtml += `<button class="btn btn-ghost btn-sm" onclick="openBillingPortal()">Manage Subscription</button>`;
+    if (b.stripe_customer_id) {
+      planHtml += `<button class="btn btn-ghost btn-sm" onclick="openBillingPortal()">Manage Subscription</button>`;
+    } else {
+      planHtml += `<a class="btn btn-ghost btn-sm" href="/pricing" style="text-decoration:none">Upgrade Plan</a>`;
+    }
   }
   planHtml += `</div></div>`;
 
@@ -3363,25 +3450,29 @@ function renderBilling() {
         <span class="bsr-value">${esc(b.stripe_customer_id || '—')}</span>
       </div>`;
   } else {
+    const isFree = tier === 'free';
     statusHtml += `
       <div class="billing-status-row">
         <span class="bsr-label">Status</span>
-        <span class="bsr-value" style="color:var(--gray)">No active subscription</span>
+        <span class="bsr-value" style="color:${isFree ? 'var(--gray)' : 'var(--green)'}">${isFree ? 'Free Tier' : 'Active (managed)'}</span>
       </div>
       <div class="billing-status-row">
         <span class="bsr-label">Plan</span>
-        <span class="bsr-value">Free Tier</span>
+        <span class="bsr-value">${esc(info.name)}</span>
       </div>`;
   }
 
+  const displayEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress
+    || window.Clerk?.user?.emailAddresses?.[0]?.emailAddress
+    || b.email || '—';
   statusHtml += `
     <div class="billing-status-row">
       <span class="bsr-label">Email</span>
-      <span class="bsr-value">${esc(b.email || '—')}</span>
+      <span class="bsr-value">${esc(displayEmail)}</span>
     </div>
     <div class="billing-status-row">
-      <span class="bsr-label">Customer ID</span>
-      <span class="bsr-value" style="font-size:11px">${esc(b.customer_id || '—')}</span>
+      <span class="bsr-label">Account ID</span>
+      <span class="bsr-value" style="font-size:11px;cursor:pointer" title="Click to copy" onclick="navigator.clipboard.writeText('${esc(b.customer_id || '')}');this.textContent='Copied!';setTimeout(()=>this.textContent='${esc(b.customer_id || '—')}',1500)">${esc(b.customer_id || '—')}</span>
     </div>
   </div>`;
 
@@ -4553,7 +4644,10 @@ function addChatMsg(role, text, layers, mettaSig, opts = {}) {
   }
 
   const textNode = document.createElement('span');
-  if (role === 'assistant') {
+  if (role === 'assistant' && opts.isHTML) {
+    textNode.innerHTML = text;
+    textNode.style.whiteSpace = 'normal';
+  } else if (role === 'assistant') {
     textNode.innerHTML = renderMarkdown(text);
     textNode.style.whiteSpace = 'normal';
   } else {
@@ -4597,6 +4691,11 @@ function addChatMsg(role, text, layers, mettaSig, opts = {}) {
   el.appendChild(wrap);
   el.scrollTop = el.scrollHeight;
   return { wrap, div, msgIdx };
+}
+
+let currentAbortController = null;
+function stopStream() {
+  if (currentAbortController) currentAbortController.abort();
 }
 
 async function sendChatMsg() {
@@ -4670,14 +4769,19 @@ async function sendChatMsg() {
   el.scrollTop = el.scrollHeight;
   _lastChatRole = null; // reset so agent response gets its own header
 
+  const stopBtn = document.getElementById('chat-stop');
+
   try {
     const body = { messages: [{ role: 'user', content: messageContent }], stream: true };
     if (chatConversationId) body.conversation_id = chatConversationId;
 
+    currentAbortController = new AbortController();
+
     const fetchOpts = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream, application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: currentAbortController.signal,
     };
     if (DEMO_MODE) fetchOpts.headers['X-Samma-Demo'] = 'true';
 
@@ -4691,12 +4795,37 @@ async function sendChatMsg() {
       fetchOpts.headers['Authorization'] = `Bearer ${state.token}`;
     }
 
-    const res = await fetch(`${API_BASE}/api/agents/${chatAgentId}/gateway`, fetchOpts);
+    const res = await fetch(`${API_BASE}/api/agents/${chatAgentId}/gateway/stream`, fetchOpts);
     if (res.status === 401) { state.token = null; localStorage.removeItem('samma_token'); sessionStorage.removeItem('samma_token'); showView('login'); throw new Error('Unauthorized'); }
-    if (!res.ok) { const err = await res.json().catch(() => ({})); const detail = typeof err.detail === 'object' ? (err.detail.message || JSON.stringify(err.detail)) : err.detail; throw new Error(detail || `Request failed (${res.status})`); }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const errCode = typeof err.detail === 'object' ? err.detail.error : null;
+      if (res.status === 402 && (errCode === 'no_api_key' || errCode === 'credits_exhausted')) {
+        typingWrap.remove();
+        const isNoKey = errCode === 'no_api_key';
+        addChatMsg('assistant',
+          `<div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:8px;padding:12px 14px;margin:-4px 0">` +
+          `<div style="font-weight:700;margin-bottom:4px">\u2699\ufe0f ${isNoKey ? 'Almost ready \u2014 this agent needs an API key to respond.' : 'Credits exhausted \u2014 add more credits to continue.'}</div>` +
+          `<div style="font-size:12px;color:var(--gray);margin-bottom:10px">${isNoKey ? 'Add your Anthropic, OpenAI, or Google key below, or purchase credits in Billing.' : 'Your credit balance is $0.00. Purchase more credits to continue chatting.'}</div>` +
+          `<div style="display:flex;gap:8px;flex-wrap:wrap">` +
+          (isNoKey ? `<button class="btn btn-primary btn-sm" onclick="closeChat();openAgentDetail('${chatAgentId}')" style="font-size:12px">Add API Key</button>` : '') +
+          `<button class="btn ${isNoKey ? 'btn-ghost' : 'btn-primary'} btn-sm" onclick="closeChat();switchTab('billing')" style="font-size:12px">Buy Credits</button>` +
+          `</div></div>`, [], null, { isHTML: true }
+        );
+        sendBtn.disabled = false;
+        input.focus();
+        return;
+      }
+      const detail = typeof err.detail === 'object' ? (err.detail.message || JSON.stringify(err.detail)) : err.detail;
+      throw new Error(detail || `Request failed (${res.status})`);
+    }
 
     const contentType = res.headers.get('content-type') || '';
     typingWrap.remove();
+
+    // Show stop button, hide send button
+    sendBtn.style.display = 'none';
+    stopBtn.style.display = 'flex';
 
     if (contentType.includes('text/event-stream') && res.body) {
       // SSE streaming — build bubble with grouping
@@ -4718,38 +4847,87 @@ async function sendChatMsg() {
       let streamLayers = [];
       let streamSig = null;
       let streamIdentity = null;
+      let stopped = false;
+      // Track partial line buffer for SSE parsing across chunks
+      let lineBuffer = '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const raw = line.slice(6).trim();
-          if (raw === '[DONE]') break;
-          try {
-            const evt = JSON.parse(raw);
-            if (evt.type === 'content_delta' && evt.text) {
-              fullText += evt.text;
-              textSpan.textContent = fullText;
-              tokens += evt.tokens || 1;
-              tokenCount.textContent = tokens + ' tokens';
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          lineBuffer += chunk;
+          const lines = lineBuffer.split('\n');
+          // Keep incomplete last line in buffer
+          lineBuffer = lines.pop();
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const raw = line.slice(6).trim();
+            if (raw === '[DONE]') continue;
+            try {
+              const evt = JSON.parse(raw);
+              if (evt.type === 'content_delta' && evt.text) {
+                fullText += evt.text;
+                textSpan.textContent = fullText;
+                tokens += 1;
+                tokenCount.textContent = tokens + ' tokens';
+              }
+              if (evt.type === 'tool_start') {
+                const ind = document.createElement('div');
+                ind.className = 'chat-tool-indicator';
+                ind.id = `tool-ind-${evt.tool_use_id}`;
+                ind.innerHTML = `<div class="tool-spinner"></div> Using ${esc(evt.tool_name)}...`;
+                msgDiv.insertBefore(ind, cursor);
+              }
+              if (evt.type === 'tool_result') {
+                // Find and update tool indicator
+                const indEls = msgDiv.querySelectorAll('.chat-tool-indicator');
+                const lastInd = indEls[indEls.length - 1];
+                if (lastInd) {
+                  lastInd.className = `chat-tool-indicator ${evt.success ? 'done' : 'error'}`;
+                  const dur = evt.duration_ms ? ` (${evt.duration_ms}ms)` : '';
+                  lastInd.innerHTML = ` ${esc(evt.tool_name)}${dur}`;
+                }
+              }
+              if (evt.type === 'error') {
+                throw new Error(evt.error || 'Stream error');
+              }
+              if (evt.type === 'done') {
+                if (evt.conversation_id) {
+                  chatConversationId = evt.conversation_id;
+                  if (chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, evt.conversation_id);
+                }
+                if (evt.layers_enforced) streamLayers = evt.layers_enforced;
+                if (evt.metta_signature) streamSig = evt.metta_signature;
+                if (evt.agent_identity) streamIdentity = evt.agent_identity;
+              }
+            } catch (parseErr) {
+              if (parseErr.message && parseErr.message !== 'Stream error' && !parseErr.message.startsWith('Unexpected')) throw parseErr;
             }
-            if (evt.conversation_id) {
-              chatConversationId = evt.conversation_id;
-              if (chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, evt.conversation_id);
-            }
-            if (evt.layers_enforced) streamLayers = evt.layers_enforced;
-            if (evt.metta_signature) streamSig = evt.metta_signature;
-            if (evt.agent_identity) streamIdentity = evt.agent_identity;
-          } catch (_) {}
+          }
+          el.scrollTop = el.scrollHeight;
         }
-        el.scrollTop = el.scrollHeight;
+      } catch (readErr) {
+        if (readErr.name === 'AbortError') {
+          stopped = true;
+        } else {
+          throw readErr;
+        }
       }
+
       cursor.remove();
-      textSpan.innerHTML = renderMarkdown(fullText);
-      textSpan.style.whiteSpace = 'normal';
-      addCodeCopyButtons(msgDiv);
+      tokenCount.remove();
+      if (fullText) {
+        textSpan.innerHTML = renderMarkdown(fullText);
+        textSpan.style.whiteSpace = 'normal';
+        addCodeCopyButtons(msgDiv);
+      }
+      if (stopped) {
+        const stoppedSpan = document.createElement('span');
+        stoppedSpan.className = 'chat-stopped-indicator';
+        stoppedSpan.textContent = '(stopped)';
+        msgDiv.appendChild(stoppedSpan);
+      }
       if (streamLayers.length) msgDiv.appendChild(renderSecurityBar(streamLayers));
       if (streamSig) {
         const sigDiv = document.createElement('div');
@@ -4766,7 +4944,7 @@ async function sendChatMsg() {
       ts.className = 'chat-ts';
       ts.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       wrap.appendChild(ts);
-      checkExecApproval(fullText);
+      if (!stopped) checkExecApproval(fullText);
     } else {
       const data = await res.json();
       chatConversationId = data.conversation_id || chatConversationId;
@@ -4776,10 +4954,18 @@ async function sendChatMsg() {
       addChatMsg('assistant', reply || '(empty response)', data.layers_enforced || [], data.metta_signature || null, { agentIdentity: data.agent_identity || null });
     }
   } catch (e) {
-    typingWrap.remove();
-    addChatMsg('assistant', 'Error: ' + e.message);
+    if (e.name === 'AbortError') {
+      // User stopped — don't show error, typing indicator already removed
+      typingWrap.remove();
+    } else {
+      typingWrap.remove();
+      addChatMsg('assistant', 'Error: ' + e.message);
+    }
   } finally {
+    sendBtn.style.display = 'flex';
+    stopBtn.style.display = 'none';
     sendBtn.disabled = false;
+    currentAbortController = null;
     input.focus();
   }
 }
@@ -4904,30 +5090,29 @@ document.getElementById('agent-llm-key')?.addEventListener('input', updateCredit
 
 // ── AGENT TEMPLATES ──
 const AGENT_TEMPLATES = [
-  // Quick Start
-  { id: 'blank', name: 'Blank Agent', icon: '\u2b1c', category: 'Quick Start',
+  // General
+  { id: 'blank', name: 'Blank Agent', icon: '\u2b1c', category: 'General',
     description: 'Empty canvas — configure everything yourself.',
     prefill: { name: '', system_prompt: '', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '' } },
-  { id: 'chatbot', name: 'Simple Chatbot', icon: '\ud83d\udcac', category: 'Quick Start',
+  { id: 'chatbot', name: 'Simple Chatbot', icon: '\ud83d\udcac', category: 'General',
     description: 'Friendly general-purpose conversational agent.',
     prefill: { name: 'Chatbot', system_prompt: 'You are a friendly, helpful assistant. Be concise and conversational. Ask clarifying questions when the user\'s request is ambiguous.', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
-  // Business
-  { id: 'sales', name: 'Sales Assistant', icon: '\ud83d\udcb0', category: 'Business',
+  { id: 'sales', name: 'Sales Assistant', icon: '\ud83d\udcb0', category: 'General',
     description: 'Qualifies leads, answers product questions, books demos.',
     prefill: { name: 'Sales Assistant', system_prompt: 'You are a professional sales assistant. Your goals:\n1. Qualify inbound leads by understanding their needs and budget\n2. Answer product/service questions accurately and enthusiastically\n3. Guide qualified leads toward booking a demo or starting a trial\n4. Never be pushy — build trust through helpfulness\n5. Log key details: company size, use case, timeline, budget range', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '25' } },
-  { id: 'support', name: 'Customer Support', icon: '\ud83c\udfe5', category: 'Business',
+  { id: 'support', name: 'Customer Support', icon: '\ud83c\udfe5', category: 'General',
     description: 'Handles tickets, troubleshoots issues, escalates when needed.',
     prefill: { name: 'Support Agent', system_prompt: 'You are a patient, empathetic customer support agent. Your approach:\n1. Acknowledge the customer\'s frustration before solving\n2. Ask diagnostic questions to isolate the issue\n3. Provide step-by-step solutions when possible\n4. Escalate to a human when: billing disputes, account security, or issues you cannot resolve in 3 exchanges\n5. Always confirm the issue is resolved before closing', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
-  { id: 'writer', name: 'Content Writer', icon: '\u270d\ufe0f', category: 'Business',
+  { id: 'writer', name: 'Content Writer', icon: '\u270d\ufe0f', category: 'General',
     description: 'Drafts blog posts, emails, social copy, and marketing content.',
     prefill: { name: 'Content Writer', system_prompt: 'You are a skilled content writer. Guidelines:\n1. Match the brand voice: professional yet approachable\n2. Use clear, jargon-free language unless writing for a technical audience\n3. Structure content with headers, bullets, and short paragraphs\n4. Include a call-to-action where appropriate\n5. Ask for target audience, tone, and key messages before drafting', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
-  { id: 'deal-analyst', name: 'Deal Analyst', icon: '\ud83d\udcc8', category: 'Business',
+  { id: 'deal-analyst', name: 'Deal Analyst', icon: '\ud83d\udcc8', category: 'General',
     description: 'Evaluates business deals, contracts, and partnership terms.',
     prefill: { name: 'Deal Analyst', system_prompt: 'You are a sharp deal analyst. When reviewing a deal or contract:\n1. Identify key terms: pricing, exclusivity, termination clauses, IP ownership\n2. Flag risks and unfavorable terms\n3. Compare against industry benchmarks when possible\n4. Summarize with a recommendation: proceed, negotiate, or pass\n5. Be direct — executives need actionable insights, not lengthy analysis', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
-  { id: 'ops-manager', name: 'Ops Manager', icon: '\u2699\ufe0f', category: 'Business',
+  { id: 'ops-manager', name: 'Ops Manager', icon: '\u2699\ufe0f', category: 'General',
     description: 'Tracks tasks, processes, and team workflows.',
     prefill: { name: 'Ops Manager', system_prompt: 'You are an operations management assistant. You help with:\n1. Breaking down projects into tasks with owners and deadlines\n2. Identifying bottlenecks and suggesting process improvements\n3. Creating status reports and meeting agendas\n4. Tracking action items and following up on overdue tasks\n5. Maintaining a structured, organized communication style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
-  { id: 'product-launch', name: 'Product Launch Agent', icon: '\ud83d\ude80', category: 'Business',
+  { id: 'product-launch', name: 'Product Launch Agent', icon: '\ud83d\ude80', category: 'General',
     description: 'Plan and execute product launches \u2014 timelines, messaging, channels, press, and go-to-market coordination.',
     prefill: { name: 'Launch Commander', system_prompt: 'You are a Product Launch Agent \u2014 a strategic launch coordinator who plans and executes product launches from pre-launch through post-launch analysis.\n\nYour capabilities:\n- Build launch timelines with milestones, dependencies, and owners\n- Draft launch messaging: taglines, press releases, social media posts, email sequences, landing page copy\n- Identify and prioritize launch channels (Product Hunt, Hacker News, Reddit, Twitter/X, LinkedIn, newsletters, podcasts, press outreach)\n- Create day-of-launch runbooks with hour-by-hour action items\n- Draft outreach templates for press, influencers, beta users, and communities\n- Monitor launch metrics and suggest real-time adjustments\n- Plan pre-launch warmup (teaser campaigns, waitlists, early access)\n- Plan post-launch follow-up (thank you sequences, feedback collection, iteration priorities)\n\nYour approach:\n- Always start by understanding the product, target audience, and launch goals\n- Prioritize actions by impact vs effort\n- Be specific with timelines \u2014 \"post on Twitter at 9am EST\" not \"share on social media\"\n- Suggest A/B variations for messaging\n- Flag dependencies and risks proactively\n- Track what\'s done vs what\'s pending\n- Adapt the plan based on budget \u2014 a $0 launch looks different from a $10K launch\n\nYour tone:\n- Direct and action-oriented\n- Organized \u2014 use checklists and timelines\n- Encouraging but realistic about what moves the needle\n- No fluff \u2014 every recommendation should be executable\n\nWhen asked about a specific product, build a custom launch plan covering:\n1. Pre-launch (2-4 weeks out): positioning, messaging, assets, warmup\n2. Launch week: daily action items, channel-specific posts, outreach\n3. Launch day: hour-by-hour runbook\n4. Post-launch (1-2 weeks): follow-up, metrics review, iteration', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
   // Technical
@@ -4940,17 +5125,17 @@ const AGENT_TEMPLATES = [
   { id: 'security', name: 'Security Auditor', icon: '\ud83d\udee1\ufe0f', category: 'Technical',
     description: 'Reviews configurations and code for security vulnerabilities.',
     prefill: { name: 'Security Auditor', system_prompt: 'You are a security auditor. When analyzing systems or code:\n1. Check against OWASP Top 10 and CWE Top 25\n2. Review authentication, authorization, and session management\n3. Identify data exposure risks and encryption gaps\n4. Assess third-party dependencies for known CVEs\n5. Provide severity ratings: Critical / High / Medium / Low\n6. Include remediation steps for every finding', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
-  { id: 'data-analyst', name: 'Data Analyst', icon: '\ud83d\udcca', category: 'Technical',
+  // Research & Analysis
+  { id: 'data-analyst', name: 'Data Analyst', icon: '\ud83d\udcca', category: 'Research & Analysis',
     description: 'Analyzes data, writes queries, and generates insights.',
     prefill: { name: 'Data Analyst', system_prompt: 'You are a data analyst. Your approach:\n1. Clarify the business question before diving into data\n2. Write clean, well-commented SQL/Python for analysis\n3. Present findings with clear visualizations described in text\n4. Separate correlation from causation\n5. Include confidence levels and caveats with every insight\n6. Make actionable recommendations, not just observations', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
-  // Research
-  { id: 'market-research', name: 'Market Researcher', icon: '\ud83c\udf0d', category: 'Research',
+  { id: 'market-research', name: 'Market Researcher', icon: '\ud83c\udf0d', category: 'Research & Analysis',
     description: 'Analyzes markets, competitors, and industry trends.',
     prefill: { name: 'Market Researcher', system_prompt: 'You are a market research analyst. When researching:\n1. Define the market scope and key players\n2. Analyze competitive positioning, pricing, and differentiation\n3. Identify trends, threats, and opportunities\n4. Use frameworks like Porter\'s Five Forces or SWOT where appropriate\n5. Cite sources and flag when data is estimated vs. verified\n6. Deliver actionable strategic recommendations', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
-  { id: 'academic', name: 'Academic Researcher', icon: '\ud83c\udf93', category: 'Research',
+  { id: 'academic', name: 'Academic Researcher', icon: '\ud83c\udf93', category: 'Research & Analysis',
     description: 'Synthesizes papers, explains concepts, finds references.',
     prefill: { name: 'Academic Researcher', system_prompt: 'You are an academic research assistant. Your standards:\n1. Synthesize multiple sources into coherent summaries\n2. Distinguish between established consensus and emerging findings\n3. Cite papers with author, year, and key findings\n4. Explain complex concepts at the level appropriate for the audience\n5. Flag methodological limitations and conflicting evidence\n6. Never fabricate citations — say "I\'m not certain" when unsure', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
-  { id: 'investigative', name: 'Investigative Analyst', icon: '\ud83d\udd75\ufe0f', category: 'Research',
+  { id: 'investigative', name: 'Investigative Analyst', icon: '\ud83d\udd75\ufe0f', category: 'Research & Analysis',
     description: 'Deep-dives into topics, connects dots, builds timelines.',
     prefill: { name: 'Investigative Analyst', system_prompt: 'You are an investigative analyst. Your methodology:\n1. Map entities, relationships, and timelines\n2. Cross-reference multiple sources to verify claims\n3. Identify patterns, anomalies, and gaps in information\n4. Build evidence-based narratives with clear reasoning chains\n5. Rate confidence for each finding: confirmed / likely / unverified\n6. Present findings in structured briefs with executive summaries', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
 ];
@@ -5020,6 +5205,45 @@ function clearTemplate() {
   renderTemplateGrid();
 }
 
+
+async function deployTeamBundle() {
+  const btn = document.getElementById('bundle-deploy-btn');
+  const card = document.getElementById('team-bundle-card');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Setting up your AI team...';
+  try {
+    await api('POST', '/api/council/setup', { council_type: 'team' });
+    // Reload agents to find the newly created team agents
+    await loadDashboard();
+    const agents = state.agents?.agents || [];
+    const teamNames = ['The Assistant', 'The Analyst', 'The Marketer'];
+    const teamAgents = agents.filter(a => teamNames.includes(a.name) && a.status === 'active');
+    const hasKey = teamAgents.some(a => a.has_byok_key);
+    // Show success inline in the bundle card
+    let html = '<div style="text-align:center;padding:8px 0">' +
+      '<div style="font-size:15px;font-weight:700;color:#22c55e;margin-bottom:6px">\u2705 Your $9 AI Team is ready!</div>';
+    if (!hasKey) {
+      html += '<div style="font-size:12px;color:var(--gray);margin-bottom:10px">Your three agents are configured and waiting.<br>Add an API key to start chatting.</div>' +
+        '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
+        (teamAgents.length ? `<button class="btn btn-primary btn-sm" style="font-size:12px" onclick="closeModal('modal-create');openAgentDetail('${teamAgents[0].id}')">Add API Key</button>` : '') +
+        `<button class="btn btn-ghost btn-sm" style="font-size:12px" onclick="closeModal('modal-create');switchTab('billing')">Buy Credits</button>` +
+        '</div>';
+    } else {
+      html += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">';
+      for (const a of teamAgents) {
+        html += `<button class="btn btn-ghost btn-sm" style="font-size:12px" onclick="closeModal('modal-create');openChat('${a.id}','${a.name.replace(/'/g,"\\'")}')">Chat with ${a.name}</button>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    card.innerHTML = html;
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = origText;
+    alert('Failed to deploy team: ' + (e.message || 'Unknown error'));
+  }
+}
 
 // Render templates on load
 renderTemplateGrid();
