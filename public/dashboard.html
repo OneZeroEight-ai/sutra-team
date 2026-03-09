@@ -1615,6 +1615,25 @@ select.audit-filter {
   font-family: var(--font-mono);
   font-size: 13px;
 }
+.agent-model-dropdown {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: #f1f5f9;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  min-width: 220px;
+}
+.agent-model-dropdown:focus {
+  outline: none;
+  border-color: #818cf8;
+}
+.agent-model-cost {
+  font-size: 11px;
+  color: #64748b;
+  margin-left: 8px;
+}
 
 /* Snapshot timeline */
 .snapshot-timeline { position: relative; padding-left: 24px; margin-top: 20px; }
@@ -2617,8 +2636,10 @@ const state = {
 
 // ── MULTI-PROVIDER CONSTANTS ──
 const MODEL_DISPLAY_NAMES = {
+  "claude-sonnet-4-6": "Claude Sonnet 4.6",
   "claude-sonnet-4-5-20250929": "Claude Sonnet 4.5",
   "claude-haiku-4-5-20251001": "Claude Haiku 4.5",
+  "claude-opus-4-6": "Claude Opus 4.6",
   "gpt-4o": "GPT-4o",
   "gpt-4o-mini": "GPT-4o Mini",
   "gpt-4.1": "GPT-4.1",
@@ -2626,6 +2647,13 @@ const MODEL_DISPLAY_NAMES = {
   "gemini-2.0-flash": "Gemini 2.0 Flash",
   "gemini-2.5-pro": "Gemini 2.5 Pro",
 };
+
+const AVAILABLE_MODELS = [
+  { id: "claude-sonnet-4-6",           label: "Claude Sonnet 4.6",  tier: "standard",  cost: "$3/$15" },
+  { id: "claude-sonnet-4-5-20250929",  label: "Claude Sonnet 4.5",  tier: "standard",  cost: "$3/$15" },
+  { id: "claude-haiku-4-5-20251001",   label: "Claude Haiku 4.5",   tier: "fast",      cost: "$1/$5"  },
+  { id: "claude-opus-4-6",             label: "Claude Opus 4.6",    tier: "powerful",   cost: "$5/$25" },
+];
 
 const PROVIDER_COLORS = {
   "anthropic": "#7C3AED",
@@ -2648,7 +2676,7 @@ const PROVIDER_DISPLAY = {
 };
 
 const PROVIDER_MODELS = {
-  "anthropic": ["claude-sonnet-4-5-20250929", "claude-haiku-4-5-20251001"],
+  "anthropic": ["claude-sonnet-4-6", "claude-sonnet-4-5-20250929", "claude-haiku-4-5-20251001", "claude-opus-4-6"],
   "openai": ["gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini"],
   "google": ["gemini-2.0-flash", "gemini-2.5-pro"],
   "ollama": ["llama3", "mistral", "codellama", "gemma2", "phi3"],
@@ -3692,11 +3720,11 @@ async function openAgentDetail(agentId) {
         <button class="btn btn-primary" style="padding:6px 16px;font-size:12px;margin-top:8px;display:none" id="btn-save-prompt" onclick="savePrompt('${a.id}')">Save</button>
       </div>
       <div class="detail-row">
-        <span class="detail-label">Provider / Model</span>
+        <span class="detail-label">Model</span>
         <span class="detail-value" style="display:flex;align-items:center;gap:8px">
           <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${PROVIDER_COLORS[a.provider || 'anthropic'] || PROVIDER_COLORS.anthropic}"></span>
-          ${getModelDisplay(a.model || (PROVIDER_MODELS[a.provider || 'anthropic'] || [])[0])}
-          <span style="color:var(--gray-dim);font-size:12px">${PROVIDER_DISPLAY[a.provider || 'anthropic'] || 'Anthropic'}</span>
+          <select id="agent-model-select" class="agent-model-dropdown" data-agent-id="${a.id}"></select>
+          <span class="agent-model-cost" id="agent-model-cost"></span>
         </span>
       </div>
       <div class="detail-row">
@@ -3978,10 +4006,69 @@ async function openAgentDetail(agentId) {
     }
 
     document.getElementById('detail-body').innerHTML = html;
+    populateModelSelector(a);
     loadSnapshots(a.id);
   } catch (e) {
     console.error('[openAgentDetail] Failed for agentId=' + agentId, e);
     document.getElementById('detail-body').innerHTML = `<p style="color:var(--red)">Failed to load agent: ${esc(e.message)}</p><p style="font-size:11px;color:var(--gray);margin-top:8px">Agent ID: ${esc(agentId)}</p>`;
+  }
+}
+
+// ── MODEL SELECTOR ──
+function populateModelSelector(agent) {
+  const select = document.getElementById('agent-model-select');
+  const costEl = document.getElementById('agent-model-cost');
+  if (!select) return;
+
+  const currentModel = agent.samma_config?.dharma?.allowed_models?.[0]
+    || agent.model
+    || (agent.samma_config || {}).default_model
+    || 'claude-sonnet-4-5-20250929';
+
+  select.innerHTML = '';
+  AVAILABLE_MODELS.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.label} (${m.cost})`;
+    if (m.id === currentModel) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  const initial = AVAILABLE_MODELS.find(m => m.id === currentModel);
+  if (costEl && initial) costEl.textContent = `${initial.cost} per MTok`;
+
+  select.addEventListener('change', async () => {
+    const selected = AVAILABLE_MODELS.find(m => m.id === select.value);
+    if (costEl && selected) costEl.textContent = `${selected.cost} per MTok`;
+    await saveAgentModel(agent, select.value);
+  });
+}
+
+async function saveAgentModel(agent, modelId) {
+  try {
+    const existingConfig = agent.samma_config || {};
+    const updatedConfig = {
+      ...existingConfig,
+      dharma: {
+        ...(existingConfig.dharma || {}),
+        allowed_models: [modelId],
+      },
+      default_model: modelId,
+    };
+
+    const res = await api('PUT', `/api/agents/${agent.id}`, {
+      samma_config: updatedConfig,
+      model: modelId,
+    });
+
+    if (res && !res.error) {
+      toast('Model updated successfully', 'success');
+    } else {
+      toast('Failed to update model', 'error');
+    }
+  } catch (err) {
+    console.error('Model save failed:', err);
+    toast('Failed to update model', 'error');
   }
 }
 
