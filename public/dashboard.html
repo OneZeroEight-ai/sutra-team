@@ -886,9 +886,10 @@ select.login-input { appearance: auto; cursor: pointer; }
   background: var(--card); border: 1px solid var(--card-border); border-radius: 8px;
   padding: 7px 12px; font-size: 13px; color: var(--white); outline: none;
   font-family: var(--font-sans); width: 200px; max-width: 100%;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s; min-height: 1.4em; line-height: 1.4;
+  -webkit-user-modify: read-write-plaintext-only; overflow: hidden; white-space: nowrap;
 }
-.agent-search::placeholder { color: var(--gray-dim); }
+.agent-search:empty::before { content: attr(data-placeholder); color: var(--gray-dim); pointer-events: none; }
 .agent-search:focus { border-color: var(--purple); }
 .filter-pills { display: flex; gap: 4px; }
 .filter-pill {
@@ -2194,8 +2195,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
       <button class="btn btn-primary btn-sm" id="btn-create-agent">Create Agent <span class="key-badge" style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)">N</span></button>
     </div>
     <div class="agent-toolbar">
-      <input type="text" name="email" autocomplete="email" style="display:none" tabindex="-1" aria-hidden="true">
-      <input type="search" class="agent-search" id="agent-search" placeholder="Search agents..." value="" autocomplete="off" role="searchbox" oninput="renderAgents()">
+      <div class="agent-search" id="agent-search" contenteditable="plaintext-only" role="searchbox" data-placeholder="Search agents..." oninput="renderAgents()"></div>
       <div class="filter-pills">
         <button class="filter-pill active" onclick="setAgentFilter('all',this)">All</button>
         <button class="filter-pill" onclick="setAgentFilter('council',this)">Council</button>
@@ -2848,7 +2848,7 @@ function showView(view) {
 async function loadDashboard() {
   // Always clear search field on dashboard load
   const searchEl = document.getElementById('agent-search');
-  if (searchEl) searchEl.value = '';
+  if (searchEl) searchEl.textContent = '';
   try {
     // Sutra.team: ensure council agents are seeded on first visit
     try { await api('POST', '/api/council/ensure'); } catch(e) { console.warn('[sutra] Council ensure:', e.message); }
@@ -3164,7 +3164,7 @@ function renderAgents() {
     return;
   }
 
-  const searchQ = (document.getElementById('agent-search')?.value || '').toLowerCase().trim();
+  const searchQ = (document.getElementById('agent-search')?.textContent || '').toLowerCase().trim();
   const sizeClass = agentOrgState.cardSize !== 'grid' ? 'size-' + agentOrgState.cardSize : '';
 
   // Filter by search
@@ -5687,7 +5687,7 @@ window.closeModal = function(id) {
   }
   if (id === 'modal-detail') {
     const s = document.getElementById('agent-search');
-    if (s) { s.value = ''; setTimeout(() => { s.value = ''; renderAgents(); }, 50); }
+    if (s) s.textContent = '';
   }
   origCloseModal(id);
 };
