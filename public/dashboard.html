@@ -1631,7 +1631,16 @@ select.audit-filter {
 }
 .agent-model-dropdown:focus {
   outline: none;
-  border-color: #818cf8;
+  border-color: var(--purple);
+}
+html.light .agent-model-dropdown {
+  background: #FFFFFF;
+  border-color: #D8D8E8;
+  color: #1A1A2E;
+}
+html.light .agent-model-dropdown option {
+  background: #FFFFFF;
+  color: #1A1A2E;
 }
 .agent-model-cost {
   font-size: 11px;
