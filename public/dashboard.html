@@ -2552,6 +2552,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   <div class="chat-input-area">
     <div class="chat-file-chip" id="chat-file-chip" style="display:none">
       <span id="chat-file-name"></span>
+      <button id="bsky-upload-btn" onclick="uploadForBluesky()" title="Upload image to Bluesky" style="display:none;background:rgba(0,133,255,0.15);color:#0085FF;border:1px solid rgba(0,133,255,0.3);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;white-space:nowrap">Upload for Bluesky</button>
       <button onclick="clearChatFile()" title="Remove file">&times;</button>
     </div>
     <div class="chat-input-bar">
@@ -4450,6 +4451,16 @@ function handleChatFile(input) {
   document.getElementById('chat-file-name').textContent = file.name;
   document.getElementById('chat-file-chip').style.display = 'flex';
 
+  // Show "Upload for Bluesky" button if image + agent has bluesky capability
+  const bskyBtn = document.getElementById('bsky-upload-btn');
+  if (bskyBtn) {
+    const isImage = IMAGE_TYPES.includes(file.type || '');
+    const agent = (state.agents?.agents || []).find(a => a.id === chatAgentId);
+    const skills = agent?.installed_skills || [];
+    const hasBluesky = skills.includes('all') || skills.length > 0;
+    bskyBtn.style.display = (isImage && hasBluesky) ? '' : 'none';
+  }
+
   const mimeType = file.type || '';
   const ext = file.name.split('.').pop().toLowerCase();
 
@@ -4482,11 +4493,66 @@ function handleChatFile(input) {
   reader.readAsDataURL(file);
 }
 
+let chatBskyBlobRef = null; // stored blob_ref from Bluesky upload
+
 function clearChatFile() {
   chatSelectedFile = null;
   chatFileData = null;
   document.getElementById('chat-file-chip').style.display = 'none';
   document.getElementById('chat-file-name').textContent = '';
+  const bskyBtn = document.getElementById('bsky-upload-btn');
+  if (bskyBtn) bskyBtn.style.display = 'none';
+}
+
+async function uploadForBluesky() {
+  if (!chatSelectedFile || !chatAgentId) return;
+  const btn = document.getElementById('bsky-upload-btn');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+
+  try {
+    const formData = new FormData();
+    formData.append('file', chatSelectedFile);
+
+    // Get auth token (same as api() helper)
+    let token = '';
+    if (window.Clerk && window.Clerk.session) {
+      try { token = await window.Clerk.session.getToken(); } catch (e) { /* fall through */ }
+    }
+    if (!token && state.token) token = state.token;
+
+    const res = await fetch(`${API_BASE}/api/bluesky/upload-image?agent_id=${chatAgentId}`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Upload failed');
+    }
+
+    const data = await res.json();
+    chatBskyBlobRef = data.blob_ref;
+
+    // Insert blob_ref hint into chat input
+    const input = document.getElementById('chat-input');
+    const existing = input.value.trim();
+    input.value = (existing ? existing + '\n' : '') +
+      '[Bluesky image ready: ' + JSON.stringify(chatBskyBlobRef) + ']';
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight + 'px';
+
+    // Clear the file attachment (image is now on Bluesky)
+    clearChatFile();
+    toast('Image uploaded to Bluesky — ready to post', 'success');
+  } catch (err) {
+    console.error('Bluesky upload failed:', err);
+    toast('Bluesky upload failed: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
 }
 
 async function loadConversation(conversationId) {
