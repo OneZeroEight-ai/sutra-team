@@ -457,7 +457,7 @@ export const NEW_PRICING_TIERS = [
       "Audit trail",
       "BYOK supported",
     ],
-    cta: { label: "Get Started", href: "/dashboard.html" },
+    cta: { label: "Get Started", href: "/quick-start?plan=explorer" },
     popular: false,
   },
   {
@@ -475,7 +475,7 @@ export const NEW_PRICING_TIERS = [
       "Council deliberation skill",
       "Priority support",
     ],
-    cta: { label: "Go Pro", href: "/dashboard.html" },
+    cta: { label: "Go Pro", href: "/sign-up?plan=pro" },
     popular: true,
   },
   {
@@ -494,7 +494,7 @@ export const NEW_PRICING_TIERS = [
       "Bitcoin / crypto payments accepted",
       "Priority international support",
     ],
-    cta: { label: "Go International", href: "/dashboard.html" },
+    cta: { label: "Go International", href: "/sign-up?plan=international" },
     popular: false,
     paymentMethods: ["\u20BF BTC", "\u039E ETH", "\uD83D\uDCB3 Card", "\uD83C\uDFE6 Wire"],
   },

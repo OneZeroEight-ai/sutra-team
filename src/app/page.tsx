@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   Shield,
@@ -16,6 +17,8 @@ import {
 import { AgentsShowcase } from "@/components/landing/AgentsShowcase";
 import { TemplatesSection } from "@/components/landing/TemplatesSection";
 import ScreenshotGallery from "@/components/landing/ScreenshotGallery";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { BookReaderBanner } from "@/components/landing/BookReaderBanner";
 
 const SKILLS_TAGS = [
   "web-search", "email-sender", "calendar", "browser", "code-executor",
@@ -32,81 +35,21 @@ const MOCK_PERSPECTIVES = [
 export default function HomePage() {
   return (
     <>
+      {/* ══════════ BOOK READER BANNER ══════════ */}
+      <Suspense fallback={null}>
+        <BookReaderBanner />
+      </Suspense>
+
       {/* ══════════ HERO ══════════ */}
-      <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-28 pb-20 overflow-hidden">
-        {/* Grid background */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage: `linear-gradient(#4fd1c5 1px, transparent 1px), linear-gradient(90deg, #4fd1c5 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-          }}
-        />
-        {/* Glow */}
-        <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[radial-gradient(circle,rgba(79,209,197,0.15)_0%,transparent_70%)] blur-[60px] pointer-events-none" />
-
-        <div className="relative max-w-[800px]">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-sutra-accent-glow border border-sutra-accent-dim/20 rounded-full px-4 py-1.5 mb-8 text-[13px] text-sutra-accent tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-sutra-accent animate-[pulse-dot_2s_infinite]" />
-            Open Source &middot; OpenClaw Compatible &middot; Samm&#x0101; Suit Protected
-          </div>
-
-          <h1
-            className="text-sutra-text leading-[1.1] mb-6"
-            style={{
-              fontFamily: "'Instrument Serif', Georgia, serif",
-              fontWeight: 400,
-              fontSize: "clamp(40px, 7vw, 72px)",
-            }}
-          >
-            The first OS for
-            <br />
-            <span className="text-sutra-accent">Autonomous Agents</span>
-          </h1>
-
-          <p className="text-sutra-muted max-w-[600px] mx-auto mb-10 leading-relaxed" style={{ fontSize: "clamp(17px, 2.5vw, 21px)" }}>
-            Create your own AI agency in minutes. 15 prebuilt agents. Open source.
-            Easy enough for anyone. Powerful enough for Fortune 500.
-          </p>
-
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link
-              href="/dashboard.html"
-              className="bg-sutra-accent text-sutra-bg px-8 py-3.5 rounded-lg text-base font-semibold no-underline inline-flex items-center gap-2 shadow-[0_0_30px_rgba(79,209,197,0.15)] hover:shadow-[0_0_40px_rgba(79,209,197,0.25)] transition-shadow"
-            >
-              Start Building <ArrowRight size={18} />
-            </Link>
-            <a
-              href="https://github.com/OneZeroEight-ai/sutra-team"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-transparent text-sutra-text px-8 py-3.5 rounded-lg text-base font-medium no-underline inline-flex items-center gap-2 border border-sutra-border hover:border-sutra-border-hover transition-colors"
-            >
-              <Code size={18} /> View Source
-            </a>
-          </div>
-
-          {/* Stats */}
-          <div className="flex gap-12 justify-center mt-14 flex-wrap">
-            {[
-              { val: "15", label: "PMF Agents" },
-              { val: "12+", label: "Field Templates" },
-              { val: "8", label: "Security Layers" },
-              { val: "32+", label: "Skills" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="text-[32px] font-bold text-sutra-accent font-mono">
-                  {s.val}
-                </div>
-                <div className="text-[13px] text-sutra-muted mt-1">
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Suspense
+        fallback={
+          <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-28 pb-20">
+            <div className="h-16 w-96 bg-white/10 rounded animate-pulse" />
+          </section>
+        }
+      >
+        <HeroSection />
+      </Suspense>
 
       {/* ══════════ VALUE PROPS ══════════ */}
       <section className="py-20 px-6 max-w-[1200px] mx-auto">
@@ -562,10 +505,10 @@ export default function HomePage() {
             in minutes.
           </p>
           <Link
-            href="/dashboard.html"
+            href="/quick-start"
             className="bg-sutra-accent text-sutra-bg px-10 py-4 rounded-lg text-[17px] font-semibold no-underline inline-flex items-center gap-2 shadow-[0_0_40px_rgba(79,209,197,0.15)] hover:shadow-[0_0_50px_rgba(79,209,197,0.25)] transition-shadow"
           >
-            Launch Dashboard <ArrowRight size={18} />
+            Get Started <ArrowRight size={18} />
           </Link>
         </div>
       </section>
