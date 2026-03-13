@@ -5,12 +5,12 @@ import { useReferralContext } from "@/hooks/useReferralContext";
 type Step = 1 | 2 | 3 | 4;
 
 const FEATURED_AGENTS = [
-  { id: "wisdom-judge", name: "Wisdom Judge", role: "Strategic analysis", icon: "\u2696\uFE0F" },
+  { id: "assistant", name: "Assistant", role: "General purpose help, daily tasks", icon: "\uD83E\uDD1D" },
   { id: "market-analyst", name: "Market Analyst", role: "Competitive intelligence", icon: "\uD83D\uDCCA" },
+  { id: "growth-strategist", name: "Growth Strategist", role: "Go-to-market & scaling", icon: "\uD83D\uDE80" },
   { id: "financial-strategist", name: "Financial Strategist", role: "Valuation & fundraising", icon: "\uD83D\uDCB9" },
   { id: "communicator", name: "The Communicator", role: "Message & PR strategy", icon: "\uD83D\uDCAC" },
   { id: "legal-analyst", name: "Legal Analyst", role: "Contract & compliance", icon: "\uD83D\uDCCB" },
-  { id: "growth-strategist", name: "Growth Strategist", role: "Go-to-market & scaling", icon: "\uD83D\uDE80" },
 ];
 
 const FEATURED_SKILLS = [
