@@ -1,0 +1,143 @@
+---
+title: "Agents With Agency and Money. What Could Go Wrong?"
+date: "2026-03-13"
+description: "In 1994, I wrote about the threat model of autonomous agents for a magazine I published. Thirty-two years later, I built the security layer the industry still hasn't."
+author: "JB Wagoner"
+tags: ["autonomous-agents", "data-privacy", "security", "eu-ai-act"]
+image: "/images/blog/pen-magazine-1994.jpg"
+---
+
+*The magazine cover above is from March/April 1994.*
+
+The lead story: **"Brainwashed Agents — What could happen if an 'Intelligent Agent' works against you?"**
+
+I wrote it. I was the newbie editor and publisher of *Personal Electronics News*, a publication covering the cutting edge of personal communications and computing at the moment the internet was becoming something ordinary people might actually use. The Newton was new. Wireless was emerging. The information superhighway was the phrase on everyone's lips.
+
+And I was writing about autonomous agents.
+
+Not because they existed in any meaningful form yet. But because the architecture was visible on the horizon, and the threat model was obvious to anyone paying attention. If you build software that acts on your behalf — reads your messages, manages your calendar, spends your money, communicates with other systems — you've created something with real power to do real harm if it's compromised, misdirected, or poorly designed.
+
+*Agents with agency and money. What could go wrong?*
+
+Thirty-two years later, I have a more complete answer. I also have a platform built around it.
+
+## The Market Arrived. The Security Layer Didn't.
+
+Autonomous AI agents are no longer a horizon concept. They're a product category. Venture-backed startups, open-source frameworks, and a growing ecosystem of founders are deploying agents to handle significant portions of their business operations — email management, financial reporting, content publishing, customer communication.
+
+The market has fragmented into four rough categories: prompt packs that help you have better conversations with AI, fixed-agent platforms with pre-configured personas you can't fundamentally modify, managed services blending human and AI labor at premium prices, and developer frameworks for those with the time and skills to build and maintain their own stack.
+
+Each solves a real problem. Each has a real ceiling.
+
+But across all of them, security is treated as a feature rather than a foundation. Platforms describe their privacy policies. They offer vague assurances about data handling. When you ask "what happens when my agent takes an action I didn't authorize?" the answer is usually a support article.
+
+This is the 1994 problem, finally arrived at scale.
+
+## Why I Built the Security Layer First
+
+When I started working seriously on autonomous agent infrastructure, I spent significant time with OpenClaw — a Claude-based autonomous agent tool that does genuinely impressive things. It executes. It acts. It's closer to the real thing than most tools in the category. I admired it enough to build on top of it.
+
+But through IEEE AI Ethics training — a course developed with a European regulatory perspective that shaped how I think about data security at a structural level — I mapped out eight layers that any serious autonomous agent deployment needs to address:
+
+1. Input validation and sanitization
+2. Output filtering and guardrails
+3. Data isolation between agent sessions
+4. Credential and API key protection
+5. Rate limiting and action constraints
+6. Audit trail and logging
+7. Escalation and human-in-the-loop protocols
+8. Root-level access controls
+
+Our internal security testing identified over 500 vulnerabilities across the OpenClaw stack — across gateway, marketplace, and credential handling. That work informed what SammaSuit needed to cover.
+
+I built SammaSuit first as a plugin. It's available at [sammasuit.com](https://sammasuit.com) for OpenClaw users who want meaningful security improvement without switching platforms — and it covers six of the eight layers. For many deployments, that's a significant upgrade worth having.
+
+But six isn't eight. The two remaining layers require root-level access to the stack — something no plugin can ever have. A plugin sits on top of someone else's infrastructure. There are things it simply cannot see, cannot log, and cannot control, by design.
+
+That's why Sutra Team exists. On the native platform, SammaSuit runs at the infrastructure level with all eight layers active. The name comes from *Samma*, the Pali word for "right" or "complete." Eight layers. Complete coverage. The naming is intentional.
+
+Most AI agent platforms don't name their security architecture at all. With SammaSuit, the answer to "what protects my data?" is documented, layered, and specific.
+
+The 1994 version of me would have recognized exactly what I was building and why.
+
+## The Second Problem: Agents That Belong to You
+
+Security was the first unsolved problem. Portability was the second.
+
+Every agent configuration I encountered was LLM-dependent. An agent built for Claude doesn't transfer cleanly to GPT-4. An agent built on GPT-4 doesn't port to a local model. You're not building an agent — you're building a *Claude agent*, locked to a specific model's syntax, capabilities, and API structure.
+
+For any founder running real business operations through agents, this creates quiet but serious risk. What happens when your LLM provider raises prices, changes the API, or gets acquired? You rebuild from scratch.
+
+I designed Portable Mind Format (PMF) to solve this — a model-agnostic schema for defining agents that can be instantiated on any compatible LLM. Your agents are defined in PMF, then deployed to whatever model you're running. Switch models without rebuilding. Export your agents. Own them completely.
+
+HTML made the web portable across browsers. Portable Mind Format makes agents portable across LLMs.
+
+## Where Your Data Lives Is Not a Detail
+
+Real data privacy is not a policy you write. It's a jurisdiction you choose.
+
+Many countries — including the United States — allow government access to data hosted within their borders without notifying the data owner. A privacy policy cannot override a national security letter. Terms of service cannot override a government data request. You can write the most comprehensive privacy policy in the industry and it is legally irrelevant if the infrastructure sits in the wrong country.
+
+This is why Sutra Team hosts in Iceland.
+
+Iceland's legal framework provides some of the strongest data privacy protections in the world. Government access to hosted data requires notification. The country has no history of mass surveillance infrastructure. Iceland also runs on 100% renewable geothermal and hydroelectric energy — your agents run on clean power, and the natural cooling infrastructure cuts costs by 72% compared to traditional US data centers. Those savings go directly to users.
+
+I've been to Iceland five times. I have friends there. I chose it because I understand what it offers — not because it appeared on a list of privacy-friendly hosting options.
+
+## The Compliance Clock Is Running
+
+Here's where the 1994 question becomes a 2026 deadline.
+
+The EU AI Act — the world's first comprehensive legal framework for artificial intelligence — is now in force, and its reach extends well beyond Europe. If your AI product or service is accessible to users within the EU, you're in scope regardless of where you're based. A US founder with European customers is subject to EU AI Act requirements.
+
+The Act establishes a tiered risk framework. Autonomous agents that take real actions — sending emails, managing finances, making scheduling decisions on behalf of users — are likely to land in high-risk or specific transparency risk categories. That means technical documentation requirements, risk assessments, incident monitoring, and cybersecurity obligations. Fines for non-compliance reach up to €35 million or 7% of global annual revenue.
+
+Most AI agent platforms are not thinking about this. They're US-focused, VC-growth-focused, and built to ship fast and fix later. Security is a roadmap item. Compliance is a future problem. Jurisdiction is whatever AWS defaulted to.
+
+Sutra Team was built in the opposite direction. SammaSuit's eight layers map directly to the EU AI Act's cybersecurity and risk management requirements. Iceland hosting addresses the data sovereignty question the Act raises. Portable Mind Format's documentation structure anticipates audit requirements.
+
+This isn't retrofitted compliance. It's what you get when the person building the platform took the security implications seriously before the first line of product code — and had thirty-two years to think about what autonomous agents actually need to be built on.
+
+## Questions to Ask Before You Deploy
+
+The regulatory environment is tightening globally. California, Colorado, and New York have already enacted AI-specific regulations. A federal framework in the US is increasingly likely. The EU AI Act is the leading edge, not the ceiling.
+
+The founders who built security and compliance into their agent infrastructure from the start will be fine. The ones who bolted it on after the fact will have a harder few months ahead.
+
+If you're evaluating AI agent platforms, ask these questions:
+
+**On security:** What are the specific layers of your security architecture? Can you name them? What can you log and audit, and what falls outside your visibility?
+
+**On portability:** If I want to move my agents to a different LLM, what does that process look like? Do I own my agent configurations, or do they live in your system?
+
+**On jurisdiction:** Where does my data physically reside? What legal framework governs government access to that data?
+
+**On architecture:** Is this a plugin, or do you own the stack? What can a plugin never reach?
+
+The answers will tell you whether the platform was built for you — or built for someone else, and you're along for the growth metrics.
+
+## What Sutra Team Is
+
+Sutra Team is an AI agent platform built on the assumption that your agents, your data, and your security posture belong to you. Built on SammaSuit's 8-layer security framework. Agents defined in Portable Mind Format — portable, configurable, yours. BYOK so your LLM costs stay direct and your model relationship remains your own. Hosted in Iceland. Easy enough for anyone. Powerful enough for Fortune 500.
+
+[*The $9 AI Team*](https://a.co/d/09DBCIAA) — the book I wrote alongside the platform — builds three canonical agents step by step: The Assistant, The Analyst, The Marketer. Those three agents cover what most early-stage founders are trying to hire for. The `FREE108!` promo code makes month one essentially free.
+
+Four tiers, depending on where you are and what you need:
+
+**Explorer at $9/month** — 15 pre-built PMF specialists, up to 5 custom agents, all 32+ skills, audit trail, and BYOK support. The entry point the book is built around.
+
+**Pro at $29/month** — everything in Explorer, plus unlimited agents, voice sessions, all channels (Telegram, Slack, email), heartbeat scheduling, and council deliberation. For founders running agents as genuine business infrastructure.
+
+**International at $49/month** — everything in Pro, plus dedicated Iceland server infrastructure, GDPR-aligned data jurisdiction explicitly outside US surveillance scope, 100% renewable energy hosting, and Bitcoin/crypto payment support. For founders who want the full data sovereignty stack — or who have EU exposure and need the compliance posture to match.
+
+**Enterprise** — custom pricing, white-labeling, SSO/SAML, dedicated SLA, custom model routing, and on-prem options.
+
+The entry point is accessible to any founder. The ceiling is high enough for organizations with real compliance requirements.
+
+The platform is at [sutra.team](https://sutra.team). The SammaSuit plugin for OpenClaw users is at [sammasuit.com](https://sammasuit.com).
+
+The 1994 question is now a compliance deadline. The founders who answer it early will be glad they did.
+
+---
+
+> **About the author** — JB Wagoner was the editor and publisher of *Personal Electronics News*. He completed IEEE AI Ethics training and is the founder of Sutra Team and OneZeroEight.ai. He is the author of [*Zen AI: The Quest for Ethical Alignment*](https://a.co/d/09DBCIAA) and [*The $9 AI Team*](https://a.co/d/09DBCIAA), and holds a provisional patent on the Intelligent Agent Persona system architecture underlying Sutra Team.
