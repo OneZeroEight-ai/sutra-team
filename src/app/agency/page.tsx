@@ -125,10 +125,10 @@ const PRICING = [
     period: "/mo",
     features: [
       "Everything in Pro",
-      "Iceland infrastructure",
-      "100% renewable energy",
-      "GDPR-aligned",
-      "Crypto payments accepted",
+      "Iceland infrastructure (geothermal + hydroelectric)",
+      "Outside US surveillance jurisdiction",
+      "GDPR-aligned privacy laws",
+      "Bitcoin / crypto payments accepted",
     ],
     highlighted: false,
   },
@@ -544,6 +544,29 @@ export default function AgencyPage() {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Iceland callout */}
+      <section className="px-6 py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl">
+          <Card className="!bg-sutra-surface/80 !border-sutra-accent/20 text-center !p-8 sm:!p-12">
+            <h3 className="text-2xl font-bold text-sutra-text sm:text-3xl">
+              Your agents live in Iceland.
+            </h3>
+            <p className="mt-4 text-sutra-muted leading-relaxed max-w-xl mx-auto">
+              International tier agents run on Icelandic infrastructure powered
+              entirely by geothermal and hydroelectric energy. Iceland operates
+              outside US surveillance jurisdiction with GDPR-aligned privacy
+              laws — no US cloud dependency, no Patriot Act exposure. Your
+              agents run clean, private, and sovereign.
+            </p>
+            <div className="mt-6">
+              <Button href="/quick-start" variant="secondary">
+                Go International &rarr;
+              </Button>
+            </div>
+          </Card>
         </div>
       </section>
 
