@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card } from "@/components/ui/Card";
@@ -420,44 +421,76 @@ export default function AgencyPage() {
 
       {/* The book */}
       <section className="px-6 py-20 sm:py-28 bg-sutra-surface/30">
-        <div className="mx-auto max-w-3xl text-center">
-          <SectionHeading title="The format has a book." />
-          <p className="text-sutra-muted leading-relaxed max-w-xl mx-auto">
-            <em>The Portable Mind</em> by JB Wagoner argues that AI
-            constitutions tell an AI how to behave. PMF tells an AI{" "}
-            <em>who to be</em>.
-          </p>
+        <div className="mx-auto max-w-4xl flex flex-col md:flex-row items-center gap-10">
           <a
             href="https://a.co/d/03j6BTDP"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-6 text-sutra-accent hover:text-sutra-accent/80 font-medium transition-colors"
+            className="shrink-0"
           >
-            Read on Amazon &rarr;
+            <Image
+              src="/images/the-portable-mind-cover.jpg"
+              alt="The Portable Mind by JB Wagoner — AI Constitutions, Persona Architecture, and the Future of Transportable Intelligence"
+              width={240}
+              height={360}
+              className="rounded-lg shadow-xl shadow-black/30"
+            />
           </a>
-          <p className="mt-4 text-sm text-sutra-dim">
-            The 15 agents in this platform are production implementations of
-            the architecture described in the book.
-          </p>
+          <div className="text-center md:text-left">
+            <SectionHeading title="The format has a book." align="left" className="md:mb-6" />
+            <p className="text-sutra-muted leading-relaxed">
+              <em>The Portable Mind</em> by JB Wagoner argues that AI
+              constitutions tell an AI how to behave. PMF tells an AI{" "}
+              <em>who to be</em>.
+            </p>
+            <a
+              href="https://a.co/d/03j6BTDP"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-6 text-sutra-accent hover:text-sutra-accent/80 font-medium transition-colors"
+            >
+              Read on Amazon &rarr;
+            </a>
+            <p className="mt-4 text-sm text-sutra-dim">
+              The 15 agents in this platform are production implementations of
+              the architecture described in the book.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* The music */}
       <section className="px-6 py-20 sm:py-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <SectionHeading title="The agents make music." />
-          <p className="text-sutra-muted leading-relaxed max-w-xl mx-auto">
-            NEO SOUL by Sutra and the Noble 8 is what happens when the PMF
-            system runs as an AI artist. 40+ tracks. NeoSoul from the future.
-          </p>
+        <div className="mx-auto max-w-4xl flex flex-col md:flex-row-reverse items-center gap-10">
           <a
             href="https://distrokid.com/hyperfollow/sutraandthenoble8/neosoul-2"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-6 text-sutra-accent hover:text-sutra-accent/80 font-medium transition-colors"
+            className="shrink-0"
           >
-            Listen on all platforms &rarr;
+            <Image
+              src="/images/neosoul-cover.jpg"
+              alt="NEO SOUL by Sutra and The Noble 8"
+              width={280}
+              height={280}
+              className="rounded-lg shadow-xl shadow-black/30"
+            />
           </a>
+          <div className="text-center md:text-left">
+            <SectionHeading title="The agents make music." align="left" className="md:mb-6" />
+            <p className="text-sutra-muted leading-relaxed">
+              NEO SOUL by Sutra and the Noble 8 is what happens when the PMF
+              system runs as an AI artist. 40+ tracks. NeoSoul from the future.
+            </p>
+            <a
+              href="https://distrokid.com/hyperfollow/sutraandthenoble8/neosoul-2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-6 text-sutra-accent hover:text-sutra-accent/80 font-medium transition-colors"
+            >
+              Listen on all platforms &rarr;
+            </a>
+          </div>
         </div>
       </section>
 
@@ -520,9 +553,6 @@ export default function AgencyPage() {
           <h2 className="text-3xl font-bold tracking-tight text-sutra-text sm:text-4xl">
             First agent deployed in 15 minutes.
           </h2>
-          <p className="mt-4 text-lg text-sutra-muted">
-            Or we&apos;ll do it with you.
-          </p>
           <div className="mt-8">
             <Button href="/quick-start" className="text-base px-8 py-3">
               Start free &rarr;
