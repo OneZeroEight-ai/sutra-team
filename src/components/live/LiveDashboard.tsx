@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useAuth } from '@clerk/nextjs'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,9 +77,11 @@ const SKILL_ICONS: Record<string, string> = {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export function LiveDashboard({ agentId }: { agentId: string }) {
+export function LiveDashboard() {
+  const { userId, isSignedIn } = useAuth()
   const wsRef = useRef<WebSocket | null>(null)
   const [connected, setConnected] = useState(false)
+  const [customerId, setCustomerId] = useState<string | null>(null)
   const [agentCards, setAgentCards] = useState<Record<string, AgentCard>>({})
   const [sammaSuitChecks, setSammaSuitChecks] = useState<SammaSuitCheck[]>([])
   const [activityFeed, setActivityFeed] = useState<ActivityEntry[]>([])
@@ -205,11 +208,23 @@ export function LiveDashboard({ agentId }: { agentId: string }) {
     }
   }, [pushActivity])
 
+  // Fetch customer ID from backend auth
+  useEffect(() => {
+    if (!isSignedIn) return
+    fetch('/api/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.customer?.id) setCustomerId(data.customer.id)
+      })
+      .catch(() => {})
+  }, [isSignedIn])
+
   // WebSocket connection
   useEffect(() => {
+    if (!customerId) return
     const apiBase = process.env.NEXT_PUBLIC_SUTRA_API_URL?.replace('https://', 'wss://').replace('http://', 'ws://')
     if (!apiBase) return
-    const url = `${apiBase}/ws/live/${agentId}`
+    const url = `${apiBase}/ws/live/${customerId}`
     const ws = new WebSocket(url)
     wsRef.current = ws
 
@@ -224,7 +239,7 @@ export function LiveDashboard({ agentId }: { agentId: string }) {
     }
 
     return () => ws.close()
-  }, [agentId, handleEvent])
+  }, [customerId, handleEvent])
 
   const karmaPercent = karmaTotal > 0 ? Math.min((karmaUsed / karmaTotal) * 100, 100) : 0
   const completedAgents = Object.values(agentCards).filter(a => a.status === 'complete').length
