@@ -12,6 +12,8 @@ const SAMMA_API_URL =
   process.env.SAMMA_API_URL || process.env.NEXT_PUBLIC_SUTRA_API_URL || "";
 const SERVICE_KEY = process.env.SAMMA_SERVICE_KEY || "";
 
+export const maxDuration = 60;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -73,3 +75,4 @@ export async function POST(
     return Response.json({ error: "Upload request failed" }, { status: 500 });
   }
 }
+
