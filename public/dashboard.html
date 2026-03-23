@@ -5003,6 +5003,7 @@ async function sendChatMsg() {
   let messageContent;
   let displayText = text;
   let imagePreviewUrl = null;
+  let rawFile = null;
   const attachedFile = chatFileData;
   if (attachedFile) {
     const contentBlocks = [];
@@ -5039,7 +5040,7 @@ async function sendChatMsg() {
     }
     if (text) contentBlocks.push({ type: 'text', text });
     messageContent = contentBlocks.length > 0 ? contentBlocks : text;
-    const rawFile = chatSelectedFile;
+    rawFile = chatSelectedFile;
     clearChatFile();
   } else {
     messageContent = text;
