@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Dashboard | Sutra.team</title>
-<meta name="description" content="Sutra Dashboard ΓÇö Manage your AI agents, monitor costs, and review audit logs.">
+<meta name="description" content="Sutra Dashboard — Manage your AI agents, monitor costs, and review audit logs.">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 <script
@@ -268,7 +268,7 @@ nav {
   flex: 1; overflow-y: auto; padding: 16px 16px 16px; display: flex;
   flex-direction: column; -webkit-overflow-scrolling: touch;
 }
-/* Message groups ΓÇö controlled via data attributes set by JS */
+/* Message groups — controlled via data attributes set by JS */
 .chat-msg-wrap { display: flex; flex-direction: column; }
 .chat-msg-wrap + .chat-msg-wrap { margin-top: 16px; }
 .chat-msg-wrap.same-sender { margin-top: 3px; }
@@ -293,7 +293,7 @@ nav {
   opacity: 0; animation: slideInUp 0.25s ease forwards;
 }
 
-/* User bubbles ΓÇö right-aligned, purple fill */
+/* User bubbles — right-aligned, purple fill */
 .chat-msg.user {
   align-self: flex-end; background: var(--purple);
   color: white; border-radius: 18px 18px 4px 18px; white-space: pre-wrap;
@@ -302,7 +302,7 @@ nav {
 .chat-msg-wrap:last-child .chat-msg.user,
 .chat-msg-wrap:not(.same-sender) + .chat-msg-wrap .chat-msg.user { border-radius: 18px 18px 4px 18px; }
 
-/* Agent bubbles ΓÇö left-aligned, dark slate */
+/* Agent bubbles — left-aligned, dark slate */
 .chat-msg.assistant {
   align-self: flex-start; max-width: 85%;
   background: #1a1a2e; color: var(--white);
@@ -382,7 +382,7 @@ nav {
   content: '\2022'; position: absolute; left: 0; color: inherit; opacity: 0.5;
 }
 
-/* Text selection ΓÇö ensure chat messages are selectable */
+/* Text selection — ensure chat messages are selectable */
 .chat-messages, .chat-msg, .chat-msg * {
   user-select: text; -webkit-user-select: text;
   -webkit-touch-callout: default;
@@ -392,9 +392,9 @@ nav {
   -webkit-touch-callout: default;
 }
 
-/* Copy button ΓÇö message level */
+/* Copy button — message level */
 .chat-msg.assistant { position: relative; }
-/* Legacy .chat-msg-copy removed ΓÇö replaced by .chat-msg-actions bar */
+/* Legacy .chat-msg-copy removed — replaced by .chat-msg-actions bar */
 
 /* Code block copy button */
 .chat-msg.assistant pre { position: relative; }
@@ -415,7 +415,7 @@ nav {
   .code-copy-btn { opacity: 0.6; }
 }
 
-/* Timestamp ΓÇö muted, below bubble */
+/* Timestamp — muted, below bubble */
 .chat-ts {
   font-size: 10px; color: var(--gray-dim); font-family: var(--font-mono);
   margin-top: 2px; padding: 0 4px; opacity: 0.7;
@@ -457,7 +457,7 @@ nav {
 .chat-msg .metta-sig.expanded .metta-short { display: none; }
 .chat-msg .metta-sig.expanded .metta-full { display: block; }
 
-/* Typing indicator ΓÇö agent-style bubble */
+/* Typing indicator — agent-style bubble */
 .chat-typing {
   align-self: flex-start; padding: 12px 18px; background: #1a1a2e;
   border: 1px solid rgba(30,30,58,0.8); border-radius: 4px 18px 18px 18px;
@@ -503,7 +503,7 @@ nav {
   font-style: italic; margin-left: 4px;
 }
 
-/* Input area ΓÇö sticky bottom */
+/* Input area — sticky bottom */
 .chat-input-area {
   background: var(--bg); border-top: 1px solid var(--card-border);
   padding: 8px 12px; padding-bottom: env(safe-area-inset-bottom, 8px);
@@ -706,7 +706,7 @@ select.login-input { appearance: auto; cursor: pointer; }
   display: none;
 }
 
-/* Header bar ΓÇö compact single row */
+/* Header bar — compact single row */
 .dash-header {
   display: flex;
   align-items: center;
@@ -2020,7 +2020,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   .shortcuts-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  /* Chat panel ΓÇö full screen, opaque */
+  /* Chat panel — full screen, opaque */
   .chat-sidebar {
     position: fixed !important;
     top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
@@ -2045,7 +2045,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   }
   .chat-msg.user { max-width: 85%; }
   .chat-msg.assistant { max-width: 90%; }
-  /* Content containers ΓÇö prevent horizontal overflow */
+  /* Content containers — prevent horizontal overflow */
   .dashboard-container, .overview-grid, .agent-cards, .billing-grid,
   .audit-section, .audit-filters, .cost-section, .skill-cards {
     padding-left: 12px; padding-right: 12px;
@@ -2068,7 +2068,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   .cost-top-row { grid-template-columns: 1fr 1fr; }
   .overview-card { padding: 16px; }
   .agent-card { padding: 16px; }
-  /* Chat sidebar ΓÇö full-screen on all small devices */
+  /* Chat sidebar — full-screen on all small devices */
   .chat-sidebar {
     position: fixed !important;
     top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
@@ -2089,7 +2089,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   .chat-attach-btn { width: 34px; height: 34px; font-size: 18px; }
   .chat-messages { padding: 10px 10px 100px; }
   .chat-disclaimer { font-size: 10px; }
-  /* Modal ΓÇö full-width on small screens */
+  /* Modal — full-width on small screens */
   .modal-content { max-width: calc(100vw - 20px) !important; padding: 20px !important; margin: 10px; }
   /* Detail rows wrap on narrow screens */
   .detail-row { flex-wrap: wrap; gap: 4px; }
@@ -2115,7 +2115,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   .chat-msg { max-width: 90%; padding: 9px 12px; font-size: 13px; }
   .chat-msg.assistant { max-width: 92%; }
 }
-/* iPhone landscape demo ΓÇö 844├ù390 */
+/* iPhone landscape demo — 844├ù390 */
 @media (max-height: 500px) and (orientation: landscape) {
   .dashboard-container { padding: 70px 20px calc(env(safe-area-inset-bottom, 34px) + 30px); }
   nav { padding: 10px 20px; }
@@ -2173,12 +2173,12 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     <div class="dash-user">
       <img src="/images/logo.png" alt="Sutra" class="dash-user-avatar">
       <div class="dash-user-info">
-        <div class="dash-email" id="dash-email">ΓÇö</div>
+        <div class="dash-email" id="dash-email">—</div>
         <span class="dash-tier tier-free" id="dash-tier">FREE</span>
       </div>
     </div>
     <div class="dash-actions">
-      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">ΓÿÇ</button>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
       <button class="btn btn-ghost btn-sm" id="btn-billing">Manage Billing</button>
       <div id="clerk-user-button" style="display:inline-flex;align-items:center"></div>
       <button class="btn btn-ghost btn-sm" id="btn-logout">Logout</button>
@@ -2189,7 +2189,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   <div class="overview-grid" id="overview-grid">
     <div class="overview-card">
       <div class="oc-label">Agents</div>
-      <div class="oc-value" id="oc-agents">ΓÇö</div>
+      <div class="oc-value" id="oc-agents">—</div>
       <div class="oc-sub" id="oc-agents-sub">loading...</div>
       <div class="agent-breakdown" id="agent-breakdown">
         <div class="agent-minibar"><div class="seg-active" id="seg-active" style="width:0%"></div><div class="seg-paused" id="seg-paused" style="width:0%"></div><div class="seg-terminated" id="seg-terminated" style="width:0%"></div></div>
@@ -2206,7 +2206,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
           <text x="50" y="62" text-anchor="middle" class="gauge-sub">OF BUDGET</text>
         </svg>
         <div class="gauge-info">
-          <span class="gauge-amount" id="oc-spend">ΓÇö</span>
+          <span class="gauge-amount" id="oc-spend">—</span>
           <span id="oc-spend-sub">loading...</span>
         </div>
       </div>
@@ -2218,9 +2218,9 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
     </div>
     <div class="overview-card">
       <div class="oc-label">Gateway Calls</div>
-      <div class="oc-value" id="oc-calls">ΓÇö</div>
+      <div class="oc-value" id="oc-calls">—</div>
       <div class="oc-sub" id="oc-calls-sub">this month</div>
-      <div style="margin-top:8px;font-size:12px;color:var(--gray-dim)">Today: <span id="oc-calls-today" style="color:var(--white);font-weight:600">ΓÇö</span></div>
+      <div style="margin-top:8px;font-size:12px;color:var(--gray-dim)">Today: <span id="oc-calls-today" style="color:var(--white);font-weight:600">—</span></div>
     </div>
     <div class="overview-card">
       <div class="oc-label">Security Events</div>
@@ -2385,7 +2385,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
             </div>
             <button type="button" class="bundle-cta" id="bundle-deploy-btn" onclick="deployTeamBundle()">Deploy All Three</button>
           </div>
-          <div style="font-size:12px;color:var(--gray);margin-top:6px">Your first AI agency ΓÇö ready in minutes.</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:6px">Your first AI agency — ready in minutes.</div>
           <div class="bundle-agents">
             <span class="bundle-agent-chip">&#x1F916; The Assistant</span>
             <span class="bundle-agent-chip">&#x1F4CA; The Analyst</span>
@@ -2430,7 +2430,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
         <div id="credit-hint" style="font-size:11px;color:var(--gray-dim);margin:-4px 0 8px;padding:0 2px"></div>
         <label style="display:block;font-size:12px;color:var(--gray);margin-bottom:4px;font-weight:600">Monthly Budget (USD)</label>
         <input type="number" class="login-input" id="agent-budget" placeholder="5.00" value="5" step="0.01" min="0">
-        <input type="password" class="login-input" id="agent-llm-key" placeholder="sk-ant-api03-... (optional ΓÇö BYOK)" autocomplete="off">
+        <input type="password" class="login-input" id="agent-llm-key" placeholder="sk-ant-api03-... (optional — BYOK)" autocomplete="off">
         <span id="agent-key-error" style="font-size:11px;color:var(--red);display:none"></span>
         <div class="modal-actions" style="justify-content:space-between">
           <a href="/persona-editor" id="btn-advanced-editor" style="font-size:12px;color:var(--purple);text-decoration:none;align-self:center" target="_blank">Advanced Editor (PMF)</a>
@@ -2504,7 +2504,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 <div class="modal-overlay kill-overlay" id="modal-kill">
   <div class="modal-content kill-modal">
     <h3 style="color:var(--red);font-size:14px;text-transform:uppercase;letter-spacing:2px;font-family:var(--font-mono)">NIRVANA KILL SWITCH</h3>
-    <div class="kill-agent-name" id="kill-agent-name">ΓÇö</div>
+    <div class="kill-agent-name" id="kill-agent-name">—</div>
     <p class="kill-warning">This will immediately terminate all agent activity. An auto-snapshot will be saved before termination. This action cannot be undone.</p>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-kill')">Cancel</button>
@@ -2520,8 +2520,8 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 <div class="modal-overlay delete-overlay" id="modal-delete">
   <div class="modal-content delete-modal">
     <h3 style="color:#ef4444;font-size:14px;text-transform:uppercase;letter-spacing:2px;font-family:var(--font-mono)">PERMANENT DELETE</h3>
-    <div class="delete-agent-name" id="delete-agent-name">ΓÇö</div>
-    <p class="delete-warning">This will <strong>permanently delete</strong> this agent and all its data ΓÇö conversations, audit logs, snapshots, and memory. This cannot be undone or revived.</p>
+    <div class="delete-agent-name" id="delete-agent-name">—</div>
+    <p class="delete-warning">This will <strong>permanently delete</strong> this agent and all its data — conversations, audit logs, snapshots, and memory. This cannot be undone or revived.</p>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-delete')">Cancel</button>
       <button class="btn-delete-hold" id="btn-confirm-delete">
@@ -2591,8 +2591,8 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
 <div class="modal-overlay" id="modal-exec">
   <div class="modal-content">
     <h3>Action Approval Required <span class="exec-modal-risk high" id="exec-risk">HIGH</span></h3>
-    <p>Agent <strong id="exec-agent-name">ΓÇö</strong> is requesting to execute:</p>
-    <div class="exec-command" id="exec-command">ΓÇö</div>
+    <p>Agent <strong id="exec-agent-name">—</strong> is requesting to execute:</p>
+    <div class="exec-command" id="exec-command">—</div>
     <div class="exec-actions">
       <button class="btn btn-sm btn-deny" onclick="resolveExec('deny')">Deny</button>
       <button class="btn btn-sm btn-allow-once" onclick="resolveExec('allow_once')">Allow Once</button>
@@ -2606,7 +2606,7 @@ html.light .code-copy-btn:hover { background: rgba(124,58,237,0.1); color: #7C3A
   <div class="modal-content" style="max-width:560px">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
       <div>
-        <h3 id="skill-detail-name" style="font-size:18px;font-weight:700;margin:0 0 4px">ΓÇö</h3>
+        <h3 id="skill-detail-name" style="font-size:18px;font-weight:700;margin:0 0 4px">—</h3>
         <div id="skill-detail-badges" style="display:flex;gap:6px;align-items:center"></div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-skill-detail')" style="padding:4px 10px">&times;</button>
@@ -2739,7 +2739,7 @@ const LOCAL_PROVIDER_DEFAULTS = {
 };
 
 function getModelDisplay(model) {
-  return MODEL_DISPLAY_NAMES[model] || model || 'ΓÇö';
+  return MODEL_DISPLAY_NAMES[model] || model || '—';
 }
 
 function getProviderFromModel(model) {
@@ -2760,7 +2760,7 @@ function validateKeyPrefix(key, provider) {
 }
 
 // ΓöÇΓöÇ API BASE ΓöÇΓöÇ
-// Sutra.team: use relative paths ΓÇö Next.js proxy routes forward to api.sammasuit.com
+// Sutra.team: use relative paths — Next.js proxy routes forward to api.sammasuit.com
 const API_BASE = '';
 
 let refreshInterval = null;
@@ -2796,7 +2796,7 @@ async function api(method, path, body) {
       }
     } catch (e) {
       console.warn('[api] Clerk token error:', e);
-      // Clerk token refresh failed ΓÇö fall through to stored token
+      // Clerk token refresh failed — fall through to stored token
     }
   }
   if (!opts.headers['Authorization'] && state.token) {
@@ -2804,7 +2804,7 @@ async function api(method, path, body) {
     console.log('[api]', method, path, '| Using stored token:', state.token.substring(0, 15) + '...');
   }
   if (!opts.headers['Authorization']) {
-    console.warn('[api]', method, path, '| NO AUTH TOKEN ΓÇö request will 401');
+    console.warn('[api]', method, path, '| NO AUTH TOKEN — request will 401');
   }
 
   if (body) {
@@ -2813,12 +2813,12 @@ async function api(method, path, body) {
   const res = await fetch(`${API_BASE}${path}`, opts);
   if (res.status === 401) {
     if (DEMO_MODE) { throw new Error('Demo auth failed'); }
-    // If Clerk user is still active, this is likely a transient token issue ΓÇö don't nuke the session
+    // If Clerk user is still active, this is likely a transient token issue — don't nuke the session
     if (window.Clerk && window.Clerk.user) {
-      console.warn('[Auth] 401 with active Clerk session ΓÇö token may not be ready yet');
+      console.warn('[Auth] 401 with active Clerk session — token may not be ready yet');
       throw new Error('Unauthorized');
     }
-    // No Clerk session ΓÇö clear legacy tokens and show login
+    // No Clerk session — clear legacy tokens and show login
     state.token = null;
     localStorage.removeItem('samma_token');
     sessionStorage.removeItem('samma_token');
@@ -2846,7 +2846,7 @@ function showView(view) {
     if (window.Clerk && !window.Clerk.user) {
       const el = document.getElementById('clerk-sign-in');
       if (el && !el.hasChildNodes()) {
-        // Clerk rejects file:// URLs ΓÇö show warning for local filesystem
+        // Clerk rejects file:// URLs — show warning for local filesystem
         if (window.location.protocol === 'file:') {
           el.innerHTML = `
             <div style="padding:16px;background:rgba(234,88,12,0.1);border:1px solid var(--orange);border-radius:8px;text-align:center;font-size:13px;color:var(--orange);">
@@ -2924,7 +2924,7 @@ async function loadDashboard() {
         api('GET', '/api/agents')
       ]);
     } catch (firstErr) {
-      // First attempt may fail if Clerk token isn't ready yet ΓÇö retry once after delay
+      // First attempt may fail if Clerk token isn't ready yet — retry once after delay
       if (window.Clerk && window.Clerk.user) {
         await new Promise(r => setTimeout(r, 1000));
         [meRes, overviewRes, agentsRes] = await Promise.all([
@@ -2950,7 +2950,7 @@ async function loadDashboard() {
     // Prefetch skills data so the Skills tab loads instantly
     if (!state.skills) loadSkills();
 
-    // Fetch heartbeat status ΓÇö use batch endpoint if available, else stagger individual calls
+    // Fetch heartbeat status — use batch endpoint if available, else stagger individual calls
     const agentList = agentsRes?.agents || [];
     if (agentList.length > 0) {
       try {
@@ -2977,7 +2977,7 @@ async function loadDashboard() {
       }
     }
 
-    // Auto-refresh overview every 60s (was 30s ΓÇö reduced to prevent worker exhaustion)
+    // Auto-refresh overview every 60s (was 30s — reduced to prevent worker exhaustion)
     if (refreshInterval) clearInterval(refreshInterval);
     refreshInterval = setInterval(async () => {
       try {
@@ -3006,7 +3006,7 @@ function renderDashboard() {
 function renderHeader() {
   const c = state.customer;
   if (!c) return;
-  document.getElementById('dash-email').textContent = c.email || 'ΓÇö';
+  document.getElementById('dash-email').textContent = c.email || '—';
   const tierEl = document.getElementById('dash-tier');
   const tier = (c.tier || 'free').toLowerCase();
   tierEl.textContent = tier.toUpperCase();
@@ -3361,7 +3361,7 @@ function renderAuditTable(entries) {
     <th>Timestamp</th><th>Agent</th><th>Action</th><th>Model</th><th>Layers</th><th>In / Out Tokens</th><th>Cost</th><th>Duration</th>
     </tr></thead><tbody>`;
   for (const e of entries) {
-    const ts = e.created_at ? new Date(e.created_at).toLocaleString() : 'ΓÇö';
+    const ts = e.created_at ? new Date(e.created_at).toLocaleString() : '—';
     const actionLower = (e.action || '').toLowerCase();
     const isBlocked = blockedActions.some(b => actionLower.includes(b));
     const layers = (e.layers_enforced || []).map(l => {
@@ -3369,17 +3369,17 @@ function renderAuditTable(entries) {
       return `<span class="layer-badge ${cls}">${l}</span>`;
     }).join('');
     const cost = e.cost_usd != null ? e.cost_usd : 0;
-    const modelShort = e.model ? e.model.replace('claude-', '').replace('-20250929', '').replace('-20251001', '') : 'ΓÇö';
-    const tokensStr = (e.input_tokens || e.output_tokens) ? `${(e.input_tokens || 0).toLocaleString()} / ${(e.output_tokens || 0).toLocaleString()}` : 'ΓÇö';
-    const durationStr = e.duration_ms ? `${(e.duration_ms / 1000).toFixed(1)}s` : 'ΓÇö';
+    const modelShort = e.model ? e.model.replace('claude-', '').replace('-20250929', '').replace('-20251001', '') : '—';
+    const tokensStr = (e.input_tokens || e.output_tokens) ? `${(e.input_tokens || 0).toLocaleString()} / ${(e.output_tokens || 0).toLocaleString()}` : '—';
+    const durationStr = e.duration_ms ? `${(e.duration_ms / 1000).toFixed(1)}s` : '—';
     html += `<tr>
       <td class="audit-ts">${ts}</td>
-      <td>${esc(e.agent_name || 'ΓÇö')}</td>
-      <td>${esc(e.action || 'ΓÇö')}</td>
+      <td>${esc(e.agent_name || '—')}</td>
+      <td>${esc(e.action || '—')}</td>
       <td style="font-family:var(--font-mono);font-size:11px">${esc(modelShort)}</td>
-      <td>${layers || 'ΓÇö'}</td>
+      <td>${layers || '—'}</td>
       <td style="font-family:var(--font-mono);font-size:12px">${tokensStr}</td>
-      <td style="font-family:var(--font-mono);font-size:12px">${cost > 0 ? '$' + cost.toFixed(4) : 'ΓÇö'}<span class="cumulative">cum: $${running.toFixed(4)}</span></td>
+      <td style="font-family:var(--font-mono);font-size:12px">${cost > 0 ? '$' + cost.toFixed(4) : '—'}<span class="cumulative">cum: $${running.toFixed(4)}</span></td>
       <td style="font-family:var(--font-mono);font-size:12px">${durationStr}</td>
     </tr>`;
     running -= cost;
@@ -3487,7 +3487,7 @@ function renderBilling() {
   if (sub) {
     const statusLabel = sub.status === 'active' ? 'Active' : sub.status === 'past_due' ? 'Past Due' : sub.status === 'canceled' ? 'Canceled' : sub.status;
     const statusColor = sub.status === 'active' ? 'var(--green)' : sub.status === 'past_due' ? 'var(--gold)' : 'var(--red)';
-    const renewDate = sub.current_period_end ? new Date(sub.current_period_end * 1000).toLocaleDateString() : 'ΓÇö';
+    const renewDate = sub.current_period_end ? new Date(sub.current_period_end * 1000).toLocaleDateString() : '—';
     const cancelling = sub.cancel_at_period_end;
 
     statusHtml += `
@@ -3501,7 +3501,7 @@ function renderBilling() {
       </div>
       <div class="billing-status-row">
         <span class="bsr-label">Stripe Customer</span>
-        <span class="bsr-value">${esc(b.stripe_customer_id || 'ΓÇö')}</span>
+        <span class="bsr-value">${esc(b.stripe_customer_id || '—')}</span>
       </div>`;
   } else {
     const isFree = tier === 'free';
@@ -3518,7 +3518,7 @@ function renderBilling() {
 
   const displayEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress
     || window.Clerk?.user?.emailAddresses?.[0]?.emailAddress
-    || b.email || 'ΓÇö';
+    || b.email || '—';
   statusHtml += `
     <div class="billing-status-row">
       <span class="bsr-label">Email</span>
@@ -3526,7 +3526,7 @@ function renderBilling() {
     </div>
     <div class="billing-status-row">
       <span class="bsr-label">Account ID</span>
-      <span class="bsr-value" style="font-size:11px;cursor:pointer" title="Click to copy" onclick="navigator.clipboard.writeText('${esc(b.customer_id || '')}');this.textContent='Copied!';setTimeout(()=>this.textContent='${esc(b.customer_id || 'ΓÇö')}',1500)">${esc(b.customer_id || 'ΓÇö')}</span>
+      <span class="bsr-value" style="font-size:11px;cursor:pointer" title="Click to copy" onclick="navigator.clipboard.writeText('${esc(b.customer_id || '')}');this.textContent='Copied!';setTimeout(()=>this.textContent='${esc(b.customer_id || '—')}',1500)">${esc(b.customer_id || '—')}</span>
     </div>
   </div>`;
 
@@ -3578,13 +3578,13 @@ async function loadCreditTransactions() {
     }
     let html = `<table class="credit-txn-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Balance</th></tr></thead><tbody>`;
     for (const t of txns) {
-      const date = t.created_at ? new Date(t.created_at).toLocaleDateString() : 'ΓÇö';
+      const date = t.created_at ? new Date(t.created_at).toLocaleDateString() : '—';
       const amt = parseFloat(t.amount);
       const cls = amt >= 0 ? 'txn-positive' : 'txn-negative';
       const sign = amt >= 0 ? '+' : '';
       html += `<tr>
         <td style="color:var(--gray)">${date}</td>
-        <td>${esc(t.description || 'ΓÇö')}</td>
+        <td>${esc(t.description || '—')}</td>
         <td class="${cls}" style="font-family:var(--font-mono)">${sign}$${Math.abs(amt).toFixed(4)}</td>
         <td style="font-family:var(--font-mono)">$${parseFloat(t.balance_after).toFixed(4)}</td>
       </tr>`;
@@ -3708,7 +3708,7 @@ async function openAgentDetail(agentId) {
     const chatBtn = document.getElementById('btn-detail-chat');
     if (chatBtn) chatBtn.style.display = ['active','sleeping'].includes(a.status || 'active') ? '' : 'none';
 
-    const pubKey = a.metta_public_key || a.public_key || 'ΓÇö';
+    const pubKey = a.metta_public_key || a.public_key || '—';
     const truncKey = pubKey.length > 24 ? pubKey.slice(0, 12) + '...' + pubKey.slice(-8) : pubKey;
 
     const budgetPct = a.monthly_budget_usd > 0
@@ -3731,7 +3731,7 @@ async function openAgentDetail(agentId) {
           ${!a.eightfold_path_aspect
             ? `<input type="text" id="persona-name-input" class="agent-model-dropdown" style="min-width:180px" value="${esc(a.persona_name || a.name || '')}" maxlength="255" placeholder="Enter agent display name">
                <button class="btn btn-primary" style="padding:4px 12px;font-size:11px" onclick="savePersonaName('${a.id}')">Save</button>`
-            : `<span>${esc(a.persona_name || a.name || 'ΓÇö')}</span><span style="font-size:11px;color:var(--gray-dim);margin-left:4px">Rights Council ΓÇö locked</span>`}
+            : `<span>${esc(a.persona_name || a.name || '—')}</span><span style="font-size:11px;color:var(--gray-dim);margin-left:4px">Rights Council — locked</span>`}
         </span>
       </div>
       ${(a.council_type && (a.council_type === 'rights' || a.council_type === 'experts')) ? `<div class="detail-row">
@@ -3742,13 +3742,13 @@ async function openAgentDetail(agentId) {
             <span style="position:absolute;inset:0;background:${(a.status||'active')==='sleeping'?'#6366f1':'var(--bg2)'};border-radius:24px;transition:all 0.3s;border:1px solid var(--card-border)"></span>
             <span style="position:absolute;top:3px;left:${(a.status||'active')==='sleeping'?'22px':'3px'};width:18px;height:18px;background:white;border-radius:50%;transition:all 0.3s"></span>
           </label>
-          <span style="font-size:13px;color:var(--gray)">${(a.status||'active')==='sleeping'?'\uD83C\uDF19 Sleeping ΓÇö skipped in deliberations':'Awake ΓÇö participates in deliberations'}</span>
+          <span style="font-size:13px;color:var(--gray)">${(a.status||'active')==='sleeping'?'\uD83C\uDF19 Sleeping — skipped in deliberations':'Awake — participates in deliberations'}</span>
         </span>
       </div>` : ''}
       <div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <span style="color:var(--gray);font-size:14px">Agent Instructions</span>
-          ${!a.is_canonical ? `<button class="btn btn-ghost" style="padding:4px 12px;font-size:11px" id="btn-edit-prompt" onclick="togglePromptEdit('${a.id}')">Edit</button>` : '<span style="font-size:11px;color:var(--gray-dim)">Canonical ΓÇö fork to edit</span>'}
+          ${!a.is_canonical ? `<button class="btn btn-ghost" style="padding:4px 12px;font-size:11px" id="btn-edit-prompt" onclick="togglePromptEdit('${a.id}')">Edit</button>` : '<span style="font-size:11px;color:var(--gray-dim)">Canonical — fork to edit</span>'}
         </div>
         <div id="detail-system-prompt" data-value="${esc(a.system_prompt || '').replace(/"/g, '&quot;')}" style="width:100%;max-width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--card-border);border-radius:8px;color:var(--white);font-family:var(--font-mono);font-size:13px;line-height:1.5;min-height:60px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden">${esc(a.system_prompt || '') || '<span style="color:var(--gray-dim)">No instructions set</span>'}</div>
         <button class="btn btn-primary" style="padding:6px 16px;font-size:12px;margin-top:8px;display:none" id="btn-save-prompt" onclick="savePrompt('${a.id}')">Save</button>
@@ -3783,8 +3783,8 @@ async function openAgentDetail(agentId) {
       <div class="detail-row">
         <span class="detail-label">BYOK Key</span>
         <span class="detail-value" id="byok-status-${a.id}">${a.has_byok_key
-          ? `<span style="color:var(--green)">Active ΓÇö using your ${PROVIDER_DISPLAY[a.provider || 'anthropic'] || 'Anthropic'} key</span>`
-          : '<span style="color:var(--gray-dim)">Not set ΓÇö using platform key</span>'}</span>
+          ? `<span style="color:var(--green)">Active — using your ${PROVIDER_DISPLAY[a.provider || 'anthropic'] || 'Anthropic'} key</span>`
+          : '<span style="color:var(--gray-dim)">Not set — using platform key</span>'}</span>
       </div>
       <div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap">
@@ -3806,7 +3806,7 @@ async function openAgentDetail(agentId) {
       </div>
       <div class="detail-row">
         <span class="detail-label">Created</span>
-        <span class="detail-value">${a.created_at ? new Date(a.created_at).toLocaleString() : 'ΓÇö'}</span>
+        <span class="detail-value">${a.created_at ? new Date(a.created_at).toLocaleString() : '—'}</span>
       </div>
       ${!a.is_canonical ? `<div style="padding:12px 0;border-bottom:1px solid var(--card-border)">
         <a href="/persona-editor?agentId=${a.id}" style="display:inline-flex;align-items:center;gap:6px;color:var(--purple);text-decoration:none;font-size:13px;font-weight:600" target="_blank">
@@ -3907,7 +3907,7 @@ async function openAgentDetail(agentId) {
       html += '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;color:var(--red)" onclick="deleteHeartbeat(\''+a.id+'\')">Delete</button>';
       html += '</div>';
     } else {
-      // -- No heartbeat yet ΓÇö creation form --
+      // -- No heartbeat yet — creation form --
       html += '<div style="margin-top:4px">';
       html += '<div class="detail-row"><span class="detail-label">Frequency</span><span>';
       html += '<select class="login-input" id="hb-interval-'+a.id+'" style="width:140px;max-width:100%;margin:0;padding:6px 10px;font-size:12px">';
@@ -4033,15 +4033,15 @@ async function openAgentDetail(agentId) {
       html += '<h4 style="margin-top:24px;margin-bottom:12px;font-size:14px;color:var(--gray)">Recent Activity</h4>';
       html += '<div class="audit-scroll" style="max-height:250px"><table class="audit-table"><thead><tr><th>Time</th><th>Action</th><th>Model</th><th>Tokens</th><th>Cost</th></tr></thead><tbody>';
       for (const e of auditEntries) {
-        const ts = e.created_at ? new Date(e.created_at).toLocaleString() : 'ΓÇö';
-        const modelShort = e.model ? e.model.replace('claude-', '').replace('-20250929', '').replace('-20251001', '') : 'ΓÇö';
-        const tokensStr = (e.input_tokens || e.output_tokens) ? `${(e.input_tokens||0).toLocaleString()} / ${(e.output_tokens||0).toLocaleString()}` : 'ΓÇö';
+        const ts = e.created_at ? new Date(e.created_at).toLocaleString() : '—';
+        const modelShort = e.model ? e.model.replace('claude-', '').replace('-20250929', '').replace('-20251001', '') : '—';
+        const tokensStr = (e.input_tokens || e.output_tokens) ? `${(e.input_tokens||0).toLocaleString()} / ${(e.output_tokens||0).toLocaleString()}` : '—';
         html += `<tr>
           <td class="audit-ts">${ts}</td>
-          <td>${esc(e.action || 'ΓÇö')}</td>
+          <td>${esc(e.action || '—')}</td>
           <td style="font-family:var(--font-mono);font-size:11px">${esc(modelShort)}</td>
           <td style="font-family:var(--font-mono);font-size:12px">${tokensStr}</td>
-          <td style="font-family:var(--font-mono);font-size:12px">${(e.cost_usd||0) > 0 ? '$'+e.cost_usd.toFixed(4) : 'ΓÇö'}</td>
+          <td style="font-family:var(--font-mono);font-size:12px">${(e.cost_usd||0) > 0 ? '$'+e.cost_usd.toFixed(4) : '—'}</td>
         </tr>`;
       }
       html += '</tbody></table></div>';
@@ -4193,7 +4193,7 @@ function togglePromptEdit(agentId) {
     editBtn.textContent = 'Cancel';
     saveBtn.style.display = 'inline-flex';
   } else {
-    // Cancel ΓÇö swap textarea ΓåÆ div (restore original)
+    // Cancel — swap textarea ΓåÆ div (restore original)
     const div = document.createElement('div');
     div.id = 'detail-system-prompt';
     div.dataset.value = promptOriginalValue;
@@ -4248,7 +4248,7 @@ async function saveBYOKKey(agentId) {
   if (!validateKeyPrefix(key, provider)) {
     const errEl = document.getElementById('byok-key-error-' + agentId);
     if (errEl) {
-      errEl.textContent = `Key doesn't match ${PROVIDER_DISPLAY[provider]} ΓÇö expected prefix: ${PROVIDER_KEY_PREFIXES[provider]?.prefix || '?'}`;
+      errEl.textContent = `Key doesn't match ${PROVIDER_DISPLAY[provider]} — expected prefix: ${PROVIDER_KEY_PREFIXES[provider]?.prefix || '?'}`;
       errEl.style.display = 'block';
     }
     return;
@@ -4258,7 +4258,7 @@ async function saveBYOKKey(agentId) {
     await api('PUT', `/api/agents/${agentId}`, { llm_api_key: key, provider });
     input.value = '';
     const provName = PROVIDER_DISPLAY[provider] || provider;
-    document.getElementById('byok-status-' + agentId).innerHTML = `<span style="color:var(--green)">Active ΓÇö using your ${provName} key</span>`;
+    document.getElementById('byok-status-' + agentId).innerHTML = `<span style="color:var(--green)">Active — using your ${provName} key</span>`;
     input.placeholder = 'Replace existing keyΓÇª';
     const errEl = document.getElementById('byok-key-error-' + agentId);
     if (errEl) errEl.style.display = 'none';
@@ -4275,7 +4275,7 @@ async function removeBYOKKey(agentId) {
   if (!confirm(`Remove your ${provName} API key? The agent will fall back to credit mode.`)) return;
   try {
     await api('PUT', `/api/agents/${agentId}`, { llm_api_key: '' });
-    document.getElementById('byok-status-' + agentId).innerHTML = '<span style="color:var(--gray-dim)">Not set ΓÇö using platform key</span>';
+    document.getElementById('byok-status-' + agentId).innerHTML = '<span style="color:var(--gray-dim)">Not set — using platform key</span>';
     document.getElementById('byok-input-' + agentId).placeholder = PROVIDER_KEY_PREFIXES[provider]?.placeholder || 'API key';
     toast('API key removed', 'success');
   } catch (e) {
@@ -4303,7 +4303,7 @@ async function saveHeartbeat(agentId, enabled) {
 }
 
 async function triggerHeartbeat(agentId) {
-  toast('Heartbeat triggered ΓÇö running in background...', 'info');
+  toast('Heartbeat triggered — running in background...', 'info');
   try {
     await api('POST', `/api/agents/${agentId}/heartbeat/trigger`);
     toast('Heartbeat running. Refresh in a minute to see result.', 'success');
@@ -4631,7 +4631,7 @@ async function uploadForBluesky() {
 
     // Clear the file attachment (image is now on Bluesky)
     clearChatFile();
-    toast('Image uploaded to Bluesky ΓÇö ready to post', 'success');
+    toast('Image uploaded to Bluesky — ready to post', 'success');
   } catch (err) {
     console.error('Bluesky upload failed:', err);
     toast('Bluesky upload failed: ' + err.message, 'error');
@@ -4658,7 +4658,7 @@ async function loadConversation(conversationId) {
     // Scroll to bottom after loading history
     msgEl.scrollTop = msgEl.scrollHeight;
   } catch (e) {
-    // Conversation may have been deleted ΓÇö clear persisted ID and start fresh
+    // Conversation may have been deleted — clear persisted ID and start fresh
     msgEl.innerHTML = '';
     chatConversationId = null;
     if (chatAgentId) localStorage.removeItem(`sutra_conv_${chatAgentId}`);
@@ -4708,7 +4708,7 @@ function renderIdentityBadge(ident) {
 }
 
 function renderMarkdown(text) {
-  // Check for synthesis JSON ΓÇö {agreements, tensions, gaps, recommendation, confidence}
+  // Check for synthesis JSON — {agreements, tensions, gaps, recommendation, confidence}
   const synthesisHtml = tryRenderSynthesis(text);
   if (synthesisHtml) return synthesisHtml;
 
@@ -4969,7 +4969,7 @@ function addChatMsg(role, text, layers, mettaSig, opts = {}) {
     wrap.appendChild(buildMsgActions(role, () => textNode.textContent, msgIdx));
   }
 
-  // Timestamp (only on last-in-group ΓÇö previous sibling's ts gets removed)
+  // Timestamp (only on last-in-group — previous sibling's ts gets removed)
   if (!opts.skipTimestamp) {
     if (sameSender) {
       const prev = el.lastElementChild;
@@ -4999,13 +4999,14 @@ async function sendChatMsg() {
   input.value = '';
   input.style.height = 'auto';
 
-  // Build message content ΓÇö multimodal array when file attached, plain string otherwise
+  // Build message content — multimodal array when file attached, plain string otherwise
   let messageContent;
   let displayText = text;
   let imagePreviewUrl = null;
   const attachedFile = chatFileData;
   if (attachedFile) {
     const contentBlocks = [];
+    const ext = attachedFile.name.split('.').pop().toLowerCase();
     if (attachedFile.isText) {
       // Text file: include content as text block with filename header
       const fileText = `[File: ${attachedFile.name}]\n${attachedFile.textContent}`;
@@ -5026,8 +5027,14 @@ async function sendChatMsg() {
         source: { type: 'base64', media_type: 'application/pdf', data: attachedFile.base64 }
       });
       displayText = `[${attachedFile.name}] ${text || 'Summarize this document.'}`.trim();
+    } else if (['doc', 'docx'].includes(ext)) {
+      // Word documents: send via /gateway/upload multipart endpoint
+      // Backend extracts text using python-docx and injects as context
+      displayText = `[${attachedFile.name}] ${text || ''}`.trim();
+      contentBlocks.push({ type: 'text', text: displayText });
+      attachedFile._useUploadEndpoint = true;
     } else {
-      // Unsupported binary ΓÇö skip, just send text
+      // Unsupported binary — skip, just send text
       displayText = text;
     }
     if (text) contentBlocks.push({ type: 'text', text });
@@ -5088,6 +5095,50 @@ async function sendChatMsg() {
       fetchOpts.headers['Authorization'] = `Bearer ${state.token}`;
     }
 
+    // --- File upload path (docx/doc files) ---
+    if (attachedFile && attachedFile._useUploadEndpoint && chatSelectedFile) {
+      const fd = new FormData();
+      fd.append('message', typeof messageContent === 'string'
+        ? messageContent
+        : (Array.isArray(messageContent) ? (messageContent.find(b => b.type === 'text')?.text || text || '') : text));
+      fd.append('file', chatSelectedFile);
+      if (chatConversationId) fd.append('conversation_id', chatConversationId);
+
+      try {
+        const authHdr = fetchOpts.headers['Authorization'];
+        const uploadRes = await fetch(
+          `${API_BASE}/api/agents/${chatAgentId}/gateway/upload`,
+          {
+            method: 'POST',
+            headers: authHdr ? { 'Authorization': authHdr } : {},
+            body: fd,
+          }
+        );
+        typingWrap.remove();
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          addChatMsg('assistant', uploadData.detail?.message || uploadData.detail || 'Upload failed');
+          sendBtn.disabled = false;
+          return;
+        }
+        const replyText = uploadData.content?.[0]?.text
+          || uploadData.response
+          || uploadData.message
+          || JSON.stringify(uploadData);
+        addChatMsg('assistant', replyText, uploadData.layers_enforced, uploadData.metta_signature);
+        if (uploadData.conversation_id) {
+          chatConversationId = uploadData.conversation_id;
+          if (chatAgentId) localStorage.setItem(`sutra_conv_${chatAgentId}`, chatConversationId);
+        }
+      } catch (err) {
+        typingWrap.remove();
+        addChatMsg('assistant', 'File upload failed: ' + err.message);
+      }
+      sendBtn.disabled = false;
+      return;
+    }
+    // --- End file upload path ---
+
     const res = await fetch(`${API_BASE}/api/agents/${chatAgentId}/gateway/stream`, fetchOpts);
     if (res.status === 401) { state.token = null; localStorage.removeItem('samma_token'); sessionStorage.removeItem('samma_token'); showView('login'); throw new Error('Unauthorized'); }
     if (!res.ok) {
@@ -5134,7 +5185,7 @@ async function sendChatMsg() {
     stopBtn.style.display = 'flex';
 
     if (contentType.includes('text/event-stream') && res.body) {
-      // SSE streaming ΓÇö build bubble with grouping
+      // SSE streaming — build bubble with grouping
       _lastChatRole = null; // ensure fresh group header
       const { wrap, div: msgDiv, msgIdx: streamMsgIdx } = addChatMsg('assistant', '', [], null, { skipTimestamp: true, skipActions: true });
       const textSpan = msgDiv.querySelector('span');
@@ -5261,7 +5312,7 @@ async function sendChatMsg() {
     }
   } catch (e) {
     if (e.name === 'AbortError') {
-      // User stopped ΓÇö don't show error, typing indicator already removed
+      // User stopped — don't show error, typing indicator already removed
       typingWrap.remove();
     } else {
       typingWrap.remove();
@@ -5306,7 +5357,7 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 
 // ΓöÇΓöÇ CREATE AGENT ΓöÇΓöÇ
 
-// Per-model credit rates (USD per 1M tokens, input/output) ΓÇö mirrors backend MODEL_RATES
+// Per-model credit rates (USD per 1M tokens, input/output) — mirrors backend MODEL_RATES
 const MODEL_CREDIT_RATES = {
   "claude-sonnet-4-5-20250929": { input: 3.0, output: 15.0 },
   "claude-haiku-4-5-20251001":  { input: 0.80, output: 4.0 },
@@ -5326,16 +5377,16 @@ function updateCreditHint() {
   const keyVal = document.getElementById('agent-llm-key')?.value?.trim();
 
   if (LOCAL_PROVIDERS.has(prov)) {
-    hint.innerHTML = '<span style="color:var(--cyan)">Local model ΓÇö no credit charge. You provide the compute.</span>';
+    hint.innerHTML = '<span style="color:var(--cyan)">Local model — no credit charge. You provide the compute.</span>';
     return;
   }
   if (keyVal) {
-    hint.innerHTML = '<span style="color:var(--green)">Using your API key ΓÇö no credit charge</span>';
+    hint.innerHTML = '<span style="color:var(--green)">Using your API key — no credit charge</span>';
   } else {
     const rates = MODEL_CREDIT_RATES[model];
     if (rates) {
       const avg = ((rates.input + rates.output) / 2 / 1000).toFixed(3);
-      hint.innerHTML = `Using platform credits ΓÇö ~$${avg} per 1K tokens (35% markup incl.)`;
+      hint.innerHTML = `Using platform credits — ~$${avg} per 1K tokens (35% markup incl.)`;
     } else {
       hint.textContent = 'Using platform credits';
     }
@@ -5350,7 +5401,7 @@ function onCreateProviderChange() {
   const isLocal = LOCAL_PROVIDERS.has(prov);
 
   modelSel.innerHTML = models.map(m => `<option value="${m}">${getModelDisplay(m)}</option>`).join('');
-  keyInput.placeholder = (PROVIDER_KEY_PREFIXES[prov]?.placeholder || '') + (isLocal ? '' : ' (optional ΓÇö BYOK)');
+  keyInput.placeholder = (PROVIDER_KEY_PREFIXES[prov]?.placeholder || '') + (isLocal ? '' : ' (optional — BYOK)');
   document.getElementById('agent-key-error').style.display = 'none';
 
   // Show/hide local endpoint fields
@@ -5398,14 +5449,14 @@ document.getElementById('agent-llm-key')?.addEventListener('input', updateCredit
 const AGENT_TEMPLATES = [
   // General
   { id: 'blank', name: 'Blank Agent', icon: '\u2b1c', category: 'General',
-    description: 'Empty canvas ΓÇö configure everything yourself.',
+    description: 'Empty canvas — configure everything yourself.',
     prefill: { name: '', system_prompt: '', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '' } },
   { id: 'chatbot', name: 'Simple Chatbot', icon: '\ud83d\udcac', category: 'General',
     description: 'Friendly general-purpose conversational agent.',
     prefill: { name: 'Chatbot', system_prompt: 'You are a friendly, helpful assistant. Be concise and conversational. Ask clarifying questions when the user\'s request is ambiguous.', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
   { id: 'sales', name: 'Sales Assistant', icon: '\ud83d\udcb0', category: 'General',
     description: 'Qualifies leads, answers product questions, books demos.',
-    prefill: { name: 'Sales Assistant', system_prompt: 'You are a professional sales assistant. Your goals:\n1. Qualify inbound leads by understanding their needs and budget\n2. Answer product/service questions accurately and enthusiastically\n3. Guide qualified leads toward booking a demo or starting a trial\n4. Never be pushy ΓÇö build trust through helpfulness\n5. Log key details: company size, use case, timeline, budget range', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '25' } },
+    prefill: { name: 'Sales Assistant', system_prompt: 'You are a professional sales assistant. Your goals:\n1. Qualify inbound leads by understanding their needs and budget\n2. Answer product/service questions accurately and enthusiastically\n3. Guide qualified leads toward booking a demo or starting a trial\n4. Never be pushy — build trust through helpfulness\n5. Log key details: company size, use case, timeline, budget range', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '25' } },
   { id: 'support', name: 'Customer Support', icon: '\ud83c\udfe5', category: 'General',
     description: 'Handles tickets, troubleshoots issues, escalates when needed.',
     prefill: { name: 'Support Agent', system_prompt: 'You are a patient, empathetic customer support agent. Your approach:\n1. Acknowledge the customer\'s frustration before solving\n2. Ask diagnostic questions to isolate the issue\n3. Provide step-by-step solutions when possible\n4. Escalate to a human when: billing disputes, account security, or issues you cannot resolve in 3 exchanges\n5. Always confirm the issue is resolved before closing', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
@@ -5414,7 +5465,7 @@ const AGENT_TEMPLATES = [
     prefill: { name: 'Content Writer', system_prompt: 'You are a skilled content writer. Guidelines:\n1. Match the brand voice: professional yet approachable\n2. Use clear, jargon-free language unless writing for a technical audience\n3. Structure content with headers, bullets, and short paragraphs\n4. Include a call-to-action where appropriate\n5. Ask for target audience, tone, and key messages before drafting', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
   { id: 'deal-analyst', name: 'Deal Analyst', icon: '\ud83d\udcc8', category: 'General',
     description: 'Evaluates business deals, contracts, and partnership terms.',
-    prefill: { name: 'Deal Analyst', system_prompt: 'You are a sharp deal analyst. When reviewing a deal or contract:\n1. Identify key terms: pricing, exclusivity, termination clauses, IP ownership\n2. Flag risks and unfavorable terms\n3. Compare against industry benchmarks when possible\n4. Summarize with a recommendation: proceed, negotiate, or pass\n5. Be direct ΓÇö executives need actionable insights, not lengthy analysis', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+    prefill: { name: 'Deal Analyst', system_prompt: 'You are a sharp deal analyst. When reviewing a deal or contract:\n1. Identify key terms: pricing, exclusivity, termination clauses, IP ownership\n2. Flag risks and unfavorable terms\n3. Compare against industry benchmarks when possible\n4. Summarize with a recommendation: proceed, negotiate, or pass\n5. Be direct — executives need actionable insights, not lengthy analysis', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
   { id: 'ops-manager', name: 'Ops Manager', icon: '\u2699\ufe0f', category: 'General',
     description: 'Tracks tasks, processes, and team workflows.',
     prefill: { name: 'Ops Manager', system_prompt: 'You are an operations management assistant. You help with:\n1. Breaking down projects into tasks with owners and deadlines\n2. Identifying bottlenecks and suggesting process improvements\n3. Creating status reports and meeting agendas\n4. Tracking action items and following up on overdue tasks\n5. Maintaining a structured, organized communication style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '10' } },
@@ -5424,7 +5475,7 @@ const AGENT_TEMPLATES = [
   // Technical
   { id: 'code-reviewer', name: 'Code Reviewer', icon: '\ud83d\udd0d', category: 'Technical',
     description: 'Reviews code for bugs, security issues, and best practices.',
-    prefill: { name: 'Code Reviewer', system_prompt: 'You are an experienced code reviewer. When reviewing code:\n1. Check for bugs, edge cases, and error handling gaps\n2. Flag security vulnerabilities (injection, XSS, auth issues)\n3. Suggest performance improvements where impactful\n4. Ensure code follows project conventions and is readable\n5. Be constructive ΓÇö explain *why* something should change, not just *what*\n6. Prioritize: security > correctness > performance > style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
+    prefill: { name: 'Code Reviewer', system_prompt: 'You are an experienced code reviewer. When reviewing code:\n1. Check for bugs, edge cases, and error handling gaps\n2. Flag security vulnerabilities (injection, XSS, auth issues)\n3. Suggest performance improvements where impactful\n4. Ensure code follows project conventions and is readable\n5. Be constructive — explain *why* something should change, not just *what*\n6. Prioritize: security > correctness > performance > style', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
   { id: 'devops', name: 'DevOps Monitor', icon: '\ud83d\udee0\ufe0f', category: 'Technical',
     description: 'Monitors deployments, alerts, and infrastructure health.',
     prefill: { name: 'DevOps Monitor', system_prompt: 'You are a DevOps monitoring assistant. Your responsibilities:\n1. Analyze deployment logs and error reports\n2. Suggest root causes for incidents based on symptoms\n3. Recommend rollback vs. hotfix decisions\n4. Help write runbooks for recurring issues\n5. Monitor resource usage trends and suggest scaling actions\n6. Always prioritize system stability over speed', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
@@ -5440,7 +5491,7 @@ const AGENT_TEMPLATES = [
     prefill: { name: 'Market Researcher', system_prompt: 'You are a market research analyst. When researching:\n1. Define the market scope and key players\n2. Analyze competitive positioning, pricing, and differentiation\n3. Identify trends, threats, and opportunities\n4. Use frameworks like Porter\'s Five Forces or SWOT where appropriate\n5. Cite sources and flag when data is estimated vs. verified\n6. Deliver actionable strategic recommendations', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
   { id: 'academic', name: 'Academic Researcher', icon: '\ud83c\udf93', category: 'Research & Analysis',
     description: 'Synthesizes papers, explains concepts, finds references.',
-    prefill: { name: 'Academic Researcher', system_prompt: 'You are an academic research assistant. Your standards:\n1. Synthesize multiple sources into coherent summaries\n2. Distinguish between established consensus and emerging findings\n3. Cite papers with author, year, and key findings\n4. Explain complex concepts at the level appropriate for the audience\n5. Flag methodological limitations and conflicting evidence\n6. Never fabricate citations ΓÇö say "I\'m not certain" when unsure', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
+    prefill: { name: 'Academic Researcher', system_prompt: 'You are an academic research assistant. Your standards:\n1. Synthesize multiple sources into coherent summaries\n2. Distinguish between established consensus and emerging findings\n3. Cite papers with author, year, and key findings\n4. Explain complex concepts at the level appropriate for the audience\n5. Flag methodological limitations and conflicting evidence\n6. Never fabricate citations — say "I\'m not certain" when unsure', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '15' } },
   { id: 'investigative', name: 'Investigative Analyst', icon: '\ud83d\udd75\ufe0f', category: 'Research & Analysis',
     description: 'Deep-dives into topics, connects dots, builds timelines.',
     prefill: { name: 'Investigative Analyst', system_prompt: 'You are an investigative analyst. Your methodology:\n1. Map entities, relationships, and timelines\n2. Cross-reference multiple sources to verify claims\n3. Identify patterns, anomalies, and gaps in information\n4. Build evidence-based narratives with clear reasoning chains\n5. Rate confidence for each finding: confirmed / likely / unverified\n6. Present findings in structured briefs with executive summaries', provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', budget: '20' } },
@@ -5579,7 +5630,7 @@ document.getElementById('create-agent-form').addEventListener('submit', async (e
   // Validate key prefix (skip for local providers)
   if (llmKey && !isLocal && !validateKeyPrefix(llmKey, provider)) {
     const errEl = document.getElementById('agent-key-error');
-    errEl.textContent = `Key doesn't match ${PROVIDER_DISPLAY[provider]} ΓÇö expected prefix: ${PROVIDER_KEY_PREFIXES[provider]?.prefix || '?'}`;
+    errEl.textContent = `Key doesn't match ${PROVIDER_DISPLAY[provider]} — expected prefix: ${PROVIDER_KEY_PREFIXES[provider]?.prefix || '?'}`;
     errEl.style.display = 'block';
     return;
   }
@@ -5758,7 +5809,7 @@ function validatePMFClient(raw) {
     if (!layers.differentiation) warnings.push('No differentiation layer.');
     if (!layers.memory) warnings.push('No memory layer.');
   } else {
-    // Unknown ΓÇö need at least a name
+    // Unknown — need at least a name
     if (!parsed.name && !parsed.agent_name && !parsed.persona_name) {
       errors.push('Missing agent name.');
     }
@@ -5895,7 +5946,7 @@ function validateAndPreviewPMF() {
   '</div>';
 }
 
-// Helper ΓÇö escape HTML entities
+// Helper — escape HTML entities
 function escapeHtml(text) {
   const d = document.createElement('div');
   d.textContent = String(text);
@@ -6187,12 +6238,12 @@ function clearSession() {
   if (userBtnEl) userBtnEl.innerHTML = '';
 }
 
-// Magic link form removed ΓÇö Clerk handles sign-in now.
+// Magic link form removed — Clerk handles sign-in now.
 // The Clerk sign-in component is mounted in showView('login').
 
 // ΓöÇΓöÇ AUTH CHECK ON PAGE LOAD ΓöÇΓöÇ
 async function checkToken() {
-  // Demo mode ΓÇö skip login entirely
+  // Demo mode — skip login entirely
   if (DEMO_MODE) {
     showView('dashboard');
     return;
@@ -6234,7 +6285,7 @@ async function checkToken() {
     state.clerkReady = true;
   } catch (e) {
     console.warn('[Auth] Clerk failed to load, falling back to stored token:', e);
-    // Clerk failed ΓÇö fall through to legacy token check
+    // Clerk failed — fall through to legacy token check
   }
 
   // If Clerk is loaded and user is signed in, go to dashboard
@@ -6243,7 +6294,7 @@ async function checkToken() {
     return;
   }
 
-  // Clerk loaded but user is null ΓÇö may be a post-redirect race condition.
+  // Clerk loaded but user is null — may be a post-redirect race condition.
   // Wait up to 1.5s for the session to hydrate before giving up.
   if (state.clerkReady && !window.Clerk.user) {
     const clerkUser = await new Promise((resolve) => {
@@ -6266,14 +6317,14 @@ async function checkToken() {
       showView('dashboard');
       return;
     } catch (e) {
-      // Stored token invalid ΓÇö clear and show login
+      // Stored token invalid — clear and show login
       state.token = null;
       localStorage.removeItem('samma_token');
       sessionStorage.removeItem('samma_token');
     }
   }
 
-  // No valid auth ΓÇö show Clerk sign-in
+  // No valid auth — show Clerk sign-in
   showView('login');
 
   // Listen for Clerk sign-in events to auto-redirect to dashboard
@@ -6390,7 +6441,7 @@ function renderSnapshots(snapshots, agentId) {
   let html = '<h4 style="margin-top:24px;margin-bottom:12px;font-size:14px;color:var(--gray)">Snapshot Timeline</h4>';
   html += '<div class="snapshot-timeline">';
   snapshots.forEach((s, i) => {
-    const ts = s.created_at ? new Date(s.created_at).toLocaleString() : 'ΓÇö';
+    const ts = s.created_at ? new Date(s.created_at).toLocaleString() : '—';
     const label = s.label || (i === 0 ? 'Current State' : 'Snapshot');
     const size = s.size_bytes ? (s.size_bytes / 1024).toFixed(1) + ' KB' : '';
     html += `<div class="snapshot-node${i === 0 ? ' current' : ''}">
@@ -6640,7 +6691,7 @@ function startLiveFeed() {
   feed.innerHTML = '';
   lastLiveTs = new Date().toISOString();
   if (liveInterval) clearInterval(liveInterval);
-  liveInterval = setInterval(pollLiveFeed, 30000); // was 5s ΓÇö reduced to prevent worker exhaustion
+  liveInterval = setInterval(pollLiveFeed, 30000); // was 5s — reduced to prevent worker exhaustion
   pollLiveFeed();
   // Pause on hover
   feed.addEventListener('mouseenter', () => { livePaused = true; document.getElementById('live-paused').style.display = 'block'; });
@@ -6679,7 +6730,7 @@ function renderLiveEntry(entry) {
   if (typeFilter && action !== typeFilter) return;
 
   const info = LIVE_ICONS[action] || LIVE_ICONS.gateway_call;
-  const ts = entry.created_at ? new Date(entry.created_at).toLocaleTimeString() : 'ΓÇö';
+  const ts = entry.created_at ? new Date(entry.created_at).toLocaleTimeString() : '—';
   const tokens = entry.tokens_used ? `${entry.tokens_used} tokens` : '';
   const cost = entry.cost_usd != null ? `$${entry.cost_usd.toFixed(4)}` : '';
   const detail = [tokens, cost].filter(Boolean).join(', ');
@@ -6688,7 +6739,7 @@ function renderLiveEntry(entry) {
   div.className = 'live-entry';
   div.innerHTML = `<span class="live-icon">${info.icon}</span>
     <span class="live-ts">${ts}</span>
-    <span class="live-detail"><span class="live-agent" style="color:${info.color}">${esc(entry.agent_name || 'ΓÇö')}</span> ${esc(entry.action || 'ΓÇö')} ${detail ? 'ΓÇö ' + detail : ''}</span>`;
+    <span class="live-detail"><span class="live-agent" style="color:${info.color}">${esc(entry.agent_name || '—')}</span> ${esc(entry.action || '—')} ${detail ? '— ' + detail : ''}</span>`;
   feed.appendChild(div);
   if (!livePaused) feed.scrollTop = feed.scrollHeight;
 }
@@ -6725,7 +6776,7 @@ async function loadCosts() {
   }).join('');
   document.getElementById('agent-spend-bars').innerHTML = barsHtml || '<div class="empty-state"><p>No agent data</p></div>';
 
-  // Daily chart ΓÇö derive from per-agent audit logs
+  // Daily chart — derive from per-agent audit logs
   try {
     const agentIds = agents.map(a => a.id);
     const auditResults = await Promise.all(
@@ -6813,7 +6864,7 @@ function showExecApproval(agentName, command, risk) {
 function resolveExec(action) {
   closeModal('modal-exec');
   if (action === 'deny') {
-    toast('Action denied ΓÇö logged to SILA audit', 'success');
+    toast('Action denied — logged to SILA audit', 'success');
     // Log denial
     api('POST', '/api/audit/log', { action: 'exec_denied', agent_name: chatAgentName, details: document.getElementById('exec-command').textContent }).catch(() => {});
   } else if (action === 'allow_once') {
