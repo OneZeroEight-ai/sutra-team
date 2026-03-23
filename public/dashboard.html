@@ -5039,6 +5039,7 @@ async function sendChatMsg() {
     }
     if (text) contentBlocks.push({ type: 'text', text });
     messageContent = contentBlocks.length > 0 ? contentBlocks : text;
+    const rawFile = chatSelectedFile;
     clearChatFile();
   } else {
     messageContent = text;
@@ -5096,12 +5097,12 @@ async function sendChatMsg() {
     }
 
     // --- File upload path (docx/doc files) ---
-    if (attachedFile && attachedFile._useUploadEndpoint && chatSelectedFile) {
+    if (attachedFile && attachedFile._useUploadEndpoint && rawFile) {
       const fd = new FormData();
       fd.append('message', typeof messageContent === 'string'
         ? messageContent
         : (Array.isArray(messageContent) ? (messageContent.find(b => b.type === 'text')?.text || text || '') : text));
-      fd.append('file', chatSelectedFile);
+      fd.append('file', rawFile);
       if (chatConversationId) fd.append('conversation_id', chatConversationId);
 
       try {
