@@ -125,8 +125,12 @@ async function forwardLawSubscriptionUpdate(
         tier: "full_council",
         status: statusMap[subscription.status] ?? "pending",
         stripe_subscription_id: subscription.id,
-        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_start: subscription.items.data[0]?.current_period_start
+          ? new Date(subscription.items.data[0].current_period_start * 1000).toISOString()
+          : undefined,
+        current_period_end: subscription.items.data[0]?.current_period_end
+          ? new Date(subscription.items.data[0].current_period_end * 1000).toISOString()
+          : undefined,
       }),
     });
 

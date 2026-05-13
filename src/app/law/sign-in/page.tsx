@@ -8,8 +8,6 @@ export default function LawSignInPage() {
           Sign in to the Legal Council
         </h1>
         <SignIn
-          path="/sign-in"
-          routing="path"
           signUpUrl="/sign-up"
           forceRedirectUrl="/dashboard"
           appearance={{

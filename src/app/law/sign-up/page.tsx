@@ -12,8 +12,6 @@ export default function LawSignUpPage() {
           After signup, you&apos;ll be taken to billing.
         </p>
         <SignUp
-          path="/sign-up"
-          routing="path"
           signInUrl="/sign-in"
           forceRedirectUrl="/checkout/law-full-council"
           appearance={{

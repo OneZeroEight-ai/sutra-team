@@ -27,9 +27,11 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.next();
     }
 
-    // Rewrite to (law) route group
-    url.pathname = `/(law)${url.pathname}`;
-    return NextResponse.rewrite(url);
+    // Rewrite to /law/* route segment
+    if (!url.pathname.startsWith("/law")) {
+      url.pathname = `/law${url.pathname}`;
+      return NextResponse.rewrite(url);
+    }
   }
 
   return NextResponse.next();
