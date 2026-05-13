@@ -4,9 +4,8 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export default async function LawCheckoutPage() {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
