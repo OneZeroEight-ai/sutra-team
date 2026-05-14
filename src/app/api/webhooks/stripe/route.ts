@@ -2,7 +2,16 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { addCredits } from "@/lib/credits";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) throw new Error("STRIPE_SECRET_KEY is not configured");
+    _stripe = new Stripe(secretKey);
+  }
+  return _stripe;
+}
+
 const LAW_FULL_COUNCIL_PRICE_ID = process.env.STRIPE_PRICE_ID_LAW_FULL_COUNCIL || "";
 const SAMMASUIT_API_URL = process.env.SAMMA_API_URL || "";
 const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "";
@@ -18,7 +27,7 @@ export async function POST(request: Request) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!,
@@ -84,7 +93,7 @@ async function handleLawSubscriptionEvent(
   clerkUserId?: string
 ) {
   try {
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
     await forwardLawSubscriptionUpdate(subscription, clerkUserId);
   } catch (error) {
     console.error("[stripe-webhook] Law subscription retrieve failed:", error);

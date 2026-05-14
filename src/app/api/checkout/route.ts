@@ -1,13 +1,17 @@
 import { auth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(request: Request) {
   const { userId } = await auth();
   if (!userId) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
+
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    return Response.json({ error: "Stripe is not configured" }, { status: 503 });
+  }
+  const stripe = new Stripe(secretKey);
 
   const body = await request.json();
   const priceId =
